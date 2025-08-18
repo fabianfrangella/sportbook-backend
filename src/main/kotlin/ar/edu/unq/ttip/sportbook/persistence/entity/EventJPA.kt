@@ -1,5 +1,6 @@
 package ar.edu.unq.ttip.sportbook.persistence.entity
 
+import ar.edu.unq.ttip.sportbook.domain.Event
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -19,7 +20,7 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "EVENT")
 @Inheritance(strategy = InheritanceType.JOINED)
-class EventJPA() {
+abstract class EventJPA() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0
@@ -61,4 +62,6 @@ class EventJPA() {
         this.creator = creator
         this.organizer = organizer
     }
+
+    abstract fun toModel() : Event
 }

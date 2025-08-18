@@ -4,10 +4,8 @@ import ar.edu.unq.ttip.sportbook.domain.Event
 import ar.edu.unq.ttip.sportbook.domain.Player
 import ar.edu.unq.ttip.sportbook.domain.Team
 import ar.edu.unq.ttip.sportbook.domain.TransferData
-import ar.edu.unq.ttip.sportbook.persistence.entity.EventJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.FootballEventJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.PlayerJPA
-import ar.edu.unq.ttip.sportbook.persistence.entity.TeamJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.TransferDataJPA
 import org.springframework.data.geo.Point
 import java.math.BigDecimal
@@ -27,13 +25,13 @@ class FootballEvent(
     val secondTeam: Team,
     val pitchSize: PitchSize
 ) : Event(minPlayers, maxPlayers, dateTime, location, cost, transferData, players, creator, organizer) {
-    override fun toEntity(): EventJPA {
+    override fun toEntity(): FootballEventJPA {
         val transferDataJpa = TransferDataJPA()
         transferDataJpa.cbu = transferData.cbu
         transferDataJpa.alias = transferData.alias
         val footballEventJPA = FootballEventJPA()
-        val firstTeam = TeamJPA()
-        val secondTeam = TeamJPA()
+        val firstTeam = firstTeam.toEntity()
+        val secondTeam = secondTeam.toEntity()
         firstTeam.event = footballEventJPA
         secondTeam.event = footballEventJPA
         footballEventJPA.minPlayers = minPlayers

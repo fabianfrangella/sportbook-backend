@@ -6,6 +6,8 @@ import ar.edu.unq.ttip.sportbook.domain.Team
 import ar.edu.unq.ttip.sportbook.domain.TransferData
 import ar.edu.unq.ttip.sportbook.domain.football.FootballEvent
 import ar.edu.unq.ttip.sportbook.domain.football.PitchSize
+import ar.edu.unq.ttip.sportbook.domain.paddel.PaddelEvent
+import ar.edu.unq.ttip.sportbook.domain.volley.VolleyEvent
 import com.fasterxml.jackson.annotation.JsonFormat
 import org.springframework.data.geo.Point
 import java.math.BigDecimal
@@ -23,7 +25,7 @@ data class CreateEventRequestBody(val sport: Sport,
                                   val players: List<String>,
                                   val creator: String,
                                   val organizer: String,
-                                  val pitchSize: Int?
+                                  val matchDetails: Map<String, Any>
     ) {
     fun toModel() : Event {
        return when (sport) {
@@ -36,16 +38,41 @@ data class CreateEventRequestBody(val sport: Sport,
                 players.map { Player(it) },
                 creator,
                 organizer,
-                Team("Black"),
-                Team("White"),
-                PitchSize.fromNumber(pitchSize))
+                Team(matchDetails["firstTeamColor"] as String, listOf()),
+                Team(matchDetails["secondTeamColor"] as String, listOf()),
+                PitchSize.fromNumber(matchDetails["pitchSize"] as Int))
 
-           Sport.VOLLEY -> TODO()
-           Sport.PADDEL -> TODO()
+           Sport.VOLLEY -> {
+               val teams = matchDetails["teams"] as List<String>
+               return VolleyEvent(
+                   minPlayers,
+                   maxPlayers,
+                   dateTime,
+                   location,
+                   cost,
+                   TransferData(cbu ?: "", alias ?: ""),
+                   players.map { Player(it) },
+                   creator,
+                   organizer,
+                   teams.map { Team(it, listOf()) })
+           }
+
+           Sport.PADDEL -> {
+               val teams = matchDetails["teams"] as List<String>
+               return PaddelEvent(minPlayers,
+                   maxPlayers,
+                   dateTime,
+                   location,
+                   cost,
+                   TransferData(cbu?:"", alias?:""),
+                   players.map { Player(it) },
+                   creator,
+                   organizer,
+                   teams.map { Team(it, listOf()) })
+           }
        }
     }
 }
-
 
 enum class Sport {
     FOOTBALL, VOLLEY, PADDEL
