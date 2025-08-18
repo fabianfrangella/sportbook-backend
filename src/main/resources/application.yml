@@ -4,20 +4,17 @@ spring:
   application:
     name: sportbook
   datasource:
-    jdbc-url: jdbc:h2:mem:sportbook
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    url: ${POSTGRES_DB_URL:jdbc:h2:mem:sportbook}
+    jdbc-url: ${POSTGRES_DB_URL:jdbc:h2:mem:sportbook}
+    driver-class-name: ${POSTGRES_DB_DRIVER:org.h2.Driver}
+    username: ${POSTGRES_DB_USER:sa}
+    password: ${POSTGRES_DB_PASSWORD:}
   jpa:
-    hibernate:
-      ddl-auto: create-drop
     show-sql: true
-    database-platform: org.hibernate.dialect.H2Dialect
   h2:
     console:
       enabled: true
       path: /h2-console
-
 
 server:
   port: 8080
