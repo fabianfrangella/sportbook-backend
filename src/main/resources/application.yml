@@ -1,4 +1,5 @@
 spring:
+
   profiles:
     default: local
   application:
@@ -11,6 +12,7 @@ spring:
     password: ${POSTGRES_DB_PASSWORD:}
   jpa:
     show-sql: true
+    generate-ddl: true
   h2:
     console:
       enabled: true

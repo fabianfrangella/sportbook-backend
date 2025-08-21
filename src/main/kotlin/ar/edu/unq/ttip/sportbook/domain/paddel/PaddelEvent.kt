@@ -1,0 +1,42 @@
+package ar.edu.unq.ttip.sportbook.domain.paddel
+
+import ar.edu.unq.ttip.sportbook.domain.Event
+import ar.edu.unq.ttip.sportbook.domain.Player
+import ar.edu.unq.ttip.sportbook.domain.Team
+import ar.edu.unq.ttip.sportbook.domain.TransferData
+import ar.edu.unq.ttip.sportbook.persistence.entity.FootballEventJPA
+import ar.edu.unq.ttip.sportbook.persistence.entity.PaddelEventJPA
+import ar.edu.unq.ttip.sportbook.persistence.entity.PlayerJPA
+import ar.edu.unq.ttip.sportbook.persistence.entity.TransferDataJPA
+import org.springframework.data.geo.Point
+import java.math.BigDecimal
+import java.time.LocalDateTime
+
+class PaddelEvent(minPlayers: Int,
+                  maxPlayers: Int,
+                  dateTime: LocalDateTime,
+                  location: Point,
+                  cost: BigDecimal,
+                  transferData: TransferData,
+                  players: List<Player>,
+                  creator: String,
+                  organizer: String,
+                  val teams: List<Team>) : Event(minPlayers, maxPlayers, dateTime, location, cost, transferData, players, creator, organizer) {
+    override fun toEntity(): PaddelEventJPA {
+        val paddelEventJpa = PaddelEventJPA()
+        val transferDataJpa = TransferDataJPA()
+        transferDataJpa.cbu = transferData.cbu
+        transferDataJpa.alias = transferData.alias
+        paddelEventJpa.minPlayers = minPlayers
+        paddelEventJpa.maxPlayers = maxPlayers
+        paddelEventJpa.dateTime = dateTime
+        paddelEventJpa.location = location
+        paddelEventJpa.cost = cost
+        paddelEventJpa.transferData = transferDataJpa
+        paddelEventJpa.players = players.map { PlayerJPA(it.name) }
+        paddelEventJpa.creator = creator
+        paddelEventJpa.organizer = organizer
+        paddelEventJpa.teams = teams.map { it.toEntity() }
+        return paddelEventJpa
+    }
+}
