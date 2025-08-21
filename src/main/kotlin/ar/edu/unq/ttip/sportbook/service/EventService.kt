@@ -5,6 +5,7 @@ import ar.edu.unq.ttip.sportbook.domain.Event
 import ar.edu.unq.ttip.sportbook.persistence.repository.EventJpaRepository
 import ar.edu.unq.ttip.sportbook.util.Either
 import org.springframework.stereotype.Service
+import java.util.Optional
 
 @Service
 class EventService(val eventJpaRepository: EventJpaRepository) {
@@ -17,5 +18,9 @@ class EventService(val eventJpaRepository: EventJpaRepository) {
         } catch(ex: Exception) {
             return Either.Right("Error creating event: ${ex.message}")
         }
+    }
+
+    fun getEvent(id: Long): Optional<Event> {
+        return eventJpaRepository.findById(id).map { it.toModel() }
     }
 }
