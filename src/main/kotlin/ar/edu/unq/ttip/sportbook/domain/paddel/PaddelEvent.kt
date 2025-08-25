@@ -1,21 +1,21 @@
 package ar.edu.unq.ttip.sportbook.domain.paddel
 
 import ar.edu.unq.ttip.sportbook.domain.Event
+import ar.edu.unq.ttip.sportbook.domain.Location
 import ar.edu.unq.ttip.sportbook.domain.Player
 import ar.edu.unq.ttip.sportbook.domain.Team
 import ar.edu.unq.ttip.sportbook.domain.TransferData
-import ar.edu.unq.ttip.sportbook.persistence.entity.FootballEventJPA
+import ar.edu.unq.ttip.sportbook.persistence.entity.LocationJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.PaddelEventJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.PlayerJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.TransferDataJPA
-import org.springframework.data.geo.Point
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
 class PaddelEvent(minPlayers: Int,
                   maxPlayers: Int,
                   dateTime: LocalDateTime,
-                  location: Point,
+                  location: Location,
                   cost: BigDecimal,
                   transferData: TransferData,
                   players: List<Player>,
@@ -30,7 +30,7 @@ class PaddelEvent(minPlayers: Int,
         paddelEventJpa.minPlayers = minPlayers
         paddelEventJpa.maxPlayers = maxPlayers
         paddelEventJpa.dateTime = dateTime
-        paddelEventJpa.location = location
+        paddelEventJpa.location = location.toEntity()
         paddelEventJpa.cost = cost
         paddelEventJpa.transferData = transferDataJpa
         paddelEventJpa.players = players.map { PlayerJPA(it.name) }

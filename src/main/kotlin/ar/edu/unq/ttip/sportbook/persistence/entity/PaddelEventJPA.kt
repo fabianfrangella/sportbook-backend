@@ -26,7 +26,7 @@ class PaddelEventJPA : EventJPA() {
         return PaddelEvent(minPlayers,
             maxPlayers,
             dateTime,
-            location,
+            location.toModel(),
             cost,
             transferData.toModel(),
             players.map { Player(it.name) },
