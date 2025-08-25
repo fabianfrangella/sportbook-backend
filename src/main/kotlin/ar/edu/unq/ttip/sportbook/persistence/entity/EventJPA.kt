@@ -11,9 +11,9 @@ import jakarta.persistence.InheritanceType
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.JoinTable
 import jakarta.persistence.ManyToMany
+import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
-import org.springframework.data.geo.Point
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
@@ -27,7 +27,8 @@ abstract class EventJPA() {
     var minPlayers: Int = 0
     var maxPlayers: Int = 0
     lateinit var dateTime: LocalDateTime;
-    lateinit var location: Point
+    @ManyToOne(cascade = [CascadeType.ALL])
+    lateinit var location: LocationJPA
     lateinit var cost: BigDecimal
     @OneToOne(cascade = [CascadeType.ALL])
     lateinit var transferData: TransferDataJPA
@@ -45,7 +46,7 @@ abstract class EventJPA() {
         minPlayers: Int,
         maxPlayers: Int,
         dateTime: LocalDateTime,
-        location: Point,
+        location: LocationJPA,
         cost: BigDecimal,
         transferData: TransferDataJPA,
         players: List<PlayerJPA>,

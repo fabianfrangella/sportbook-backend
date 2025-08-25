@@ -1,13 +1,13 @@
 package ar.edu.unq.ttip.sportbook.domain.football
 
 import ar.edu.unq.ttip.sportbook.domain.Event
+import ar.edu.unq.ttip.sportbook.domain.Location
 import ar.edu.unq.ttip.sportbook.domain.Player
 import ar.edu.unq.ttip.sportbook.domain.Team
 import ar.edu.unq.ttip.sportbook.domain.TransferData
 import ar.edu.unq.ttip.sportbook.persistence.entity.FootballEventJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.PlayerJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.TransferDataJPA
-import org.springframework.data.geo.Point
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
@@ -15,7 +15,7 @@ class FootballEvent(
     minPlayers: Int,
     maxPlayers: Int,
     dateTime: LocalDateTime,
-    location: Point,
+    location: Location,
     cost: BigDecimal,
     transferData: TransferData,
     players: List<Player>,
@@ -37,7 +37,7 @@ class FootballEvent(
         footballEventJPA.minPlayers = minPlayers
         footballEventJPA.maxPlayers = maxPlayers
         footballEventJPA.dateTime = dateTime
-        footballEventJPA.location = location
+        footballEventJPA.location = location.toEntity()
         footballEventJPA.cost = cost
         footballEventJPA.transferData = transferDataJpa
         footballEventJPA.players = players.map { PlayerJPA(it.name) }

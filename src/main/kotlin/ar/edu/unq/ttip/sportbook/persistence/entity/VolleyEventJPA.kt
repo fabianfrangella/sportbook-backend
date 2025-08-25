@@ -25,7 +25,7 @@ class VolleyEventJPA : EventJPA() {
         return VolleyEvent(minPlayers,
             maxPlayers,
             dateTime,
-            location,
+            location.toModel(),
             cost,
             transferData.toModel(),
             players.map { Player(it.name) },
