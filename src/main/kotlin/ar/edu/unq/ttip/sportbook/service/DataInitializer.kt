@@ -26,6 +26,11 @@ class DataInitializer(val eventJpaRepository: EventJpaRepository) {
     @PostConstruct
     @Transactional
     fun initialize() {
+        val generateData = System.getenv()["GENERATE_DATA"].toBoolean()
+        if (!generateData) {
+            println("WILL NOT GENERATE DATA")
+            return
+        }
         val newPlayers = (1..22).map {
             val player = PlayerJPA()
             player.name = "Player $it"
