@@ -3,6 +3,7 @@ package ar.edu.unq.ttip.sportbook.persistence.entity
 
 import ar.edu.unq.ttip.sportbook.domain.Event
 import ar.edu.unq.ttip.sportbook.domain.Player
+import ar.edu.unq.ttip.sportbook.domain.User
 import ar.edu.unq.ttip.sportbook.domain.football.FootballEvent
 import ar.edu.unq.ttip.sportbook.domain.football.PitchSize
 import jakarta.persistence.CascadeType
@@ -25,7 +26,7 @@ class FootballEventJPA : EventJPA() {
             location.toModel(),
             cost,
             transferData.toModel(),
-            players.map { Player(it.name) },
+            players.map { Player(it.name, User(it.user.username)) },
             creator,
             organizer,
             firstTeam!!.toModel(),

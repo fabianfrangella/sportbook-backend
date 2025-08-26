@@ -5,6 +5,7 @@ import ar.edu.unq.ttip.sportbook.domain.Location
 import ar.edu.unq.ttip.sportbook.domain.Player
 import ar.edu.unq.ttip.sportbook.domain.Team
 import ar.edu.unq.ttip.sportbook.domain.TransferData
+import ar.edu.unq.ttip.sportbook.domain.User
 import ar.edu.unq.ttip.sportbook.domain.football.FootballEvent
 import ar.edu.unq.ttip.sportbook.domain.football.PitchSize
 import ar.edu.unq.ttip.sportbook.domain.paddel.PaddelEvent
@@ -35,7 +36,7 @@ data class CreateEventRequestBody(val sport: Sport,
                 location,
                 cost,
                 TransferData(cbu?:"", alias?:""),
-                players.map { Player(it) },
+                players.map { Player("", User(userName = it))},
                 creator,
                 organizer,
                 Team(matchDetails["firstTeamColor"] as String, listOf()),
@@ -51,7 +52,7 @@ data class CreateEventRequestBody(val sport: Sport,
                    location,
                    cost,
                    TransferData(cbu ?: "", alias ?: ""),
-                   players.map { Player(it) },
+                   players.map { Player("", User(userName = it))},
                    creator,
                    organizer,
                    teams.map { Team(it, listOf()) })
@@ -65,7 +66,7 @@ data class CreateEventRequestBody(val sport: Sport,
                    location,
                    cost,
                    TransferData(cbu?:"", alias?:""),
-                   players.map { Player(it) },
+                   players.map { Player("", User(userName = it))},
                    creator,
                    organizer,
                    teams.map { Team(it, listOf()) })

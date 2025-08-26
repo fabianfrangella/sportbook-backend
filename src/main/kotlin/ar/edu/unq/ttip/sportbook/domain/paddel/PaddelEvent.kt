@@ -5,7 +5,6 @@ import ar.edu.unq.ttip.sportbook.domain.Location
 import ar.edu.unq.ttip.sportbook.domain.Player
 import ar.edu.unq.ttip.sportbook.domain.Team
 import ar.edu.unq.ttip.sportbook.domain.TransferData
-import ar.edu.unq.ttip.sportbook.persistence.entity.LocationJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.PaddelEventJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.PlayerJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.TransferDataJPA
@@ -22,7 +21,12 @@ class PaddelEvent(minPlayers: Int,
                   creator: String,
                   organizer: String,
                   val teams: List<Team>) : Event(minPlayers, maxPlayers, dateTime, location, cost, transferData, players, creator, organizer) {
+
     override fun toEntity(): PaddelEventJPA {
+        return toEntity(players.map { PlayerJPA(it.name) })
+    }
+
+    override fun toEntity(players: List<PlayerJPA>): PaddelEventJPA {
         val paddelEventJpa = PaddelEventJPA()
         val transferDataJpa = TransferDataJPA()
         transferDataJpa.cbu = transferData.cbu
@@ -33,7 +37,7 @@ class PaddelEvent(minPlayers: Int,
         paddelEventJpa.location = location.toEntity()
         paddelEventJpa.cost = cost
         paddelEventJpa.transferData = transferDataJpa
-        paddelEventJpa.players = players.map { PlayerJPA(it.name) }
+        paddelEventJpa.players = players
         paddelEventJpa.creator = creator
         paddelEventJpa.organizer = organizer
         paddelEventJpa.teams = teams.map { it.toEntity() }

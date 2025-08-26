@@ -2,6 +2,7 @@ package ar.edu.unq.ttip.sportbook.persistence.entity
 
 import ar.edu.unq.ttip.sportbook.domain.Player
 import ar.edu.unq.ttip.sportbook.domain.Team
+import ar.edu.unq.ttip.sportbook.domain.User
 import ar.edu.unq.ttip.sportbook.domain.volley.VolleyEvent
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
@@ -28,9 +29,9 @@ class VolleyEventJPA : EventJPA() {
             location.toModel(),
             cost,
             transferData.toModel(),
-            players.map { Player(it.name) },
+            players.map { Player(it.name, User(it.user.username)) },
             creator,
             organizer,
-            teams.map { Team (it.color, it.players.map { p -> Player(p.name)}) })
+            teams.map { Team (it.color, it.players.map { p -> Player(p.name, User(p.user.username))}) })
     }
 }
