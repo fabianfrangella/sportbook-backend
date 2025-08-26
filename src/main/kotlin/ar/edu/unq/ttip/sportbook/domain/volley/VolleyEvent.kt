@@ -23,6 +23,10 @@ class VolleyEvent (minPlayers: Int,
                    val teams: List<Team>) : Event(minPlayers, maxPlayers, dateTime, location, cost, transferData, players, creator, organizer) {
 
     override fun toEntity(): VolleyEventJPA {
+        return toEntity(players.map { PlayerJPA(it.name) })
+    }
+
+    override fun toEntity(players: List<PlayerJPA>): VolleyEventJPA {
         val volleyEventJpa = VolleyEventJPA()
         val transferDataJpa = TransferDataJPA()
         transferDataJpa.cbu = transferData.cbu
@@ -33,7 +37,7 @@ class VolleyEvent (minPlayers: Int,
         volleyEventJpa.location = location.toEntity()
         volleyEventJpa.cost = cost
         volleyEventJpa.transferData = transferDataJpa
-        volleyEventJpa.players = players.map { PlayerJPA(it.name) }
+        volleyEventJpa.players = players
         volleyEventJpa.creator = creator
         volleyEventJpa.organizer = organizer
         volleyEventJpa.teams = teams.map { it.toEntity() }
