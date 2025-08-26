@@ -27,6 +27,7 @@ Esto levanta un contenedor con PostgreSQL expuesto en el puerto 5432.
 | `POSTGRES_DB_URL`      |     No    | URL JDBC a la base de datos PostgreSQL.   | `jdbc:postgresql://localhost:5432/sportbook_db` |
 | `POSTGRES_DB_USER`     |     No    | Usuario de la base de datos.              | `postgres`                                      |
 | `POSTGRES_DB_PASSWORD` |     No    | Password del usuario de la base de datos. | `postgres`                                      |
+| `GENERATE_DATA`        |     No    | Flag para generar datos mock al startup.  | `true`                                          |
 
 
 Si no definís estas variables, la app se levanta con H2 en memoria.
