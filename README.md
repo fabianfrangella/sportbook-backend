@@ -32,3 +32,6 @@ Esto levanta un contenedor con PostgreSQL expuesto en el puerto 5432.
 
 Si no definís estas variables, la app se levanta con H2 en memoria.
 
+### 3. Swagger docs
+
+Para ver la documentación de la API ingresar a http://localhost:8080/sportbook/swagger-ui/index.html al levantar la app.
