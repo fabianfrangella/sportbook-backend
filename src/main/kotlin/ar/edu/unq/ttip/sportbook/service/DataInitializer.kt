@@ -4,6 +4,7 @@ import ar.edu.unq.ttip.sportbook.persistence.entity.FootballEventJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.LocationJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.PaddelEventJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.PlayerJPA
+import ar.edu.unq.ttip.sportbook.persistence.entity.SportUserJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.TeamJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.TransferDataJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.VolleyEventJPA
@@ -13,6 +14,7 @@ import jakarta.annotation.PostConstruct
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.random.Random
@@ -27,6 +29,13 @@ class DataInitializer(val eventJpaRepository: EventJpaRepository) {
         val newPlayers = (1..22).map {
             val player = PlayerJPA()
             player.name = "Player $it"
+            player.user = SportUserJPA(
+                username = "playerusername$it",
+                password = "",
+                name = "Player $it",
+                lastName = "Last Name $it",
+                email = "player$it@gmail.com",
+                dateOfBirth = LocalDate.of(1994,9,20))
             player
         }
 

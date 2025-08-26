@@ -2,6 +2,7 @@ package ar.edu.unq.ttip.sportbook.persistence.entity
 
 import ar.edu.unq.ttip.sportbook.domain.Player
 import ar.edu.unq.ttip.sportbook.domain.Team
+import ar.edu.unq.ttip.sportbook.domain.User
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -35,6 +36,6 @@ class TeamJPA() {
     }
 
     fun toModel(): Team {
-        return Team(color, players.map { Player(it.name) })
+        return Team(color, players.map { Player(it.name, User(it.user.username)) })
     }
 }

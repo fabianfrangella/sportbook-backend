@@ -25,7 +25,12 @@ class FootballEvent(
     val secondTeam: Team,
     val pitchSize: PitchSize
 ) : Event(minPlayers, maxPlayers, dateTime, location, cost, transferData, players, creator, organizer) {
+
     override fun toEntity(): FootballEventJPA {
+        return toEntity(players = players.map { PlayerJPA(it.name) })
+    }
+
+    override fun toEntity(players: List<PlayerJPA>): FootballEventJPA {
         val transferDataJpa = TransferDataJPA()
         transferDataJpa.cbu = transferData.cbu
         transferDataJpa.alias = transferData.alias
@@ -40,7 +45,7 @@ class FootballEvent(
         footballEventJPA.location = location.toEntity()
         footballEventJPA.cost = cost
         footballEventJPA.transferData = transferDataJpa
-        footballEventJPA.players = players.map { PlayerJPA(it.name) }
+        footballEventJPA.players = players
         footballEventJPA.creator = creator
         footballEventJPA.organizer = organizer
         footballEventJPA.pitchSize = pitchSize.size
