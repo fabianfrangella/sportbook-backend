@@ -41,14 +41,20 @@ class EventService(
         return eventJpaRepository.findById(id)
             .map {
                 val canJoin = it.toModel().canJoin(username)
-                if (canJoin) {
-                    val player = playerJpaRepository.findByUserUsername(username)
-                    it.addPlayer(player.get())
-                    eventJpaRepository.save(it)
-                    Either.Left(it.toModel())
-                } else {
-                    Either.Right(BusinessResult.ERROR)
+                when (canJoin) {
+                    is Either.Left -> {
+                        if (canJoin.value) {
+                            val player = playerJpaRepository.findByUserUsername(username)
+                            it.addPlayer(player.get())
+                            eventJpaRepository.save(it)
+                            Either.Left(it.toModel())
+                        } else {
+                            Either.Right(BusinessResult.ERROR)
+                        }
+                    }
+                    is Either.Right -> Either.Right(BusinessResult.ERROR)
                 }
+
             }
             .orElseGet { Either.Right(BusinessResult.NOT_FOUND) }
     }
