@@ -17,5 +17,9 @@ abstract class Event (val minPlayers: Int,
     abstract fun toEntity(): EventJPA
     abstract fun toEntity(players: List<PlayerJPA>): EventJPA
 
+    fun canJoin(username: String) : Boolean {
+        return players.find { player -> player.user.userName == username } == null
+    }
+
 }
 

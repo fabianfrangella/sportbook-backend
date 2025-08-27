@@ -40,7 +40,7 @@ class EventService(
     fun join(id: Long, username: String) : Either<Event, BusinessResult> {
         return eventJpaRepository.findById(id)
             .map {
-                val canJoin = it.players.find { player -> player.user.username == username } == null
+                val canJoin = it.toModel().canJoin(username)
                 if (canJoin) {
                     val player = playerJpaRepository.findByUserUsername(username)
                     it.addPlayer(player.get())
