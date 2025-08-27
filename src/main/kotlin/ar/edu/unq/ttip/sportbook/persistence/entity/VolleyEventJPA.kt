@@ -1,9 +1,10 @@
 package ar.edu.unq.ttip.sportbook.persistence.entity
 
+import ar.edu.unq.ttip.sportbook.controller.dto.Sport
 import ar.edu.unq.ttip.sportbook.domain.Player
-import ar.edu.unq.ttip.sportbook.domain.Team
 import ar.edu.unq.ttip.sportbook.domain.User
 import ar.edu.unq.ttip.sportbook.domain.volley.VolleyEvent
+import ar.edu.unq.ttip.sportbook.domain.volley.VolleyMatchDetails
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.JoinColumn
@@ -14,6 +15,7 @@ import jakarta.persistence.Table
 @Entity
 @Table(name = "VOLLEY_EVENT")
 class VolleyEventJPA : EventJPA() {
+    init { this.sport = Sport.VOLLEY }
     @OneToMany(targetEntity = TeamJPA::class, cascade = [CascadeType.ALL])
     @JoinTable(
         name = "team_volley",
@@ -32,6 +34,9 @@ class VolleyEventJPA : EventJPA() {
             players.map { Player(it.name, User(it.user.username)) },
             creator,
             organizer,
-            teams.map { Team (it.color, it.players.map { p -> Player(p.name, User(p.user.username))}) })
+            matchDetails = VolleyMatchDetails(
+                teams = teams.map { it.toModel() }
+            )
+        )
     }
 }

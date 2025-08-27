@@ -1,9 +1,9 @@
 package ar.edu.unq.ttip.sportbook.domain.paddel
 
+import ar.edu.unq.ttip.sportbook.controller.dto.Sport
 import ar.edu.unq.ttip.sportbook.domain.Event
 import ar.edu.unq.ttip.sportbook.domain.Location
 import ar.edu.unq.ttip.sportbook.domain.Player
-import ar.edu.unq.ttip.sportbook.domain.Team
 import ar.edu.unq.ttip.sportbook.domain.TransferData
 import ar.edu.unq.ttip.sportbook.persistence.entity.PaddelEventJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.PlayerJPA
@@ -20,7 +20,9 @@ class PaddelEvent(minPlayers: Int,
                   players: List<Player>,
                   creator: String,
                   organizer: String,
-                  val teams: List<Team>) : Event(minPlayers, maxPlayers, dateTime, location, cost, transferData, players, creator, organizer) {
+                  override val matchDetails: PaddelMatchDetails,
+                  ) : Event(minPlayers, maxPlayers, dateTime, location, cost, transferData, players, creator, organizer) {
+    override val sport: Sport = Sport.PADDEL
 
     override fun toEntity(): PaddelEventJPA {
         return toEntity(players.map { PlayerJPA(it.name) })
@@ -40,7 +42,7 @@ class PaddelEvent(minPlayers: Int,
         paddelEventJpa.players = players
         paddelEventJpa.creator = creator
         paddelEventJpa.organizer = organizer
-        paddelEventJpa.teams = teams.map { it.toEntity() }
+        paddelEventJpa.teams = matchDetails.teams.map { it.toEntity() }
         return paddelEventJpa
     }
 }

@@ -1,9 +1,9 @@
 package ar.edu.unq.ttip.sportbook.domain.volley
 
+import ar.edu.unq.ttip.sportbook.controller.dto.Sport
 import ar.edu.unq.ttip.sportbook.domain.Event
 import ar.edu.unq.ttip.sportbook.domain.Location
 import ar.edu.unq.ttip.sportbook.domain.Player
-import ar.edu.unq.ttip.sportbook.domain.Team
 import ar.edu.unq.ttip.sportbook.domain.TransferData
 import ar.edu.unq.ttip.sportbook.persistence.entity.PlayerJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.TransferDataJPA
@@ -20,7 +20,9 @@ class VolleyEvent (minPlayers: Int,
                    players: List<Player>,
                    creator: String,
                    organizer: String,
-                   val teams: List<Team>) : Event(minPlayers, maxPlayers, dateTime, location, cost, transferData, players, creator, organizer) {
+                   override val matchDetails: VolleyMatchDetails
+                   ) : Event(minPlayers, maxPlayers, dateTime, location, cost, transferData, players, creator, organizer) {
+    override val sport: Sport = Sport.VOLLEY
 
     override fun toEntity(): VolleyEventJPA {
         return toEntity(players.map { PlayerJPA(it.name) })
@@ -40,7 +42,7 @@ class VolleyEvent (minPlayers: Int,
         volleyEventJpa.players = players
         volleyEventJpa.creator = creator
         volleyEventJpa.organizer = organizer
-        volleyEventJpa.teams = teams.map { it.toEntity() }
+        volleyEventJpa.teams = matchDetails.teams.map { it.toEntity() }
         return volleyEventJpa
     }
 }

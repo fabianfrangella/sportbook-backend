@@ -37,6 +37,10 @@ class EventService(
         return eventJpaRepository.findById(id).map { it.toModel() }
     }
 
+    fun getAllEvents(): List<Event> {
+        return eventJpaRepository.findAll().map { it.toModel() }
+    }
+
     fun join(id: Long, username: String) : Either<Event, BusinessResult> {
         return eventJpaRepository.findById(id)
             .map {
