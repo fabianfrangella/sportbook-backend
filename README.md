@@ -14,7 +14,7 @@
 1. Desde el root del proyecto, ejecutar:
 
    ```bash
-   docker-compose up
+   docker compose up
    ```
 Esto levanta un contenedor con PostgreSQL expuesto en el puerto 5432.
 

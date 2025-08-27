@@ -35,4 +35,8 @@ class EventService(
     fun getEvent(id: Long): Optional<Event> {
         return eventJpaRepository.findById(id).map { it.toModel() }
     }
+
+    fun getAllEvents(): List<Event> {
+        return eventJpaRepository.findAll().map { it.toModel() }
+    }
 }
