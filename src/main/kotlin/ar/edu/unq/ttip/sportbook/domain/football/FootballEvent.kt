@@ -1,9 +1,9 @@
 package ar.edu.unq.ttip.sportbook.domain.football
 
+import ar.edu.unq.ttip.sportbook.controller.dto.Sport
 import ar.edu.unq.ttip.sportbook.domain.Event
 import ar.edu.unq.ttip.sportbook.domain.Location
 import ar.edu.unq.ttip.sportbook.domain.Player
-import ar.edu.unq.ttip.sportbook.domain.Team
 import ar.edu.unq.ttip.sportbook.domain.TransferData
 import ar.edu.unq.ttip.sportbook.persistence.entity.FootballEventJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.PlayerJPA
@@ -21,11 +21,9 @@ class FootballEvent(
     players: List<Player>,
     creator: String,
     organizer: String,
-    val firstTeam: Team,
-    val secondTeam: Team,
-    val pitchSize: PitchSize
+    override val matchDetails: FootballMatchDetails
 ) : Event(minPlayers, maxPlayers, dateTime, location, cost, transferData, players, creator, organizer) {
-
+    override val sport: Sport = Sport.FOOTBALL
     override fun toEntity(): FootballEventJPA {
         return toEntity(players = players.map { PlayerJPA(it.name) })
     }
@@ -35,10 +33,6 @@ class FootballEvent(
         transferDataJpa.cbu = transferData.cbu
         transferDataJpa.alias = transferData.alias
         val footballEventJPA = FootballEventJPA()
-        val firstTeam = firstTeam.toEntity()
-        val secondTeam = secondTeam.toEntity()
-        firstTeam.event = footballEventJPA
-        secondTeam.event = footballEventJPA
         footballEventJPA.minPlayers = minPlayers
         footballEventJPA.maxPlayers = maxPlayers
         footballEventJPA.dateTime = dateTime
@@ -48,9 +42,9 @@ class FootballEvent(
         footballEventJPA.players = players
         footballEventJPA.creator = creator
         footballEventJPA.organizer = organizer
-        footballEventJPA.pitchSize = pitchSize.size
-        footballEventJPA.firstTeam = firstTeam
-        footballEventJPA.secondTeam = secondTeam
+        footballEventJPA.pitchSize = matchDetails.pitchSize.size
+        footballEventJPA.firstTeam = matchDetails.firstTeam.toEntity()
+        footballEventJPA.secondTeam = matchDetails.secondTeam.toEntity()
         return footballEventJPA
     }
 

@@ -1,8 +1,12 @@
 package ar.edu.unq.ttip.sportbook.persistence.entity
 
+import ar.edu.unq.ttip.sportbook.controller.dto.Sport
 import ar.edu.unq.ttip.sportbook.domain.Event
 import jakarta.persistence.CascadeType
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -41,6 +45,10 @@ abstract class EventJPA() {
     lateinit var players: List<PlayerJPA>
     lateinit var creator: String
     lateinit var organizer: String
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    lateinit var sport: Sport
 
     constructor(
         minPlayers: Int,
