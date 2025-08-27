@@ -91,7 +91,7 @@ class DataInitializer(val eventJpaRepository: EventJpaRepository) {
                 cbu = "1231243124132"
                 alias = "pez.roto.cuero"
             }
-            players = newPlayers
+            players = newPlayers.take(5)
             creator =  "Fabi"
             organizer = "Fabi"
             teams = newPlayers.take(2).map {
@@ -122,7 +122,7 @@ class DataInitializer(val eventJpaRepository: EventJpaRepository) {
                 cbu = "12312312312"
                 alias = "obi.juan.kenobi"
             }
-            players = newPlayers
+            players = newPlayers.take(5)
             creator =  "Fabi"
             organizer = "Fabi"
             teams = newPlayers.take(4).map {

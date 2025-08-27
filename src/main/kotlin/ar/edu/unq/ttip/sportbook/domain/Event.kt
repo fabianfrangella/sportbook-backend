@@ -10,6 +10,7 @@ import java.time.LocalDateTime
 interface MatchDetails
 
 abstract class Event(
+    var id: Long,
     val minPlayers: Int,
     val maxPlayers: Int,
     val dateTime: LocalDateTime,

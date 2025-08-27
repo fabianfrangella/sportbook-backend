@@ -22,7 +22,8 @@ class FootballEventJPA : EventJPA() {
     var secondTeam: TeamJPA? = null
     var pitchSize: Int = 0
     override fun toModel(): Event {
-        return FootballEvent(minPlayers,
+        return FootballEvent(id,
+            minPlayers,
             maxPlayers,
             dateTime,
             location.toModel(),

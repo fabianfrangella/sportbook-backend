@@ -12,6 +12,7 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 
 class FootballEvent(
+    id: Long = 0,
     minPlayers: Int,
     maxPlayers: Int,
     dateTime: LocalDateTime,
@@ -22,7 +23,7 @@ class FootballEvent(
     creator: String,
     organizer: String,
     override val matchDetails: FootballMatchDetails
-) : Event(minPlayers, maxPlayers, dateTime, location, cost, transferData, players, creator, organizer) {
+) : Event(id, minPlayers, maxPlayers, dateTime, location, cost, transferData, players, creator, organizer) {
     override val sport: Sport = Sport.FOOTBALL
     override fun toEntity(): FootballEventJPA {
         return toEntity(players = players.map { PlayerJPA(it.name) })

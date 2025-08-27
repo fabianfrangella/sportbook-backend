@@ -47,7 +47,7 @@ data class CreateEventRequestBody(
                     pitchSize = PitchSize.fromString(matchDetails["pitchSize"] as String)
                 )
                 FootballEvent(
-                    minPlayers, maxPlayers, dateTime, location, cost,
+                    0, minPlayers, maxPlayers, dateTime, location, cost,
                     TransferData(cbu ?: "", alias ?: ""),
                     mappedPlayers, creator, organizer, details
                 )
@@ -57,7 +57,7 @@ data class CreateEventRequestBody(
                 val teams = matchDetails["teams"] as List<LinkedHashMap<*,*>>
                 val details = VolleyMatchDetails(teams.map { Team(it["color"] as String, it["players"] as List<Player>) })
                 VolleyEvent(
-                    minPlayers, maxPlayers, dateTime, location, cost,
+                    0, minPlayers, maxPlayers, dateTime, location, cost,
                     TransferData(cbu ?: "", alias ?: ""),
                     mappedPlayers, creator, organizer, details
                 )
@@ -67,7 +67,7 @@ data class CreateEventRequestBody(
                 val teams = matchDetails["teams"] as List<LinkedHashMap<*,*>>
                 val details = PaddelMatchDetails(teams.map { Team(it["color"] as String, it["players"] as List<Player>) })
                 PaddelEvent(
-                    minPlayers, maxPlayers, dateTime, location, cost,
+                    0, minPlayers, maxPlayers, dateTime, location, cost,
                     TransferData(cbu ?: "", alias ?: ""),
                     mappedPlayers, creator, organizer, details
                 )

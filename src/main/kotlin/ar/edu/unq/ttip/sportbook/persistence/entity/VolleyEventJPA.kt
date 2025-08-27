@@ -25,7 +25,8 @@ class VolleyEventJPA : EventJPA() {
     lateinit var teams: List<TeamJPA>
 
     override fun toModel(): VolleyEvent {
-        return VolleyEvent(minPlayers,
+        return VolleyEvent(id,
+            minPlayers,
             maxPlayers,
             dateTime,
             location.toModel(),

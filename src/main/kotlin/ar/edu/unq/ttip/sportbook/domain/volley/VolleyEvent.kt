@@ -11,7 +11,9 @@ import ar.edu.unq.ttip.sportbook.persistence.entity.VolleyEventJPA
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
-class VolleyEvent (minPlayers: Int,
+class VolleyEvent (
+                   id: Long = 0,
+                   minPlayers: Int,
                    maxPlayers: Int,
                    dateTime: LocalDateTime,
                    location: Location,
@@ -21,7 +23,7 @@ class VolleyEvent (minPlayers: Int,
                    creator: String,
                    organizer: String,
                    override val matchDetails: VolleyMatchDetails
-                   ) : Event(minPlayers, maxPlayers, dateTime, location, cost, transferData, players, creator, organizer) {
+                   ) : Event(id, minPlayers, maxPlayers, dateTime, location, cost, transferData, players, creator, organizer) {
     override val sport: Sport = Sport.VOLLEY
 
     override fun toEntity(): VolleyEventJPA {
