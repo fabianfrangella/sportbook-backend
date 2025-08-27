@@ -27,8 +27,7 @@ data class CreateEventRequestBody(
     val dateTime: LocalDateTime,
     val location: Location,
     val cost: BigDecimal,
-    val cbu: String?,
-    val alias: String?,
+    val transferData: TransferData,
     val players: List<String>,
     val creator: String,
     val organizer: String,
@@ -48,7 +47,7 @@ data class CreateEventRequestBody(
                 )
                 FootballEvent(
                     0, minPlayers, maxPlayers, dateTime, location, cost,
-                    TransferData(cbu ?: "", alias ?: ""),
+                    transferData,
                     mappedPlayers, creator, organizer, details
                 )
             }
@@ -58,7 +57,7 @@ data class CreateEventRequestBody(
                 val details = VolleyMatchDetails(teams.map { Team(it["color"] as String, it["players"] as List<Player>) })
                 VolleyEvent(
                     0, minPlayers, maxPlayers, dateTime, location, cost,
-                    TransferData(cbu ?: "", alias ?: ""),
+                    transferData,
                     mappedPlayers, creator, organizer, details
                 )
             }
@@ -68,7 +67,7 @@ data class CreateEventRequestBody(
                 val details = PaddelMatchDetails(teams.map { Team(it["color"] as String, it["players"] as List<Player>) })
                 PaddelEvent(
                     0, minPlayers, maxPlayers, dateTime, location, cost,
-                    TransferData(cbu ?: "", alias ?: ""),
+                    transferData,
                     mappedPlayers, creator, organizer, details
                 )
             }
