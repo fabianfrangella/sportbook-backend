@@ -32,14 +32,37 @@ class DataInitializer(val eventJpaRepository: EventJpaRepository) {
             return
         }
         val newPlayers = (1..22).map {
+            val names = listOf("Fabi",
+                "Aaron",
+                "Margo",
+                "Tobi",
+                "Tom",
+                "Fran",
+                "Valentin",
+                "Juanma",
+                "Fer",
+                "Elias",
+                "Diego",
+                "Male",
+                "Ale",
+                "Emi",
+                "Lu",
+                "Abi",
+                "Brian",
+                "Santi",
+                "Guido",
+                "Luqui",
+                "Mateo",
+                "Yoel")
+            val playerName = names[it - 1]
             val player = PlayerJPA()
-            player.name = "Player $it"
+            player.name = playerName
             player.user = SportUserJPA(
                 username = "playerusername$it",
                 password = "",
-                name = "Player $it",
+                name = playerName,
                 lastName = "Last Name $it",
-                email = "player$it@gmail.com",
+                email = "$playerName@gmail.com",
                 dateOfBirth = LocalDate.of(1994,9,20))
             player
         }
@@ -106,7 +129,7 @@ class DataInitializer(val eventJpaRepository: EventJpaRepository) {
         }
 
 
-        val paddelEvent = PaddelEventJPA().apply {
+        val paddleEvent = PaddelEventJPA().apply {
             minPlayers = 10
             maxPlayers = 20
             dateTime = LocalDateTime.now().plus(10, ChronoUnit.DAYS)
@@ -134,6 +157,6 @@ class DataInitializer(val eventJpaRepository: EventJpaRepository) {
             }
         }
 
-        eventJpaRepository.saveAll(listOf(footballEvent, volleyEvent,paddelEvent))
+        eventJpaRepository.saveAll(listOf(footballEvent, volleyEvent,paddleEvent))
     }
 }
