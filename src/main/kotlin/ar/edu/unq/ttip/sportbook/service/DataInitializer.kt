@@ -96,13 +96,11 @@ class DataInitializer(val eventJpaRepository: EventJpaRepository) {
             organizer = "Fabi"
             teams = newPlayers.take(2).map {
                 TeamJPA().apply {
-                    val colors = listOf("Rojo", "Azul", "Verde", "Amarillo", "Negro", "Blanco")
+                    val colors = listOf("Rojo", "Azul", "Verde", "Negro", "Blanco")
                     val randomIndex = Random.nextInt(colors.size);
                     val randomColor = colors[randomIndex]
                     color = randomColor
-                    players = newPlayers
-                        .take(6)
-                        .toMutableList()
+                    players = listOf(it).toMutableList()
                 }
             }
         }
@@ -127,13 +125,11 @@ class DataInitializer(val eventJpaRepository: EventJpaRepository) {
             organizer = "Fabi"
             teams = newPlayers.take(4).map {
                 TeamJPA().apply {
-                    val colors = listOf("Rojo", "Azul", "Verde", "Amarillo", "Negro", "Blanco")
+                    val colors = listOf("Rojo", "Azul", "Verde", "Negro", "Blanco")
                     val randomIndex = Random.nextInt(colors.size);
                     val randomColor = colors[randomIndex]
                     color = randomColor
-                    players = newPlayers
-                        .take(2)
-                        .toMutableList()
+                    players = listOf(it).toMutableList()
                 }
             }
         }
