@@ -11,7 +11,8 @@ import ar.edu.unq.ttip.sportbook.persistence.entity.TransferDataJPA
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
-class PaddelEvent(minPlayers: Int,
+class PaddelEvent(id: Long = 0,
+                  minPlayers: Int,
                   maxPlayers: Int,
                   dateTime: LocalDateTime,
                   location: Location,
@@ -21,7 +22,7 @@ class PaddelEvent(minPlayers: Int,
                   creator: String,
                   organizer: String,
                   override val matchDetails: PaddelMatchDetails,
-                  ) : Event(minPlayers, maxPlayers, dateTime, location, cost, transferData, players, creator, organizer) {
+                  ) : Event(id, minPlayers, maxPlayers, dateTime, location, cost, transferData, players, creator, organizer) {
     override val sport: Sport = Sport.PADDEL
 
     override fun toEntity(): PaddelEventJPA {

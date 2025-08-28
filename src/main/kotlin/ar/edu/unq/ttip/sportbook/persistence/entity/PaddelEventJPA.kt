@@ -25,7 +25,8 @@ class PaddelEventJPA : EventJPA() {
     lateinit var teams: List<TeamJPA>
 
     override fun toModel(): PaddelEvent {
-        return PaddelEvent(minPlayers,
+        return PaddelEvent(id,
+            minPlayers,
             maxPlayers,
             dateTime,
             location.toModel(),

@@ -5,6 +5,7 @@ import ar.edu.unq.ttip.sportbook.domain.Event
 import ar.edu.unq.ttip.sportbook.persistence.entity.PlayerJPA
 import ar.edu.unq.ttip.sportbook.persistence.repository.EventJpaRepository
 import ar.edu.unq.ttip.sportbook.persistence.repository.PlayerJpaRepository
+import ar.edu.unq.ttip.sportbook.util.BusinessResult
 import ar.edu.unq.ttip.sportbook.util.Either
 import org.springframework.stereotype.Service
 import java.util.Optional
@@ -38,5 +39,27 @@ class EventService(
 
     fun getAllEvents(): List<Event> {
         return eventJpaRepository.findAll().map { it.toModel() }
+    }
+
+    fun join(id: Long, username: String) : Either<Event, BusinessResult> {
+        return eventJpaRepository.findById(id)
+            .map {
+                val canJoin = it.toModel().canJoin(username)
+                when (canJoin) {
+                    is Either.Left -> {
+                        if (canJoin.value) {
+                            val player = playerJpaRepository.findByUserUsername(username)
+                            it.addPlayer(player.get())
+                            eventJpaRepository.save(it)
+                            Either.Left(it.toModel())
+                        } else {
+                            Either.Right(BusinessResult.ERROR)
+                        }
+                    }
+                    is Either.Right -> Either.Right(BusinessResult.ERROR)
+                }
+
+            }
+            .orElseGet { Either.Right(BusinessResult.NOT_FOUND) }
     }
 }

@@ -18,5 +18,16 @@ enum class PitchSize(val size: Int) {
                 else -> FIVE
             }
         }
+
+        fun fromString(str: String) : PitchSize {
+            return when (str) {
+                "FIVE" -> FIVE
+                "SEVEN" -> SEVEN
+                "EIGTH" -> EIGTH
+                "NINE" -> NINE
+                "ELEVEN" -> ELEVEN
+                else -> FIVE
+            }
+        }
     }
 }

@@ -18,6 +18,7 @@ import jakarta.persistence.ManyToMany
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
+import jakarta.persistence.UniqueConstraint
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
@@ -40,7 +41,8 @@ abstract class EventJPA() {
     @JoinTable(
         name = "event_player",
         joinColumns = [JoinColumn(name = "event_id")],
-        inverseJoinColumns = [JoinColumn(name = "player_id")]
+        inverseJoinColumns = [JoinColumn(name = "player_id")],
+        uniqueConstraints =  [UniqueConstraint(columnNames = ["event_id", "player_id"])]
     )
     lateinit var players: List<PlayerJPA>
     lateinit var creator: String
@@ -73,4 +75,8 @@ abstract class EventJPA() {
     }
 
     abstract fun toModel() : Event
+
+    fun addPlayer(player: PlayerJPA) {
+        players = players.plus(player)
+    }
 }
