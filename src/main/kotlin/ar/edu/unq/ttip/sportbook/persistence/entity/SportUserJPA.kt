@@ -26,7 +26,7 @@ class SportUserJPA() {
                 name: String,
                 lastName: String,
                 dateOfBirth: LocalDate) : this() {
-                    this.password = password
+        this.password = password
         this.username = username
         this.email = email
         this.name = name
