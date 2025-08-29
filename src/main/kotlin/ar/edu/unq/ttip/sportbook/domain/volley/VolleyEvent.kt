@@ -6,6 +6,7 @@ import ar.edu.unq.ttip.sportbook.domain.Location
 import ar.edu.unq.ttip.sportbook.domain.Player
 import ar.edu.unq.ttip.sportbook.domain.TransferData
 import ar.edu.unq.ttip.sportbook.persistence.entity.PlayerJPA
+import ar.edu.unq.ttip.sportbook.persistence.entity.SportUserJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.TransferDataJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.VolleyEventJPA
 import java.math.BigDecimal
@@ -27,7 +28,7 @@ class VolleyEvent (
     override val sport: Sport = Sport.VOLLEY
 
     override fun toEntity(): VolleyEventJPA {
-        return toEntity(players.map { PlayerJPA(it.name) })
+        return toEntity(players.map { PlayerJPA(it.name, SportUserJPA()) })
     }
 
     override fun toEntity(players: List<PlayerJPA>): VolleyEventJPA {

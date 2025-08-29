@@ -7,6 +7,7 @@ import ar.edu.unq.ttip.sportbook.domain.Player
 import ar.edu.unq.ttip.sportbook.domain.TransferData
 import ar.edu.unq.ttip.sportbook.persistence.entity.FootballEventJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.PlayerJPA
+import ar.edu.unq.ttip.sportbook.persistence.entity.SportUserJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.TransferDataJPA
 import java.math.BigDecimal
 import java.time.LocalDateTime
@@ -26,7 +27,7 @@ class FootballEvent(
 ) : Event(id, minPlayers, maxPlayers, dateTime, location, cost, transferData, players, creator, organizer) {
     override val sport: Sport = Sport.FOOTBALL
     override fun toEntity(): FootballEventJPA {
-        return toEntity(players = players.map { PlayerJPA(it.name) })
+        return toEntity(players = players.map { PlayerJPA(it.name, SportUserJPA()) })
     }
 
     override fun toEntity(players: List<PlayerJPA>): FootballEventJPA {

@@ -2,7 +2,6 @@ package ar.edu.unq.ttip.sportbook.controller.dto
 
 import ar.edu.unq.ttip.sportbook.domain.Event
 import ar.edu.unq.ttip.sportbook.domain.Location
-import ar.edu.unq.ttip.sportbook.domain.MatchDetails
 import ar.edu.unq.ttip.sportbook.domain.Player
 import ar.edu.unq.ttip.sportbook.domain.Team
 import ar.edu.unq.ttip.sportbook.domain.TransferData
@@ -28,27 +27,49 @@ data class CreateEventRequestBody(
     val location: Location,
     val cost: BigDecimal,
     val transferData: TransferData,
-    val players: List<String>,
+    val players: List<Player>,
     val creator: String,
     val organizer: String,
     val matchDetails: Map<String, Any>
 ) {
     fun toModel(): Event {
-        val mappedPlayers = players.map { Player("", User(userName = it)) }
 
         return when (sport) {
             Sport.FOOTBALL -> {
-                val firstTeam = matchDetails["firstTeam"] as LinkedHashMap<*, *>
-                val secondTeam = matchDetails["secondTeam"] as LinkedHashMap<*, *>
+                val firstTeamMap = matchDetails["firstTeam"] as Map<*, *>
+                val firstTeam = Team(
+                    color = firstTeamMap["color"] as String,
+                    players = (firstTeamMap["players"] as List<*>).map {
+                        val playerMap = it as Map<*, *>
+                        val userMap = playerMap["user"] as Map<*, *>
+                        Player(
+                            name = playerMap["name"] as String,
+                            user = User(userName = userMap["userName"] as String)
+                        )
+                    }
+                )
+
+                val secondTeamMap = matchDetails["secondTeam"] as Map<*, *>
+                val secondTeam = Team(
+                    color = secondTeamMap["color"] as String,
+                    players = (secondTeamMap["players"] as List<*>).map {
+                        val playerMap = it as Map<*, *>
+                        val userMap = playerMap["user"] as Map<*, *>
+                        Player(
+                            name = playerMap["name"] as String,
+                            user = User(userName = userMap["userName"] as String)
+                        )
+                    }
+                )
                 val details = FootballMatchDetails(
-                    firstTeam = Team(firstTeam["color"] as String, firstTeam["players"] as List<Player>),
-                    secondTeam = Team(secondTeam["color"] as String, secondTeam["players"] as List<Player>),
-                    pitchSize = PitchSize.fromString(matchDetails["pitchSize"] as String)
+                    pitchSize = PitchSize.fromString(matchDetails["pitchSize"] as String),
+                    firstTeam,
+                    secondTeam,
                 )
                 FootballEvent(
                     0, minPlayers, maxPlayers, dateTime, location, cost,
                     transferData,
-                    mappedPlayers, creator, organizer, details
+                    players, creator, organizer, details
                 )
             }
 
@@ -58,7 +79,7 @@ data class CreateEventRequestBody(
                 VolleyEvent(
                     0, minPlayers, maxPlayers, dateTime, location, cost,
                     transferData,
-                    mappedPlayers, creator, organizer, details
+                    players, creator, organizer, details
                 )
             }
 
@@ -68,7 +89,7 @@ data class CreateEventRequestBody(
                 PaddelEvent(
                     0, minPlayers, maxPlayers, dateTime, location, cost,
                     transferData,
-                    mappedPlayers, creator, organizer, details
+                    players, creator, organizer, details
                 )
             }
         }
