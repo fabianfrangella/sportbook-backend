@@ -7,6 +7,7 @@ import ar.edu.unq.ttip.sportbook.domain.Player
 import ar.edu.unq.ttip.sportbook.domain.TransferData
 import ar.edu.unq.ttip.sportbook.persistence.entity.PaddelEventJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.PlayerJPA
+import ar.edu.unq.ttip.sportbook.persistence.entity.SportUserJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.TransferDataJPA
 import java.math.BigDecimal
 import java.time.LocalDateTime
@@ -26,7 +27,7 @@ class PaddelEvent(id: Long = 0,
     override val sport: Sport = Sport.PADDEL
 
     override fun toEntity(): PaddelEventJPA {
-        return toEntity(players.map { PlayerJPA(it.name) })
+        return toEntity(players.map { PlayerJPA(it.name, SportUserJPA()) })
     }
 
     override fun toEntity(players: List<PlayerJPA>): PaddelEventJPA {
@@ -43,7 +44,12 @@ class PaddelEvent(id: Long = 0,
         paddelEventJpa.players = players
         paddelEventJpa.creator = creator
         paddelEventJpa.organizer = organizer
-        paddelEventJpa.teams = matchDetails.teams.map { it.toEntity() }
+        paddelEventJpa.teams = matchDetails.teams.map {
+            val teamPlayers = it.players.map { teamPlayer ->
+                players.find { player -> player.user.name === teamPlayer.name }
+            }.filter { it != null }
+            it.toEntity(teamPlayers as List<PlayerJPA>)
+        }
         return paddelEventJpa
     }
 }
