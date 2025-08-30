@@ -32,6 +32,9 @@ class SportUserJPA() {
         this.name = name
         this.lastName = lastName
         this.dateOfBirth = dateOfBirth
+    }
 
+    constructor(username: String) : this() {
+        this.username = username
     }
 }

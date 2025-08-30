@@ -2,7 +2,7 @@ package ar.edu.unq.ttip.sportbook.service
 
 import ar.edu.unq.ttip.sportbook.persistence.entity.FootballEventJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.LocationJPA
-import ar.edu.unq.ttip.sportbook.persistence.entity.PaddelEventJPA
+import ar.edu.unq.ttip.sportbook.persistence.entity.PaddleEventJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.PlayerJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.SportUserJPA
 import ar.edu.unq.ttip.sportbook.persistence.entity.TeamJPA
@@ -129,7 +129,7 @@ class DataInitializer(val eventJpaRepository: EventJpaRepository) {
         }
 
 
-        val paddleEvent = PaddelEventJPA().apply {
+        val paddleEvent = PaddleEventJPA().apply {
             minPlayers = 10
             maxPlayers = 20
             dateTime = LocalDateTime.now().plus(10, ChronoUnit.DAYS)

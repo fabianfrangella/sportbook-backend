@@ -8,12 +8,12 @@ import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 
 @Entity
-@Table(name = "VOLLEY_EVENT")
-class VolleyEventJPA : EventJPA() {
-    init { this.sport = Sport.VOLLEY }
+@Table(name = "PADDLE_EVENT")
+class PaddleEventJPA() : EventJPA() {
+    init { this.sport = Sport.PADDLE }
     @OneToMany(targetEntity = TeamJPA::class, cascade = [CascadeType.ALL])
     @JoinTable(
-        name = "team_volley",
+        name = "team_paddle",
         joinColumns = [JoinColumn(name = "event_id")],
         inverseJoinColumns = [JoinColumn(name = "team_id")]
     )

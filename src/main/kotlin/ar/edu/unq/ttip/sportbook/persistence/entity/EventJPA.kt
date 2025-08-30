@@ -1,7 +1,8 @@
 package ar.edu.unq.ttip.sportbook.persistence.entity
 
-import ar.edu.unq.ttip.sportbook.controller.dto.Sport
-import ar.edu.unq.ttip.sportbook.domain.Event
+import com.fasterxml.jackson.annotation.JsonFormat
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -19,24 +20,37 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
+import org.springframework.http.HttpStatus
+import org.springframework.web.server.ResponseStatusException
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
 @Entity
 @Table(name = "EVENT")
 @Inheritance(strategy = InheritanceType.JOINED)
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = "sport"
+)
+@JsonSubTypes(
+    JsonSubTypes.Type(value = FootballEventJPA::class, name = "FOOTBALL"),
+    JsonSubTypes.Type(value = PaddleEventJPA::class, name = "PADDLE"),
+    JsonSubTypes.Type(value = VolleyEventJPA::class, name = "VOLLEY")
+)
 abstract class EventJPA() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0
     var minPlayers: Int = 0
     var maxPlayers: Int = 0
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     lateinit var dateTime: LocalDateTime;
     @ManyToOne(cascade = [CascadeType.ALL])
     lateinit var location: LocationJPA
     lateinit var cost: BigDecimal
     @OneToOne(cascade = [CascadeType.ALL])
-    lateinit var transferData: TransferDataJPA
+    var transferData: TransferDataJPA? = null
     @ManyToMany(targetEntity = PlayerJPA::class, cascade = [CascadeType.ALL])
     @JoinTable(
         name = "event_player",
@@ -52,31 +66,15 @@ abstract class EventJPA() {
     @Column(nullable = false)
     lateinit var sport: Sport
 
-    constructor(
-        minPlayers: Int,
-        maxPlayers: Int,
-        dateTime: LocalDateTime,
-        location: LocationJPA,
-        cost: BigDecimal,
-        transferData: TransferDataJPA,
-        players: List<PlayerJPA>,
-        creator: String,
-        organizer: String
-    ) : this() {
-        this.minPlayers = minPlayers
-        this.maxPlayers = maxPlayers
-        this.dateTime = dateTime
-        this.location = location
-        this.cost = cost
-        this.transferData = transferData
-        this.players = players
-        this.creator = creator
-        this.organizer = organizer
+    fun canJoin(username: String) : Boolean {
+        if (isFull()) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "El evento está completo")
+        return players.find { player -> player.user.username == username } == null
     }
 
-    abstract fun toModel() : Event
-
-    fun addPlayer(player: PlayerJPA) {
+    private fun isFull() = players.size >= maxPlayers
+    fun join(player: PlayerJPA) {
+        if (canJoin(player.user.username))
         players = players.plus(player)
     }
+
 }

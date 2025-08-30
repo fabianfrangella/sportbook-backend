@@ -1,8 +1,5 @@
 package ar.edu.unq.ttip.sportbook.persistence.entity
 
-import ar.edu.unq.ttip.sportbook.domain.Player
-import ar.edu.unq.ttip.sportbook.domain.Team
-import ar.edu.unq.ttip.sportbook.domain.User
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -27,15 +24,6 @@ class TeamJPA() {
         inverseJoinColumns = [JoinColumn(name = "player_id")]
     )
     var players: MutableList<PlayerJPA> = mutableListOf()
-    @ManyToOne(targetEntity = EventJPA::class)
-    lateinit var event: EventJPA
     lateinit var color: String
 
-    constructor(color: String) : this() {
-        this.color = color
-    }
-
-    fun toModel(): Team {
-        return Team(color, players.map { Player(it.name, User(it.user.username)) })
-    }
 }

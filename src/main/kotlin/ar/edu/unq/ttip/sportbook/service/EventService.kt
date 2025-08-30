@@ -1,73 +1,40 @@
 package ar.edu.unq.ttip.sportbook.service
 
-import ar.edu.unq.ttip.sportbook.controller.dto.CreateEventRequestBody
-import ar.edu.unq.ttip.sportbook.domain.Event
 import ar.edu.unq.ttip.sportbook.persistence.entity.EventJPA
-import ar.edu.unq.ttip.sportbook.persistence.entity.PlayerJPA
 import ar.edu.unq.ttip.sportbook.persistence.repository.EventJpaRepository
 import ar.edu.unq.ttip.sportbook.persistence.repository.PlayerJpaRepository
-import ar.edu.unq.ttip.sportbook.service.error.Error
-import ar.edu.unq.ttip.sportbook.service.error.ErrorCode
-import ar.edu.unq.ttip.sportbook.util.Either
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import java.util.Optional
+import org.springframework.web.server.ResponseStatusException
 
 @Service
 class EventService(
     val eventJpaRepository: EventJpaRepository,
     val playerJpaRepository: PlayerJpaRepository) {
 
-    fun createEvent(eventRequestBody: CreateEventRequestBody) : Either<Event, Error> {
-        val event = eventRequestBody.toModel()
-        try {
-            val players = findRegisteredPlayers(event)
-            val eventJPA = eventJpaRepository.save(event.toEntity(players))
-            return Either.Left(eventJPA.toModel())
-        } catch(ex: Exception) {
-            return Either.Right(Error(ErrorCode.INTERNAL_ERROR,"Error creating event: ${ex.message}"))
-        }
+    fun createEvent(event: EventJPA) : EventJPA = eventJpaRepository.save(event)
+
+    fun getEvent(id: Long): EventJPA {
+        return eventJpaRepository
+            .findById(id)
+            .orElseThrow {  ResponseStatusException(HttpStatus.NOT_FOUND, "Evento no encontrado") }
     }
 
-    private fun findRegisteredPlayers(event: Event): List<PlayerJPA> {
-        return event.players
-            .map { playerJpaRepository.findByUserUsername(it.user.userName) }
-            .filter { it.isPresent }
-            .map { it.get() }
+    fun getAllEvents(): List<EventJPA> {
+        return eventJpaRepository.findAll()
     }
 
-    fun getEvent(id: Long): Optional<Event> {
-        return eventJpaRepository.findById(id).map { it.toModel() }
-    }
-
-    fun getAllEvents(): List<Event> {
-        return eventJpaRepository.findAll().map { it.toModel() }
-    }
-
-    fun join(id: Long, username: String) : Either<Event, Error> {
-        return eventJpaRepository.findById(id)
-            .map {
-                val eitherCanJoin = it.toModel().canJoin(username)
-                eitherCanJoin.map(
-                    { canJoin ->
-                        if (canJoin) {
-                            joinEvent(username, it)
-                        } else {
-                            Either.Right(Error(ErrorCode.BUSINESS_ERROR, "Ya estás en este evento"))
-                        }
-                    },
-                    { errorMessage -> Either.Right(Error(ErrorCode.BUSINESS_ERROR, errorMessage))
-                    })
-            }
-            .orElseGet { Either.Right(Error(ErrorCode.NOT_FOUND, "Evento")) }
-    }
+    fun join(id: Long, username: String) : EventJPA = eventJpaRepository.findById(id)
+        .map { joinEvent(username, it) }
+        .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Evento no encontrado") }
 
     private fun joinEvent(
         username: String,
         event: EventJPA
-    ): Either.Left<Event> {
+    ): EventJPA {
         val player = playerJpaRepository.findByUserUsername(username)
-        event.addPlayer(player.get())
+        event.join(player.get())
         eventJpaRepository.save(event)
-        return Either.Left(event.toModel())
+        return event
     }
 }

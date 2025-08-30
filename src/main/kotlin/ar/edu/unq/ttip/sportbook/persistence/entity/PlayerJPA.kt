@@ -17,9 +17,4 @@ class PlayerJPA() {
     lateinit var name: String
     @OneToOne(cascade = [CascadeType.ALL])
     lateinit var user: SportUserJPA
-
-    constructor(name: String, user: SportUserJPA) : this() {
-        this.name = name
-        this.user = user
-    }
 }

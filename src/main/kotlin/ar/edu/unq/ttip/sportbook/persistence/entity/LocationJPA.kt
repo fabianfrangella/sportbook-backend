@@ -1,6 +1,6 @@
 package ar.edu.unq.ttip.sportbook.persistence.entity
 
-import ar.edu.unq.ttip.sportbook.domain.Location
+
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -16,8 +16,4 @@ class LocationJPA() {
     lateinit var x: String
     lateinit var y: String
     lateinit var placeName: String
-
-    fun toModel(): Location {
-        return Location(x,y,placeName)
-    }
 }
