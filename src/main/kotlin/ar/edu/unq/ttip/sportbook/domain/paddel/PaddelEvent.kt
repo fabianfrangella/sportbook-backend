@@ -44,7 +44,12 @@ class PaddelEvent(id: Long = 0,
         paddelEventJpa.players = players
         paddelEventJpa.creator = creator
         paddelEventJpa.organizer = organizer
-        paddelEventJpa.teams = matchDetails.teams.map { it.toEntity() }
+        paddelEventJpa.teams = matchDetails.teams.map {
+            val teamPlayers = it.players.map { teamPlayer ->
+                players.find { player -> player.user.name === teamPlayer.name }
+            }.filter { it != null }
+            it.toEntity(teamPlayers as List<PlayerJPA>)
+        }
         return paddelEventJpa
     }
 }

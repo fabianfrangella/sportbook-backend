@@ -45,7 +45,12 @@ class VolleyEvent (
         volleyEventJpa.players = players
         volleyEventJpa.creator = creator
         volleyEventJpa.organizer = organizer
-        volleyEventJpa.teams = matchDetails.teams.map { it.toEntity() }
+        volleyEventJpa.teams = matchDetails.teams.map {
+            val teamPlayers = it.players.map { teamPlayer ->
+                players.find { player -> player.user.name === teamPlayer.name }
+            }.filter { it != null }
+            it.toEntity(teamPlayers as List<PlayerJPA>)
+        }
         return volleyEventJpa
     }
 }

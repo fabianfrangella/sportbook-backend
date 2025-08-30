@@ -34,6 +34,18 @@ class FootballEvent(
         val transferDataJpa = TransferDataJPA()
         transferDataJpa.cbu = transferData.cbu
         transferDataJpa.alias = transferData.alias
+
+        // TODO: Esta logica luego vuela, por ahora solo se pueden agregar jugadores registrados
+        // mas adelante se va a modelar los "invitados"
+        val firstTeamPlayers = matchDetails.firstTeam.players.map {
+            players.find { player -> player.user.username === it.user.userName }
+        }
+            .filter { it != null }
+        val secondTeamPlayers = matchDetails.secondTeam.players.map {
+            players.find { player -> player.user.username === it.user.userName }
+        }
+            .filter { it != null }
+
         val footballEventJPA = FootballEventJPA()
         footballEventJPA.minPlayers = minPlayers
         footballEventJPA.maxPlayers = maxPlayers
@@ -45,8 +57,8 @@ class FootballEvent(
         footballEventJPA.creator = creator
         footballEventJPA.organizer = organizer
         footballEventJPA.pitchSize = matchDetails.pitchSize.size
-        footballEventJPA.firstTeam = matchDetails.firstTeam.toEntity()
-        footballEventJPA.secondTeam = matchDetails.secondTeam.toEntity()
+        footballEventJPA.firstTeam = matchDetails.firstTeam.toEntity(firstTeamPlayers as List<PlayerJPA>)
+        footballEventJPA.secondTeam = matchDetails.secondTeam.toEntity(secondTeamPlayers as List<PlayerJPA>)
         return footballEventJPA
     }
 

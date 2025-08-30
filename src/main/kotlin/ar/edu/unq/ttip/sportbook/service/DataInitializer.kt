@@ -58,7 +58,7 @@ class DataInitializer(val eventJpaRepository: EventJpaRepository) {
             val player = PlayerJPA()
             player.name = playerName
             player.user = SportUserJPA(
-                username = "playerusername$it",
+                username = playerName,
                 password = "",
                 name = playerName,
                 lastName = "Last Name $it",
