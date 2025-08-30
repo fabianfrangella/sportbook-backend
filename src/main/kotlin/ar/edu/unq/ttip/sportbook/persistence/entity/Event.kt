@@ -34,11 +34,11 @@ import java.time.LocalDateTime
     property = "sport"
 )
 @JsonSubTypes(
-    JsonSubTypes.Type(value = FootballEventJPA::class, name = "FOOTBALL"),
-    JsonSubTypes.Type(value = PaddleEventJPA::class, name = "PADDLE"),
-    JsonSubTypes.Type(value = VolleyEventJPA::class, name = "VOLLEY")
+    JsonSubTypes.Type(value = FootballEvent::class, name = "FOOTBALL"),
+    JsonSubTypes.Type(value = PaddleEvent::class, name = "PADDLE"),
+    JsonSubTypes.Type(value = VolleyEvent::class, name = "VOLLEY")
 )
-abstract class EventJPA() {
+abstract class Event() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0
@@ -47,18 +47,18 @@ abstract class EventJPA() {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     lateinit var dateTime: LocalDateTime;
     @ManyToOne(cascade = [CascadeType.ALL])
-    lateinit var location: LocationJPA
+    lateinit var location: Location
     var cost: BigDecimal? = null
     @OneToOne(cascade = [CascadeType.ALL])
-    var transferData: TransferDataJPA? = null
-    @ManyToMany(targetEntity = PlayerJPA::class, cascade = [CascadeType.ALL])
+    var transferData: TransferData? = null
+    @ManyToMany(targetEntity = Player::class, cascade = [CascadeType.ALL])
     @JoinTable(
         name = "event_player",
         joinColumns = [JoinColumn(name = "event_id")],
         inverseJoinColumns = [JoinColumn(name = "player_id")],
         uniqueConstraints =  [UniqueConstraint(columnNames = ["event_id", "player_id"])]
     )
-    var players: List<PlayerJPA>? = null
+    var players: List<Player>? = null
     lateinit var creator: String
     lateinit var organizer: String
 
@@ -72,7 +72,7 @@ abstract class EventJPA() {
     }
 
     private fun isFull() = players?.size!! >= maxPlayers
-    fun join(player: PlayerJPA) {
+    fun join(player: Player) {
         if (canJoin(player.user.username!!))
         players = players?.plus(player)
     }

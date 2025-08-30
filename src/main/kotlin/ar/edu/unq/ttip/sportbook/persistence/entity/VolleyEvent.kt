@@ -9,14 +9,14 @@ import jakarta.persistence.Table
 
 @Entity
 @Table(name = "VOLLEY_EVENT")
-class VolleyEventJPA : EventJPA() {
+class VolleyEvent : Event() {
     init { this.sport = Sport.VOLLEY }
-    @OneToMany(targetEntity = TeamJPA::class, cascade = [CascadeType.ALL])
+    @OneToMany(targetEntity = Team::class, cascade = [CascadeType.ALL])
     @JoinTable(
         name = "team_volley",
         joinColumns = [JoinColumn(name = "event_id")],
         inverseJoinColumns = [JoinColumn(name = "team_id")]
     )
-    lateinit var teams: List<TeamJPA>
+    lateinit var teams: List<Team>
 
 }

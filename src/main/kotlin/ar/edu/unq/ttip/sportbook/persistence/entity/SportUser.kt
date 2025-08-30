@@ -9,7 +9,7 @@ import java.time.LocalDate
 
 @Entity
 @Table(name = "SPORT_USER")
-class SportUserJPA() {
+class SportUser() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0

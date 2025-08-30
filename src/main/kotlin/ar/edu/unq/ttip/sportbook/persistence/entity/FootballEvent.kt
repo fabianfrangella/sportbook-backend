@@ -7,11 +7,11 @@ import jakarta.persistence.Table
 
 @Entity
 @Table(name = "FOOTBALL_EVENT")
-class FootballEventJPA : EventJPA() {
+class FootballEvent : Event() {
     init { this.sport = Sport.FOOTBALL }
     @ManyToOne(cascade = [CascadeType.ALL])
-    var firstTeam: TeamJPA? = null
+    var firstTeam: Team? = null
     @ManyToOne(cascade = [CascadeType.ALL])
-    var secondTeam: TeamJPA? = null
+    var secondTeam: Team? = null
     var pitchSize: Int = 0
 }

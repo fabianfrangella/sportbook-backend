@@ -8,22 +8,21 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.JoinTable
 import jakarta.persistence.ManyToMany
-import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 
 @Entity
 @Table(name = "TEAM")
-class TeamJPA() {
+class Team() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0
-    @ManyToMany(targetEntity = PlayerJPA::class, cascade = [CascadeType.ALL])
+    @ManyToMany(targetEntity = Player::class, cascade = [CascadeType.ALL])
     @JoinTable(
         name = "team_player",
         joinColumns = [JoinColumn(name = "team_id")],
         inverseJoinColumns = [JoinColumn(name = "player_id")]
     )
-    var players: MutableList<PlayerJPA> = mutableListOf()
+    var players: MutableList<Player> = mutableListOf()
     lateinit var color: String
 
 }

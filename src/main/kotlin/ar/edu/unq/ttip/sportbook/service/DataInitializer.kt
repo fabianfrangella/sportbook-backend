@@ -1,13 +1,13 @@
 package ar.edu.unq.ttip.sportbook.service
 
-import ar.edu.unq.ttip.sportbook.persistence.entity.FootballEventJPA
-import ar.edu.unq.ttip.sportbook.persistence.entity.LocationJPA
-import ar.edu.unq.ttip.sportbook.persistence.entity.PaddleEventJPA
-import ar.edu.unq.ttip.sportbook.persistence.entity.PlayerJPA
-import ar.edu.unq.ttip.sportbook.persistence.entity.SportUserJPA
-import ar.edu.unq.ttip.sportbook.persistence.entity.TeamJPA
-import ar.edu.unq.ttip.sportbook.persistence.entity.TransferDataJPA
-import ar.edu.unq.ttip.sportbook.persistence.entity.VolleyEventJPA
+import ar.edu.unq.ttip.sportbook.persistence.entity.FootballEvent
+import ar.edu.unq.ttip.sportbook.persistence.entity.Location
+import ar.edu.unq.ttip.sportbook.persistence.entity.PaddleEvent
+import ar.edu.unq.ttip.sportbook.persistence.entity.Player
+import ar.edu.unq.ttip.sportbook.persistence.entity.SportUser
+import ar.edu.unq.ttip.sportbook.persistence.entity.Team
+import ar.edu.unq.ttip.sportbook.persistence.entity.TransferData
+import ar.edu.unq.ttip.sportbook.persistence.entity.VolleyEvent
 import ar.edu.unq.ttip.sportbook.persistence.repository.EventJpaRepository
 import jakarta.annotation.PostConstruct
 
@@ -55,9 +55,9 @@ class DataInitializer(val eventJpaRepository: EventJpaRepository) {
                 "Mateo",
                 "Yoel")
             val playerName = names[it - 1]
-            val player = PlayerJPA()
+            val player = Player()
             player.name = playerName
-            player.user = SportUserJPA(
+            player.user = SportUser(
                 username = playerName,
                 password = "",
                 name = playerName,
@@ -67,17 +67,17 @@ class DataInitializer(val eventJpaRepository: EventJpaRepository) {
             player
         }
 
-        val footballEvent = FootballEventJPA().apply {
+        val footballEvent = FootballEvent().apply {
             minPlayers = 10
             maxPlayers = 20
             dateTime = LocalDateTime.now().plus(10, ChronoUnit.DAYS)
-            location = LocationJPA().apply {
+            location = Location().apply {
                 x = "-34.713390223118736"
                 y = "-58.28190778950768"
                 placeName = "ABC Ateneo Bernal"
             }
             cost = BigDecimal(10000)
-            transferData = TransferDataJPA().apply {
+            transferData = TransferData().apply {
                 cbu = "1095432198059"
                 alias = "carpincho.torre.bici"
             }
@@ -85,13 +85,13 @@ class DataInitializer(val eventJpaRepository: EventJpaRepository) {
             creator =  "Fabi"
             organizer = "Fabi"
             pitchSize = 5
-            firstTeam = TeamJPA().apply {
+            firstTeam = Team().apply {
                 color = "Rojo"
                 players = newPlayers
                     .take(5)
                     .toMutableList()
             }
-            secondTeam = TeamJPA().apply {
+            secondTeam = Team().apply {
                 color = "Azul"
                 players = newPlayers
                     .drop(5)
@@ -100,17 +100,17 @@ class DataInitializer(val eventJpaRepository: EventJpaRepository) {
             }
         }
 
-        val volleyEvent = VolleyEventJPA().apply {
+        val volleyEvent = VolleyEvent().apply {
             minPlayers = 10
             maxPlayers = 20
             dateTime = LocalDateTime.now().plus(10, ChronoUnit.DAYS)
-            location = LocationJPA().apply {
+            location = Location().apply {
                 x = "-34.713390223118736"
                 y = "-58.28190778950768"
                 placeName = "ABC Ateneo Bernal"
             }
             cost = BigDecimal(10000)
-            transferData = TransferDataJPA().apply {
+            transferData = TransferData().apply {
                 cbu = "1231243124132"
                 alias = "pez.roto.cuero"
             }
@@ -118,7 +118,7 @@ class DataInitializer(val eventJpaRepository: EventJpaRepository) {
             creator =  "Fabi"
             organizer = "Fabi"
             teams = newPlayers.take(2).map {
-                TeamJPA().apply {
+                Team().apply {
                     val colors = listOf("Rojo", "Azul", "Verde", "Negro", "Blanco")
                     val randomIndex = Random.nextInt(colors.size);
                     val randomColor = colors[randomIndex]
@@ -129,17 +129,17 @@ class DataInitializer(val eventJpaRepository: EventJpaRepository) {
         }
 
 
-        val paddleEvent = PaddleEventJPA().apply {
+        val paddleEvent = PaddleEvent().apply {
             minPlayers = 10
             maxPlayers = 20
             dateTime = LocalDateTime.now().plus(10, ChronoUnit.DAYS)
-            location = LocationJPA().apply {
+            location = Location().apply {
                 x = "-34.713390223118736"
                 y = "-58.28190778950768"
                 placeName = "ABC Ateneo Bernal"
             }
             cost = BigDecimal(10000)
-            transferData = TransferDataJPA().apply {
+            transferData = TransferData().apply {
                 cbu = "12312312312"
                 alias = "obi.juan.kenobi"
             }
@@ -147,7 +147,7 @@ class DataInitializer(val eventJpaRepository: EventJpaRepository) {
             creator =  "Fabi"
             organizer = "Fabi"
             teams = newPlayers.take(4).map {
-                TeamJPA().apply {
+                Team().apply {
                     val colors = listOf("Rojo", "Azul", "Verde", "Negro", "Blanco")
                     val randomIndex = Random.nextInt(colors.size);
                     val randomColor = colors[randomIndex]
