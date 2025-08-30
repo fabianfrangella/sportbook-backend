@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping(value = ["/events", "/event"])
+@RequestMapping(value = ["/event"])
 @CrossOrigin(origins = ["http://localhost:5173"])
 class EventController(val eventService: EventService) {
 
