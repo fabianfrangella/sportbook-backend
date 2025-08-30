@@ -48,7 +48,7 @@ abstract class EventJPA() {
     lateinit var dateTime: LocalDateTime;
     @ManyToOne(cascade = [CascadeType.ALL])
     lateinit var location: LocationJPA
-    lateinit var cost: BigDecimal
+    var cost: BigDecimal? = null
     @OneToOne(cascade = [CascadeType.ALL])
     var transferData: TransferDataJPA? = null
     @ManyToMany(targetEntity = PlayerJPA::class, cascade = [CascadeType.ALL])
