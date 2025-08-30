@@ -58,7 +58,7 @@ abstract class EventJPA() {
         inverseJoinColumns = [JoinColumn(name = "player_id")],
         uniqueConstraints =  [UniqueConstraint(columnNames = ["event_id", "player_id"])]
     )
-    lateinit var players: List<PlayerJPA>
+    var players: List<PlayerJPA>? = null
     lateinit var creator: String
     lateinit var organizer: String
 
@@ -68,13 +68,13 @@ abstract class EventJPA() {
 
     fun canJoin(username: String) : Boolean {
         if (isFull()) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "El evento está completo")
-        return players.find { player -> player.user.username == username } == null
+        return players?.find { player -> player.user.username == username } == null
     }
 
-    private fun isFull() = players.size >= maxPlayers
+    private fun isFull() = players?.size!! >= maxPlayers
     fun join(player: PlayerJPA) {
-        if (canJoin(player.user.username))
-        players = players.plus(player)
+        if (canJoin(player.user.username!!))
+        players = players?.plus(player)
     }
 
 }

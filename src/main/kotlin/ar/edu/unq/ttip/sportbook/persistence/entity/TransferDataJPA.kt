@@ -12,6 +12,6 @@ class TransferDataJPA {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0
-    lateinit var cbu: String
-    lateinit var alias: String
+    var cbu: String? = null
+    var alias: String? = null
 }
