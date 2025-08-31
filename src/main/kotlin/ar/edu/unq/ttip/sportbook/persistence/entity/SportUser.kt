@@ -9,16 +9,16 @@ import java.time.LocalDate
 
 @Entity
 @Table(name = "SPORT_USER")
-class SportUserJPA() {
+class SportUser() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0
-    lateinit var password: String
-    lateinit var username: String
-    lateinit var email: String
-    lateinit var name: String
-    lateinit var lastName: String
-    lateinit var dateOfBirth: LocalDate
+    var password: String? = null
+    var username: String? = null
+    var email: String? = null
+    var name: String? = null
+    var lastName: String? = null
+    var dateOfBirth: LocalDate? = null
 
     constructor(password: String,
                 username: String,
@@ -32,6 +32,5 @@ class SportUserJPA() {
         this.name = name
         this.lastName = lastName
         this.dateOfBirth = dateOfBirth
-
     }
 }

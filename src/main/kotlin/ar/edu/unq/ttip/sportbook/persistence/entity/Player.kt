@@ -10,16 +10,11 @@ import jakarta.persistence.Table
 
 @Entity
 @Table(name = "PLAYER")
-class PlayerJPA() {
+class Player() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0
     lateinit var name: String
     @OneToOne(cascade = [CascadeType.ALL])
-    lateinit var user: SportUserJPA
-
-    constructor(name: String, user: SportUserJPA) : this() {
-        this.name = name
-        this.user = user
-    }
+    lateinit var user: SportUser
 }
