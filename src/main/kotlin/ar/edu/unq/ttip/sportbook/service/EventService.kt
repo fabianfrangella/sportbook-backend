@@ -1,11 +1,14 @@
 package ar.edu.unq.ttip.sportbook.service
 
 import ar.edu.unq.ttip.sportbook.persistence.entity.Event
+import ar.edu.unq.ttip.sportbook.persistence.entity.Player
+import ar.edu.unq.ttip.sportbook.persistence.entity.SportUser
 import ar.edu.unq.ttip.sportbook.persistence.repository.EventJpaRepository
 import ar.edu.unq.ttip.sportbook.persistence.repository.PlayerJpaRepository
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
+import kotlin.NoSuchElementException
 
 @Service
 class EventService(
@@ -17,23 +20,23 @@ class EventService(
     fun getEvent(id: Long): Event {
         return eventJpaRepository
             .findById(id)
-            .orElseThrow {  ResponseStatusException(HttpStatus.NOT_FOUND, "Evento no encontrado") }
+            .orElseThrow { NoSuchElementException("Evento no encontrado") }
     }
 
     fun getAllEvents(): List<Event> {
         return eventJpaRepository.findAll()
     }
 
-    fun join(id: Long, username: String) : Event = eventJpaRepository.findById(id)
-        .map { joinEvent(username, it) }
-        .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Evento no encontrado") }
+    fun join(id: Long, user: SportUser) : Event = eventJpaRepository.findById(id)
+        .map { joinEvent(user, it) }
+        .orElseThrow { NoSuchElementException("Evento no encontrado") }
 
     private fun joinEvent(
-        username: String,
+        user: SportUser,
         event: Event
     ): Event {
-        val player = playerJpaRepository.findByUserUsername(username)
-        event.join(player.get())
+        val player = playerJpaRepository.findByUserUsername(user.username!!).orElse(Player(name = user.name!!, user = user))
+        event.join(player)
         eventJpaRepository.save(event)
         return event
     }

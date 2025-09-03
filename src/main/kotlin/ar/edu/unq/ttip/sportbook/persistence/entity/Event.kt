@@ -1,5 +1,6 @@
 package ar.edu.unq.ttip.sportbook.persistence.entity
 
+import BusinessException
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
@@ -74,7 +75,8 @@ abstract class Event() {
     private fun isFull() = players?.size!! >= maxPlayers
     fun join(player: Player) {
         if (canJoin(player.user.username!!))
-        players = players?.plus(player)
+            players = players?.plus(player)
+        else
+            throw BusinessException("Ya sos parte de este evento!")
     }
-
 }

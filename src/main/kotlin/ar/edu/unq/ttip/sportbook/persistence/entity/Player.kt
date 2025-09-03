@@ -17,4 +17,9 @@ class Player() {
     lateinit var name: String
     @OneToOne(cascade = [CascadeType.ALL])
     lateinit var user: SportUser
+
+    constructor(name: String, user: SportUser) : this() {
+        this.name = name
+        this.user = user
+    }
 }
