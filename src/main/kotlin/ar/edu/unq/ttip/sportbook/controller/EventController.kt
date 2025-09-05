@@ -2,7 +2,6 @@ package ar.edu.unq.ttip.sportbook.controller
 
 
 import ar.edu.unq.ttip.sportbook.persistence.entity.Event
-import ar.edu.unq.ttip.sportbook.persistence.entity.SportUser
 import ar.edu.unq.ttip.sportbook.security.UserDetailsImpl
 import ar.edu.unq.ttip.sportbook.service.EventService
 import org.springframework.http.HttpStatus
