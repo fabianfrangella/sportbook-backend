@@ -84,7 +84,7 @@ class DataInitializer(val eventJpaRepository: EventJpaRepository) {
             players = newPlayers.take(10)
             creator =  "Fabi"
             organizer = "Fabi"
-            pitchSize = 5
+            pitchSize = 11
             firstTeam = Team().apply {
                 color = "Rojo"
                 players = newPlayers
