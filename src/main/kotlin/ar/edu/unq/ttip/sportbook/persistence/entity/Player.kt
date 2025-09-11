@@ -99,7 +99,7 @@ class Player() {
             throw BusinessException("El equipo ya tiene la cantidad maxima de jugadores")
         }
         if (team.players.any { it.id == this.id }) {
-            throw BusinessException("El jugador ya esta es parte del equipo")
+            throw BusinessException("Ya eres parte del equipo!")
         }
     }
 }
