@@ -25,6 +25,9 @@ class Player() {
     }
 
     fun joinTeam(event: Event, teamId: Long) {
+        if (event.players!!.none { it.id == this.id }) {
+            throw BusinessException("No estás registrado en el evento")
+        }
         when (event) {
             is FootballEvent -> joinFootballTeam(event, teamId)
             is PaddleEvent -> joinPaddleEvent(event, teamId)
@@ -48,7 +51,7 @@ class Player() {
             throw BusinessException("El equipo ya tiene la cantidad maxima de jugadores")
         }
         if (team.players.any { it.id == this.id }) {
-            throw BusinessException("El jugador ya esta es parte del equipo")
+            throw BusinessException("Ya eres parte del equipo!")
         }
         team.players.add(this)
     }
