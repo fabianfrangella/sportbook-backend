@@ -16,11 +16,17 @@ class PlayerTest {
         dateOfBirth = LocalDate.of(1990, 1, 1)
     )
 
-    @Test
-    fun `joinTeam successfully adds player to first team`() {
-        // Setup
+    private fun createPlayer(): Player {
         val user = createMockUser()
         val player = Player("TestPlayer", user)
+        player.id = 1L
+        return player
+    }
+
+    @Test
+    fun `joinTeam successfully adds player to football team when registered in event`() {
+        // Setup
+        val player = createPlayer()
         val team1 = Team().apply {
             id = 1L
             players = mutableListOf()
@@ -35,6 +41,7 @@ class PlayerTest {
             maxPlayers = 10
             firstTeam = team1
             secondTeam = team2
+            players = listOf(player)
         }
 
         // Execute
@@ -46,18 +53,17 @@ class PlayerTest {
     }
 
     @Test
-    fun `joinTeam throws exception when team is full`() {
+    fun `joinTeam throws exception when player is not registered in the event`() {
         // Setup
-        val user = createMockUser()
-        val player = Player("TestPlayer", user)
-        val fullTeam = Team().apply {
-            id = 1L
-            players = MutableList(5) { Player("Player$it", createMockUser()) }
-            color = "Red"
-        }
+        val player = createPlayer()
         val event = FootballEvent().apply {
             maxPlayers = 10
-            firstTeam = fullTeam
+            players = listOf() // Empty player list
+            firstTeam = Team().apply {
+                id = 1L
+                players = mutableListOf()
+                color = "Red"
+            }
             secondTeam = Team().apply {
                 id = 2L
                 players = mutableListOf()
@@ -69,41 +75,13 @@ class PlayerTest {
         val exception = assertThrows(BusinessException::class.java) {
             player.joinTeam(event, 1L)
         }
-        assertEquals("El equipo ya tiene la cantidad maxima de jugadores", exception.message)
-    }
-
-    @Test
-    fun `joinTeam throws exception when player is already in team`() {
-        // Setup
-        val user = createMockUser()
-        val player = Player("TestPlayer", user)
-        val team = Team().apply {
-            id = 1L
-            players = mutableListOf(player)
-            color = "Red"
-        }
-        val event = FootballEvent().apply {
-            maxPlayers = 10
-            firstTeam = team
-            secondTeam = Team().apply {
-                id = 2L
-                players = mutableListOf()
-                color = "Blue"
-            }
-        }
-
-        // Execute & Verify
-        val exception = assertThrows(BusinessException::class.java) {
-            player.joinTeam(event, 1L)
-        }
-        assertEquals("El jugador ya esta es parte del equipo", exception.message)
+        assertEquals("No estás registrado en el evento", exception.message)
     }
 
     @Test
     fun `joinTeam removes player from other team when switching teams`() {
         // Setup
-        val user = createMockUser()
-        val player = Player("TestPlayer", user).apply { id = 1L }
+        val player = createPlayer()
         val team1 = Team().apply {
             id = 1L
             players = mutableListOf()
@@ -118,6 +96,7 @@ class PlayerTest {
             maxPlayers = 10
             firstTeam = team1
             secondTeam = team2
+            players = listOf(player)
         }
 
         // Execute
@@ -129,10 +108,9 @@ class PlayerTest {
     }
 
     @Test
-    fun `joinTeam successfully adds player to paddle team`() {
+    fun `joinTeam successfully adds player to paddle team when registered in event`() {
         // Setup
-        val user = createMockUser()
-        val player = Player("TestPlayer", user)
+        val player = createPlayer()
         val teams = listOf(
             Team().apply {
                 id = 1L
@@ -148,6 +126,7 @@ class PlayerTest {
         val event = PaddleEvent().apply {
             maxPlayers = 4
             this.teams = teams
+            players = listOf(player)
         }
 
         // Execute
@@ -159,10 +138,93 @@ class PlayerTest {
     }
 
     @Test
+    fun `joinTeam successfully adds player to volley team when registered in event`() {
+        // Setup
+        val player = createPlayer()
+        val teams = listOf(
+            Team().apply {
+                id = 1L
+                players = mutableListOf()
+                color = "Red"
+            },
+            Team().apply {
+                id = 2L
+                players = mutableListOf()
+                color = "Blue"
+            }
+        )
+        val event = VolleyEvent().apply {
+            maxPlayers = 12
+            this.teams = teams
+            players = listOf(player)
+        }
+
+        // Execute
+        player.joinTeam(event, 1L)
+
+        // Verify
+        assertTrue(teams[0].players.contains(player))
+        assertFalse(teams[1].players.contains(player))
+    }
+
+    @Test
+    fun `joinTeam throws exception when team is full`() {
+        // Setup
+        val player = createPlayer()
+        val fullTeam = Team().apply {
+            id = 1L
+            players = MutableList(5) { Player("Player$it", createMockUser()) }
+            color = "Red"
+        }
+        val event = FootballEvent().apply {
+            maxPlayers = 10
+            firstTeam = fullTeam
+            secondTeam = Team().apply {
+                id = 2L
+                players = mutableListOf()
+                color = "Blue"
+            }
+            players = listOf(player)
+        }
+
+        // Execute & Verify
+        val exception = assertThrows(BusinessException::class.java) {
+            player.joinTeam(event, 1L)
+        }
+        assertEquals("El equipo ya tiene la cantidad maxima de jugadores", exception.message)
+    }
+
+    @Test
+    fun `joinTeam throws exception when player is already in team`() {
+        // Setup
+        val player = createPlayer()
+        val team = Team().apply {
+            id = 1L
+            players = mutableListOf(player)
+            color = "Red"
+        }
+        val event = FootballEvent().apply {
+            maxPlayers = 10
+            firstTeam = team
+            secondTeam = Team().apply {
+                id = 2L
+                players = mutableListOf()
+                color = "Blue"
+            }
+            players = listOf(player)
+        }
+
+        // Execute & Verify
+        val exception = assertThrows(BusinessException::class.java) {
+            player.joinTeam(event, 1L)
+        }
+        assertEquals("Ya eres parte del equipo!", exception.message)
+    }
+
+    @Test
     fun `joinTeam throws exception when paddle team is full`() {
         // Setup
-        val user = createMockUser()
-        val player = Player("TestPlayer", user)
+        val player = createPlayer()
         val teams = listOf(
             Team().apply {
                 id = 1L
@@ -178,6 +240,7 @@ class PlayerTest {
         val event = PaddleEvent().apply {
             maxPlayers = 4
             this.teams = teams
+            players = listOf(player)
         }
 
         // Execute & Verify
@@ -188,40 +251,9 @@ class PlayerTest {
     }
 
     @Test
-    fun `joinTeam successfully adds player to volley team`() {
-        // Setup
-        val user = createMockUser()
-        val player = Player("TestPlayer", user)
-        val teams = listOf(
-            Team().apply {
-                id = 1L
-                players = mutableListOf()
-                color = "Red"
-            },
-            Team().apply {
-                id = 2L
-                players = mutableListOf()
-                color = "Blue"
-            }
-        )
-        val event = VolleyEvent().apply {
-            maxPlayers = 12
-            this.teams = teams
-        }
-
-        // Execute
-        player.joinTeam(event, 1L)
-
-        // Verify
-        assertTrue(teams[0].players.contains(player))
-        assertFalse(teams[1].players.contains(player))
-    }
-
-    @Test
     fun `joinTeam throws exception when volley team is full`() {
         // Setup
-        val user = createMockUser()
-        val player = Player("TestPlayer", user)
+        val player = createPlayer()
         val teams = listOf(
             Team().apply {
                 id = 1L
@@ -237,6 +269,7 @@ class PlayerTest {
         val event = VolleyEvent().apply {
             maxPlayers = 12
             this.teams = teams
+            players = listOf(player)
         }
 
         // Execute & Verify
@@ -249,8 +282,7 @@ class PlayerTest {
     @Test
     fun `joinTeam throws exception when team id does not exist in paddle event`() {
         // Setup
-        val user = createMockUser()
-        val player = Player("TestPlayer", user)
+        val player = createPlayer()
         val teams = listOf(
             Team().apply {
                 id = 1L
@@ -261,6 +293,7 @@ class PlayerTest {
         val event = PaddleEvent().apply {
             maxPlayers = 4
             this.teams = teams
+            players = listOf(player)
         }
 
         // Execute & Verify
@@ -273,8 +306,7 @@ class PlayerTest {
     @Test
     fun `joinTeam throws exception when team id does not exist in volley event`() {
         // Setup
-        val user = createMockUser()
-        val player = Player("TestPlayer", user)
+        val player = createPlayer()
         val teams = listOf(
             Team().apply {
                 id = 1L
@@ -285,6 +317,7 @@ class PlayerTest {
         val event = VolleyEvent().apply {
             maxPlayers = 12
             this.teams = teams
+            players = listOf(player)
         }
 
         // Execute & Verify
