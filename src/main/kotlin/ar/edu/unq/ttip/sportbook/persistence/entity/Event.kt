@@ -1,0 +1,82 @@
+package ar.edu.unq.ttip.sportbook.persistence.entity
+
+import BusinessException
+import com.fasterxml.jackson.annotation.JsonFormat
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeInfo
+import jakarta.persistence.CascadeType
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.Inheritance
+import jakarta.persistence.InheritanceType
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.JoinTable
+import jakarta.persistence.ManyToMany
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.OneToOne
+import jakarta.persistence.Table
+import jakarta.persistence.UniqueConstraint
+import org.springframework.http.HttpStatus
+import org.springframework.web.server.ResponseStatusException
+import java.math.BigDecimal
+import java.time.LocalDateTime
+
+@Entity
+@Table(name = "EVENT")
+@Inheritance(strategy = InheritanceType.JOINED)
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = "sport"
+)
+@JsonSubTypes(
+    JsonSubTypes.Type(value = FootballEvent::class, name = "FOOTBALL"),
+    JsonSubTypes.Type(value = PaddleEvent::class, name = "PADDLE"),
+    JsonSubTypes.Type(value = VolleyEvent::class, name = "VOLLEY")
+)
+abstract class Event() {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long = 0
+    var minPlayers: Int = 0
+    var maxPlayers: Int = 0
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    lateinit var dateTime: LocalDateTime;
+    @ManyToOne(cascade = [CascadeType.ALL])
+    lateinit var location: Location
+    var cost: BigDecimal? = null
+    @OneToOne(cascade = [CascadeType.ALL])
+    var transferData: TransferData? = null
+    @ManyToMany(targetEntity = Player::class, cascade = [CascadeType.ALL])
+    @JoinTable(
+        name = "event_player",
+        joinColumns = [JoinColumn(name = "event_id")],
+        inverseJoinColumns = [JoinColumn(name = "player_id")],
+        uniqueConstraints =  [UniqueConstraint(columnNames = ["event_id", "player_id"])]
+    )
+    var players: List<Player>? = null
+    lateinit var creator: String
+    lateinit var organizer: String
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    lateinit var sport: Sport
+
+    fun canJoin(username: String) : Boolean {
+        if (isFull()) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "El evento está completo")
+        return players?.find { player -> player.user.username == username } == null
+    }
+
+    private fun isFull() = players?.size!! >= maxPlayers
+    fun join(player: Player) {
+        if (canJoin(player.user.username!!))
+            players = players?.plus(player)
+        else
+            throw BusinessException("Ya sos parte de este evento!")
+    }
+}

@@ -1,0 +1,22 @@
+package ar.edu.unq.ttip.sportbook.persistence.entity
+
+import jakarta.persistence.CascadeType
+import jakarta.persistence.Entity
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.JoinTable
+import jakarta.persistence.OneToMany
+import jakarta.persistence.Table
+
+@Entity
+@Table(name = "VOLLEY_EVENT")
+class VolleyEvent : Event() {
+    init { this.sport = Sport.VOLLEY }
+    @OneToMany(targetEntity = Team::class, cascade = [CascadeType.ALL])
+    @JoinTable(
+        name = "team_volley",
+        joinColumns = [JoinColumn(name = "event_id")],
+        inverseJoinColumns = [JoinColumn(name = "team_id")]
+    )
+    lateinit var teams: List<Team>
+
+}
