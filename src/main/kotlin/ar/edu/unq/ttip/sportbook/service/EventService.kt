@@ -31,6 +31,17 @@ class EventService(
         .map { joinEvent(user, it) }
         .orElseThrow { NoSuchElementException("Evento no encontrado") }
 
+    fun joinTeam(eventId: Long, teamId: Long, user: SportUser) : Event {
+        val event = eventJpaRepository.findById(eventId)
+            .orElseThrow { NoSuchElementException("Evento no encontrado") }
+        val player = playerJpaRepository.findByUserUsername(user.username!!)
+            .orElseThrow { NoSuchElementException("Jugador no encontrado") }
+
+        player.joinTeam(event, teamId)
+
+        return eventJpaRepository.save(event)
+    }
+
     private fun joinEvent(
         user: SportUser,
         event: Event
