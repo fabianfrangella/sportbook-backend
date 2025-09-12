@@ -79,4 +79,15 @@ abstract class Event() {
         else
             throw BusinessException("Ya sos parte de este evento!")
     }
+
+    fun leave(player: Player) {
+        if (!players!!.contains(player)) {
+            throw BusinessException("No estás registrado en el evento")
+        }
+
+        removePlayerFromTeams(player)
+        players = players!!.filter { it != player }
+    }
+
+    protected abstract fun removePlayerFromTeams(player: Player)
 }

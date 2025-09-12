@@ -14,4 +14,9 @@ class FootballEvent : Event() {
     @ManyToOne(cascade = [CascadeType.ALL])
     var secondTeam: Team? = null
     var pitchSize: Int = 0
+
+    override fun removePlayerFromTeams(player: Player) {
+        firstTeam?.players?.remove(player)
+        secondTeam?.players?.remove(player)
+    }
 }
