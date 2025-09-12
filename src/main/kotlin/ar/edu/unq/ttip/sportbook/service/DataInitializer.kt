@@ -68,7 +68,7 @@ class DataInitializer(val eventJpaRepository: EventJpaRepository) {
         }
 
         val footballEvent = FootballEvent().apply {
-            minPlayers = 10
+            minPlayers = 20
             maxPlayers = 20
             dateTime = LocalDateTime.now().plus(10, ChronoUnit.DAYS)
             location = Location().apply {
