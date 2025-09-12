@@ -39,4 +39,12 @@ class EventController(val eventService: EventService) {
         @AuthenticationPrincipal user: UserDetailsImpl): ResponseEntity<Event> {
         return ResponseEntity.ok(eventService.join(id, user.sportUser))
     }
+
+    @PutMapping("/{id}/join/{teamId}")
+    fun joinTeam(
+        @PathVariable("id") id: Long,
+        @PathVariable("teamId") teamId: Long,
+        @AuthenticationPrincipal user: UserDetailsImpl): ResponseEntity<Event> {
+        return ResponseEntity.ok(eventService.joinTeam(id, teamId, user.sportUser))
+    }
 }
