@@ -47,4 +47,11 @@ class EventController(val eventService: EventService) {
         @AuthenticationPrincipal user: UserDetailsImpl): ResponseEntity<Event> {
         return ResponseEntity.ok(eventService.joinTeam(id, teamId, user.sportUser))
     }
+
+    @DeleteMapping("/{id}/leave")
+    fun leaveEvent(
+        @PathVariable("id") id: Long,
+        @AuthenticationPrincipal user: UserDetailsImpl): ResponseEntity<Event> {
+        return ResponseEntity.ok(eventService.leaveEvent(id, user.sportUser))
+    }
 }

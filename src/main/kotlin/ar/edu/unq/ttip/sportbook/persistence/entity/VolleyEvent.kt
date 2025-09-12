@@ -19,4 +19,7 @@ class VolleyEvent : Event() {
     )
     lateinit var teams: List<Team>
 
+    override fun removePlayerFromTeams(player: Player) {
+        teams.forEach { team -> team.players.remove(player) }
+    }
 }

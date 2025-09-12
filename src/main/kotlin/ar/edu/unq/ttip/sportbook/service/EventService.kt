@@ -51,4 +51,14 @@ class EventService(
         eventJpaRepository.save(event)
         return event
     }
+
+    fun leaveEvent(eventId: Long, user: SportUser) : Event {
+        val event = eventJpaRepository.findById(eventId)
+            .orElseThrow { NoSuchElementException("Evento no encontrado") }
+        val player = playerJpaRepository.findByUserUsername(user.username!!)
+            .orElseThrow { NoSuchElementException("Jugador no encontrado") }
+
+        event.leave(player)
+        return eventJpaRepository.save(event)
+    }
 }
