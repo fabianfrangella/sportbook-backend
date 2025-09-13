@@ -21,7 +21,7 @@ import kotlin.random.Random
 
 
 @Service
-class DataInitializer(val eventJpaRepository: EventJpaRepository) {
+class DataInitializer(val eventService: EventService, val eventJpaRepository: EventJpaRepository) {
 
     @PostConstruct
     @Transactional
@@ -114,10 +114,10 @@ class DataInitializer(val eventJpaRepository: EventJpaRepository) {
                 cbu = "1231243124132"
                 alias = "pez.roto.cuero"
             }
-            players = newPlayers.take(5)
+            players = newPlayers.drop(10).take(5)
             creator =  "Fabi"
             organizer = "Fabi"
-            teams = newPlayers.take(2).map {
+            teams = newPlayers.drop(10).take(2).map {
                 Team().apply {
                     val colors = listOf("Rojo", "Azul", "Verde", "Negro", "Blanco")
                     val randomIndex = Random.nextInt(colors.size);
@@ -143,10 +143,10 @@ class DataInitializer(val eventJpaRepository: EventJpaRepository) {
                 cbu = "12312312312"
                 alias = "obi.juan.kenobi"
             }
-            players = newPlayers.take(5)
+            players = newPlayers.drop(20).take(5)
             creator =  "Fabi"
             organizer = "Fabi"
-            teams = newPlayers.take(4).map {
+            teams = newPlayers.drop(20).take(4).map {
                 Team().apply {
                     val colors = listOf("Rojo", "Azul", "Verde", "Negro", "Blanco")
                     val randomIndex = Random.nextInt(colors.size);
@@ -157,6 +157,7 @@ class DataInitializer(val eventJpaRepository: EventJpaRepository) {
             }
         }
 
-        eventJpaRepository.saveAll(listOf(footballEvent, volleyEvent,paddleEvent))
+        eventService.createEvent(footballEvent)
+        eventJpaRepository.saveAll(listOf(volleyEvent,paddleEvent))
     }
 }

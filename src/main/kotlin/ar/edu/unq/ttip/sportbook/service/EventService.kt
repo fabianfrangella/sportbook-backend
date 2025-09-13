@@ -1,21 +1,46 @@
 package ar.edu.unq.ttip.sportbook.service
 
 import ar.edu.unq.ttip.sportbook.persistence.entity.Event
+import ar.edu.unq.ttip.sportbook.persistence.entity.FootballEvent
 import ar.edu.unq.ttip.sportbook.persistence.entity.Player
 import ar.edu.unq.ttip.sportbook.persistence.entity.SportUser
 import ar.edu.unq.ttip.sportbook.persistence.repository.EventJpaRepository
 import ar.edu.unq.ttip.sportbook.persistence.repository.PlayerJpaRepository
-import org.springframework.http.HttpStatus
+import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
-import org.springframework.web.server.ResponseStatusException
 import kotlin.NoSuchElementException
 
 @Service
 class EventService(
     val eventJpaRepository: EventJpaRepository,
-    val playerJpaRepository: PlayerJpaRepository) {
+    val playerJpaRepository: PlayerJpaRepository,
+    val footballLineupService: FootballLineupService
+) {
 
-    fun createEvent(event: Event) : Event = eventJpaRepository.save(event)
+    @Transactional
+    fun createEvent(event: Event) : Event {
+        val savedEvent = eventJpaRepository.save(event)
+
+        if (savedEvent is FootballEvent) {
+            savedEvent.firstTeam?.let { team ->
+                val lineup = footballLineupService.createLineup(savedEvent, team)
+                team.players.forEach { player ->
+                    lineup.addPlayerToBench(player)
+                }
+                footballLineupService.save(lineup)
+            }
+
+            savedEvent.secondTeam?.let { team ->
+                val lineup = footballLineupService.createLineup(savedEvent, team)
+                team.players.forEach { player ->
+                    lineup.addPlayerToBench(player)
+                }
+                footballLineupService.save(lineup)
+            }
+        }
+
+        return savedEvent
+    }
 
     fun getEvent(id: Long): Event {
         return eventJpaRepository
