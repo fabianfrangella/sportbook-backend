@@ -66,9 +66,12 @@ class EventService(
 
         if (event is FootballEvent) {
             val lineups = footballLineupService.getEventLineups(event)
-            val teamLineup = lineups.find { it.team.id == teamId }
-            teamLineup?.let {
-                it.addPlayerToBench(player)
+            lineups.forEach {
+                if (it.team.id != teamId) {
+                    it.removePlayer(player)
+                } else {
+                    it.addPlayerToBench(player)
+                }
                 footballLineupService.save(it)
             }
         }
