@@ -93,6 +93,15 @@ class EventService(
             .orElseThrow { NoSuchElementException("Jugador no encontrado") }
 
         event.leave(player)
+
+        if (event is FootballEvent) {
+            val lineups = footballLineupService.getEventLineups(event)
+            lineups.forEach { lineup ->
+                lineup.removePlayer(player)
+                footballLineupService.save(lineup)
+            }
+        }
+
         return eventJpaRepository.save(event)
     }
 }

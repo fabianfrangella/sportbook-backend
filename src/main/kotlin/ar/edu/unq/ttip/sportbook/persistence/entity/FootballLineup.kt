@@ -71,6 +71,18 @@ class FootballLineup {
         }
         bench.add(player)
     }
+
+    fun removePlayer(player: Player) {
+        positionsByPlayer.entries
+            .find { it.value.id == player.id }
+            ?.let { entry ->
+                positionsByPlayer.remove(entry.key)
+            }
+
+        bench.removeIf { it.id == player.id }
+
+        initialLineup.removeIf { it.id == player.id }
+    }
 }
 
 enum class Position {
