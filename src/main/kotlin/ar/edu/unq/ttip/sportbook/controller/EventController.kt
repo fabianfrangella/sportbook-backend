@@ -2,8 +2,12 @@ package ar.edu.unq.ttip.sportbook.controller
 
 
 import ar.edu.unq.ttip.sportbook.persistence.entity.Event
+import ar.edu.unq.ttip.sportbook.persistence.entity.FootballEvent
+import ar.edu.unq.ttip.sportbook.persistence.entity.FootballLineup
+import ar.edu.unq.ttip.sportbook.persistence.entity.Position
 import ar.edu.unq.ttip.sportbook.security.UserDetailsImpl
 import ar.edu.unq.ttip.sportbook.service.EventService
+import ar.edu.unq.ttip.sportbook.service.FootballLineupService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -12,7 +16,10 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping(value = ["/event"])
 @CrossOrigin(origins = ["http://localhost:5173"])
-class EventController(val eventService: EventService) {
+class EventController(
+    val eventService: EventService,
+    val footballLineupService: FootballLineupService
+) {
 
     @PostMapping
     fun createEvent(@RequestBody eventBody: Event): ResponseEntity<Any> {
@@ -45,7 +52,9 @@ class EventController(val eventService: EventService) {
         @PathVariable("id") id: Long,
         @PathVariable("teamId") teamId: Long,
         @AuthenticationPrincipal user: UserDetailsImpl): ResponseEntity<Event> {
-        return ResponseEntity.ok(eventService.joinTeam(id, teamId, user.sportUser))
+        val event = eventService.joinTeam(id, teamId, user.sportUser)
+
+        return ResponseEntity.ok(event)
     }
 
     @DeleteMapping("/{id}/leave")
@@ -53,5 +62,33 @@ class EventController(val eventService: EventService) {
         @PathVariable("id") id: Long,
         @AuthenticationPrincipal user: UserDetailsImpl): ResponseEntity<Event> {
         return ResponseEntity.ok(eventService.leaveEvent(id, user.sportUser))
+    }
+
+    @GetMapping("/{eventId}/lineup")
+    fun getEventLineups(@PathVariable("eventId") eventId: Long): ResponseEntity<List<FootballLineup>> {
+        val event = eventService.getEvent(eventId) as? FootballEvent
+            ?: return ResponseEntity.badRequest().build()
+
+        val lineups = footballLineupService.getEventLineups(event)
+        return ResponseEntity.ok(lineups)
+    }
+
+    @PutMapping("/lineup/{lineupId}/position")
+    fun addPlayerToPosition(
+        @PathVariable("lineupId") lineupId: Long,
+        @RequestParam position: Position,
+        @RequestParam playerId: Long
+    ): ResponseEntity<FootballLineup> {
+        val lineup = footballLineupService.addPlayerToPosition(lineupId, playerId, position)
+        return ResponseEntity.ok(lineup)
+    }
+
+    @DeleteMapping("/lineup/{lineupId}/position")
+    fun removePlayerFromPosition(
+        @PathVariable("lineupId") lineupId: Long,
+        @RequestParam position: Position
+    ): ResponseEntity<FootballLineup> {
+        val lineup = footballLineupService.removePlayerFromPosition(lineupId, position)
+        return ResponseEntity.ok(lineup)
     }
 }
