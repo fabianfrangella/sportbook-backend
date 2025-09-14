@@ -35,7 +35,7 @@ class FootballLineupService(
         val player = playerRepository.findById(playerId)
             .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found") }
 
-        if (!lineup.team!!.players.contains(player)) {
+        if (!lineup.team.players.contains(player)) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Player is not in the team")
         }
 

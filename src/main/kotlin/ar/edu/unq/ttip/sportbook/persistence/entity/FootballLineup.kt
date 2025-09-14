@@ -78,6 +78,7 @@ enum class Position {
     RB, // Lateral derecho
     LB, // Lateral izquierdo
     CB, // Defensa central
+    LIB,// Libero
     CM, // Mediocampista central
     RM, // Mediocampista derecho
     LM, // Mediocampista izquierdo
