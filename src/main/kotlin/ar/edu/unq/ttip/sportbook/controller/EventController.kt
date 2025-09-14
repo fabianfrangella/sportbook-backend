@@ -52,7 +52,9 @@ class EventController(
         @PathVariable("id") id: Long,
         @PathVariable("teamId") teamId: Long,
         @AuthenticationPrincipal user: UserDetailsImpl): ResponseEntity<Event> {
-        return ResponseEntity.ok(eventService.joinTeam(id, teamId, user.sportUser))
+        val event = eventService.joinTeam(id, teamId, user.sportUser)
+
+        return ResponseEntity.ok(event)
     }
 
     @DeleteMapping("/{id}/leave")
@@ -60,24 +62,6 @@ class EventController(
         @PathVariable("id") id: Long,
         @AuthenticationPrincipal user: UserDetailsImpl): ResponseEntity<Event> {
         return ResponseEntity.ok(eventService.leaveEvent(id, user.sportUser))
-    }
-
-    @PostMapping("/{eventId}/team/{teamId}/lineup")
-    fun createLineup(
-        @PathVariable("eventId") eventId: Long,
-        @PathVariable ("teamId") teamId: Long
-    ): ResponseEntity<FootballLineup> {
-        val event = eventService.getEvent(eventId) as? FootballEvent
-            ?: return ResponseEntity.badRequest().build()
-
-        val team = when (teamId) {
-            event.firstTeam?.id -> event.firstTeam
-            event.secondTeam?.id -> event.secondTeam
-            else -> null
-        } ?: return ResponseEntity.badRequest().build()
-
-        val lineup = footballLineupService.createLineup(event, team)
-        return ResponseEntity.status(HttpStatus.CREATED).body(lineup)
     }
 
     @GetMapping("/{eventId}/lineup")

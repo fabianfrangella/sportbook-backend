@@ -51,6 +51,16 @@ class FootballLineupService(
         return footballLineupRepository.save(lineup)
     }
 
+    fun addPlayerToBench(lineupId: Long, playerId: Long) : FootballLineup {
+        val lineup = footballLineupRepository.findById(lineupId)
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Lineup not found") }
+        val player = playerRepository.findById(playerId)
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found") }
+
+        lineup.addPlayerToBench(player)
+        return lineup
+    }
+
     fun save(lineup: FootballLineup): FootballLineup {
         return footballLineupRepository.save(lineup)
     }

@@ -64,6 +64,15 @@ class EventService(
 
         player.joinTeam(event, teamId)
 
+        if (event is FootballEvent) {
+            val lineups = footballLineupService.getEventLineups(event)
+            val teamLineup = lineups.find { it.team.id == teamId }
+            teamLineup?.let {
+                it.addPlayerToBench(player)
+                footballLineupService.save(it)
+            }
+        }
+
         return eventJpaRepository.save(event)
     }
 
