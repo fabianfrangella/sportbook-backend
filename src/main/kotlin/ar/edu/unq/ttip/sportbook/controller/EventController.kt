@@ -1,6 +1,5 @@
 package ar.edu.unq.ttip.sportbook.controller
 
-
 import ar.edu.unq.ttip.sportbook.persistence.entity.Event
 import ar.edu.unq.ttip.sportbook.persistence.entity.FootballEvent
 import ar.edu.unq.ttip.sportbook.persistence.entity.FootballLineup
@@ -28,7 +27,7 @@ class EventController(
     }
 
     @GetMapping("/{id}")
-    fun getEvent(@PathVariable("id") id: Long) : ResponseEntity<Event> {
+    fun getEvent(@PathVariable("id") id: Long): ResponseEntity<Event> {
         val event = eventService.getEvent(id)
         return ResponseEntity.ok(event)
 
