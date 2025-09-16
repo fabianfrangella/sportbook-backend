@@ -1,6 +1,6 @@
 package ar.edu.unq.ttip.sportbook.service
 
-import ar.edu.unq.ttip.sportbook.controller.*
+import ar.edu.unq.ttip.sportbook.dto.*
 import ar.edu.unq.ttip.sportbook.persistence.entity.*
 import ar.edu.unq.ttip.sportbook.persistence.repository.SportProfileRepository
 import org.springframework.stereotype.Service
