@@ -1,6 +1,9 @@
 package ar.edu.unq.ttip.sportbook.controller
 
-import ar.edu.unq.ttip.sportbook.dto.*
+import ar.edu.unq.ttip.sportbook.controller.request.UpdateFootballProfileRequest
+import ar.edu.unq.ttip.sportbook.controller.request.UpdatePaddleProfileRequest
+import ar.edu.unq.ttip.sportbook.controller.request.UpdateVolleyProfileRequest
+import ar.edu.unq.ttip.sportbook.persistence.entity.SportProfile
 import ar.edu.unq.ttip.sportbook.security.UserDetailsImpl
 import ar.edu.unq.ttip.sportbook.service.SportProfileService
 import org.springframework.http.ResponseEntity
@@ -17,7 +20,7 @@ class SportProfileController(
     @GetMapping
     fun getMyProfiles(
         @AuthenticationPrincipal user: UserDetailsImpl
-    ): ResponseEntity<List<SportProfileDTO>> {
+    ): ResponseEntity<List<SportProfile>> {
         val profiles = sportProfileService.getProfiles(user.sportUser)
         return ResponseEntity.ok(profiles)
     }
@@ -26,7 +29,7 @@ class SportProfileController(
     fun updateFootballProfile(
         @AuthenticationPrincipal user: UserDetailsImpl,
         @RequestBody req: UpdateFootballProfileRequest
-    ): ResponseEntity<FootballProfileDTO> {
+    ): ResponseEntity<SportProfile> {
         val profile = sportProfileService.updateFootballProfile(user.sportUser, req)
         return ResponseEntity.ok(profile)
     }
@@ -35,7 +38,7 @@ class SportProfileController(
     fun updateVolleyProfile(
         @AuthenticationPrincipal user: UserDetailsImpl,
         @RequestBody req: UpdateVolleyProfileRequest
-    ): ResponseEntity<VolleyProfileDTO> {
+    ): ResponseEntity<SportProfile> {
         val profile = sportProfileService.updateVolleyProfile(user.sportUser, req)
         return ResponseEntity.ok(profile)
     }
@@ -44,9 +47,8 @@ class SportProfileController(
     fun updatePaddleProfile(
         @AuthenticationPrincipal user: UserDetailsImpl,
         @RequestBody req: UpdatePaddleProfileRequest
-    ): ResponseEntity<PaddleProfileDTO> {
+    ): ResponseEntity<SportProfile> {
         val profile = sportProfileService.updatePaddleProfile(user.sportUser, req)
         return ResponseEntity.ok(profile)
     }
-
 }
