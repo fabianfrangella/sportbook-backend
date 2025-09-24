@@ -1,5 +1,6 @@
 package ar.edu.unq.ttip.sportbook.service
 
+import ar.edu.unq.ttip.sportbook.controller.request.UpdateEventRequest
 import ar.edu.unq.ttip.sportbook.persistence.entity.Event
 import ar.edu.unq.ttip.sportbook.persistence.entity.FootballEvent
 import ar.edu.unq.ttip.sportbook.persistence.entity.Player
@@ -103,6 +104,39 @@ class EventService(
                 lineup.removePlayer(player)
                 footballLineupService.save(lineup)
             }
+        }
+
+        return eventJpaRepository.save(event)
+    }
+
+    @Transactional
+    fun updateEvent(id: Long, updateRequest: UpdateEventRequest): Event {
+        val event = eventJpaRepository.findById(id)
+            .orElseThrow { NoSuchElementException("Evento no encontrado") }
+
+        event.updateBasicFields(
+            updateRequest.cost,
+            updateRequest.creator,
+            updateRequest.organizer
+        )
+
+        if (updateRequest.locationX != null || updateRequest.locationY != null || updateRequest.locationPlaceName != null) {
+            event.updateLocation(
+                updateRequest.locationX,
+                updateRequest.locationY,
+                updateRequest.locationPlaceName
+            )
+        }
+
+        if (updateRequest.transferDataCbu != null || updateRequest.transferDataAlias != null) {
+            event.updateTransferData(
+                updateRequest.transferDataCbu,
+                updateRequest.transferDataAlias
+            )
+        }
+
+        if (event is FootballEvent) {
+            event.updatePitchSize(updateRequest.pitchSize)
         }
 
         return eventJpaRepository.save(event)

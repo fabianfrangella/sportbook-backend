@@ -19,4 +19,8 @@ class FootballEvent : Event() {
         firstTeam?.players?.remove(player)
         secondTeam?.players?.remove(player)
     }
+
+    fun updatePitchSize(size: Int?) {
+        size?.let { pitchSize = it }
+    }
 }
