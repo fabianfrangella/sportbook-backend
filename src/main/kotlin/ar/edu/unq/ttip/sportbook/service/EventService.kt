@@ -109,20 +109,19 @@ class EventService(
         return eventJpaRepository.save(event)
     }
 
+    @Transactional
     fun updateEvent(id: Long, updateRequest: UpdateEventRequest): Event {
         val event = eventJpaRepository.findById(id)
             .orElseThrow { NoSuchElementException("Evento no encontrado") }
 
-        eventJpaRepository.updateEventFields(
-            id,
+        event.updateBasicFields(
             updateRequest.cost,
             updateRequest.creator,
             updateRequest.organizer
         )
 
         if (updateRequest.locationX != null || updateRequest.locationY != null || updateRequest.locationPlaceName != null) {
-            eventJpaRepository.updateLocation(
-                id,
+            event.updateLocation(
                 updateRequest.locationX,
                 updateRequest.locationY,
                 updateRequest.locationPlaceName
@@ -130,17 +129,16 @@ class EventService(
         }
 
         if (updateRequest.transferDataCbu != null || updateRequest.transferDataAlias != null) {
-            eventJpaRepository.updateTransferData(
-                id,
+            event.updateTransferData(
                 updateRequest.transferDataCbu,
                 updateRequest.transferDataAlias
             )
         }
 
-        if (event is FootballEvent && updateRequest.pitchSize != null) {
-            eventJpaRepository.updateFootballEventFields(id, updateRequest.pitchSize)
+        if (event is FootballEvent) {
+            event.updatePitchSize(updateRequest.pitchSize)
         }
 
-        return eventJpaRepository.findById(id).get()
+        return eventJpaRepository.save(event)
     }
 }

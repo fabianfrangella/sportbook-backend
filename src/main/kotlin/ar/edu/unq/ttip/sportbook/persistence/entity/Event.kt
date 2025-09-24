@@ -90,4 +90,27 @@ abstract class Event() {
     }
 
     protected abstract fun removePlayerFromTeams(player: Player)
+
+    fun updateBasicFields(cost: BigDecimal?, creator: String?, organizer: String?) {
+        cost?.let { this.cost = it }
+        creator?.let { this.creator = it }
+        organizer?.let { this.organizer = it }
+    }
+
+    fun updateLocation(x: String?, y: String?, placeName: String?) {
+        x?.let { location.x = it }
+        y?.let { location.y = it }
+        placeName?.let { location.placeName = it }
+    }
+
+    fun updateTransferData(cbu: String?, alias: String?) {
+        if (transferData == null && (cbu != null || alias != null)) {
+            transferData = TransferData()
+        }
+
+        transferData?.let { data ->
+            cbu?.let { data.cbu = it }
+            alias?.let { data.alias = it }
+        }
+    }
 }
