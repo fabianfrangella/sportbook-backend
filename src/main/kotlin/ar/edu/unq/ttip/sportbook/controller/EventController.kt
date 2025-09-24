@@ -1,5 +1,6 @@
 package ar.edu.unq.ttip.sportbook.controller
 
+import ar.edu.unq.ttip.sportbook.controller.request.UpdateEventRequest
 import ar.edu.unq.ttip.sportbook.persistence.entity.Event
 import ar.edu.unq.ttip.sportbook.persistence.entity.FootballEvent
 import ar.edu.unq.ttip.sportbook.persistence.entity.FootballLineup
@@ -30,7 +31,6 @@ class EventController(
     fun getEvent(@PathVariable("id") id: Long): ResponseEntity<Event> {
         val event = eventService.getEvent(id)
         return ResponseEntity.ok(event)
-
     }
 
     @GetMapping
@@ -89,5 +89,14 @@ class EventController(
     ): ResponseEntity<FootballLineup> {
         val lineup = footballLineupService.removePlayerFromPosition(lineupId, position)
         return ResponseEntity.ok(lineup)
+    }
+
+    @PutMapping("/{id}")
+    fun updateEvent(
+        @PathVariable("id") id: Long,
+        @RequestBody updateRequest: UpdateEventRequest
+    ): ResponseEntity<Event> {
+        val updatedEvent = eventService.updateEvent(id, updateRequest)
+        return ResponseEntity.ok(updatedEvent)
     }
 }
