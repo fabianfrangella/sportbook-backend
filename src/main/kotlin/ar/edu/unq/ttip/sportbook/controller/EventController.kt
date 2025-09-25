@@ -1,7 +1,9 @@
 package ar.edu.unq.ttip.sportbook.controller
 
+import ar.edu.unq.ttip.sportbook.controller.request.FinishEventRequest
 import ar.edu.unq.ttip.sportbook.controller.request.UpdateEventRequest
 import ar.edu.unq.ttip.sportbook.persistence.entity.Event
+import ar.edu.unq.ttip.sportbook.persistence.entity.FinishedEventStats
 import ar.edu.unq.ttip.sportbook.persistence.entity.FootballEvent
 import ar.edu.unq.ttip.sportbook.persistence.entity.FootballLineup
 import ar.edu.unq.ttip.sportbook.persistence.entity.Position
@@ -98,5 +100,14 @@ class EventController(
     ): ResponseEntity<Event> {
         val updatedEvent = eventService.updateEvent(id, updateRequest)
         return ResponseEntity.ok(updatedEvent)
+    }
+
+    @PostMapping("/{eventId}/finish")
+    fun finishEvent(
+        @PathVariable eventId: Long,
+        @RequestBody finishEventData: FinishEventRequest
+    ): ResponseEntity<FinishedEventStats> {
+        val stats = eventService.finishEvent(eventId, finishEventData)
+        return ResponseEntity.ok(stats)
     }
 }
