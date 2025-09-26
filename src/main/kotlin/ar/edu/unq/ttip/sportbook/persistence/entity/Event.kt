@@ -67,6 +67,8 @@ abstract class Event() {
     @Column(nullable = false)
     lateinit var sport: Sport
 
+    var isFinished: Boolean = false
+
     fun canJoin(username: String) : Boolean {
         if (isFull()) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "El evento está completo")
         return players?.find { player -> player.user.username == username } == null

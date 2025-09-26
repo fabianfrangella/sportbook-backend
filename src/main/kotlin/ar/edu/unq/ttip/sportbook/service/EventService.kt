@@ -1,12 +1,17 @@
 package ar.edu.unq.ttip.sportbook.service
 
+import ar.edu.unq.ttip.sportbook.controller.request.FinishEventRequest
 import ar.edu.unq.ttip.sportbook.controller.request.UpdateEventRequest
 import ar.edu.unq.ttip.sportbook.persistence.entity.Event
+import ar.edu.unq.ttip.sportbook.persistence.entity.FinishedEventStats
 import ar.edu.unq.ttip.sportbook.persistence.entity.FootballEvent
 import ar.edu.unq.ttip.sportbook.persistence.entity.Player
 import ar.edu.unq.ttip.sportbook.persistence.entity.SportUser
+import ar.edu.unq.ttip.sportbook.persistence.entity.TeamGoal
 import ar.edu.unq.ttip.sportbook.persistence.repository.EventJpaRepository
 import ar.edu.unq.ttip.sportbook.persistence.repository.PlayerJpaRepository
+import ar.edu.unq.ttip.sportbook.persistence.repository.FinishedEventStatsRepository
+import ar.edu.unq.ttip.sportbook.persistence.repository.TeamJpaRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import kotlin.NoSuchElementException
@@ -15,7 +20,9 @@ import kotlin.NoSuchElementException
 class EventService(
     val eventJpaRepository: EventJpaRepository,
     val playerJpaRepository: PlayerJpaRepository,
-    val footballLineupService: FootballLineupService
+    val teamJpaRepository: TeamJpaRepository,
+    val footballLineupService: FootballLineupService,
+    val finishedEventStatsRepository: FinishedEventStatsRepository
 ) {
 
     @Transactional
@@ -140,5 +147,43 @@ class EventService(
         }
 
         return eventJpaRepository.save(event)
+    }
+
+    @Transactional
+    fun finishEvent(eventId: Long, finishEventData: FinishEventRequest): FinishedEventStats {
+        val event = getEvent(eventId)
+        event.isFinished = true
+        eventJpaRepository.save(event)
+
+        val stats = FinishedEventStats()
+        stats.event = event
+
+        // Crear y asociar los goles
+        stats.goals = finishEventData.goals.map { goalRequest ->
+            TeamGoal().apply {
+                team = teamJpaRepository.findById(goalRequest.teamId)
+                    .orElseThrow { NoSuchElementException("Equipo ${goalRequest.teamId} no encontrado") }
+                player = playerJpaRepository.findById(goalRequest.playerId)
+                    .orElseThrow { NoSuchElementException("Jugador ${goalRequest.playerId} no encontrado") }
+                finishedEventStats = stats
+            }
+        }.toMutableList()
+
+        // Asociar equipo ganador
+        stats.winningTeam = teamJpaRepository.findById(finishEventData.winningTeamId)
+            .orElseThrow { NoSuchElementException("Equipo ganador ${finishEventData.winningTeamId} no encontrado") }
+
+        // Asociar MVP
+        stats.mvp = playerJpaRepository.findById(finishEventData.mvpId)
+            .orElseThrow { NoSuchElementException("Jugador MVP ${finishEventData.mvpId} no encontrado") }
+
+        // Asociar jugadores ausentes
+        stats.missingPlayers = finishEventData.missingPlayerIds
+            .mapTo(mutableSetOf()) { playerId ->
+                playerJpaRepository.findById(playerId)
+                    .orElseThrow { NoSuchElementException("Jugador ausente $playerId no encontrado") }
+            }
+
+        return finishedEventStatsRepository.save(stats)
     }
 }
