@@ -1,5 +1,6 @@
-package ar.edu.unq.ttip.sportbook.persistence.entity
+package ar.edu.unq.ttip.sportbook.persistence.entity.team
 
+import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -25,4 +26,5 @@ class Team() {
     var players: MutableList<Player> = mutableListOf()
     lateinit var color: String
 
+    fun hasPlayerId(playerId: Long): Boolean = players.any { it.id == playerId }
 }

@@ -1,4 +1,4 @@
-package ar.edu.unq.ttip.sportbook.persistence.entity
+package ar.edu.unq.ttip.sportbook.persistence.entity.user
 
 import jakarta.persistence.*
 

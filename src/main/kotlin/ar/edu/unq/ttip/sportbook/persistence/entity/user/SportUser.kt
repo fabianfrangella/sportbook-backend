@@ -1,5 +1,6 @@
-package ar.edu.unq.ttip.sportbook.persistence.entity
+package ar.edu.unq.ttip.sportbook.persistence.entity.user
 
+import ar.edu.unq.ttip.sportbook.exception.BusinessException
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.*
@@ -44,5 +45,14 @@ class SportUser() {
         this.name = name
         this.lastName = lastName
         this.dateOfBirth = dateOfBirth
+    }
+
+    fun addProfile(profile: SportProfile) {
+        val existing = profiles.firstOrNull { it.sport == profile.sport }
+        if (existing != null) {
+            throw BusinessException("El usuario ya tiene perfil para ${profile.sport}")
+        }
+        profiles.add(profile)
+        profile.user = this
     }
 }

@@ -1,5 +1,6 @@
-package ar.edu.unq.ttip.sportbook.persistence.entity
+package ar.edu.unq.ttip.sportbook.persistence.entity.event.volley
 
+import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportProfileDetail
 import jakarta.persistence.*
 
 @Entity

@@ -1,6 +1,6 @@
 package ar.edu.unq.ttip.sportbook.security
 
-import ar.edu.unq.ttip.sportbook.persistence.entity.SportUser
+import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportUser
 import ar.edu.unq.ttip.sportbook.persistence.repository.SportUserJpaRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

@@ -1,5 +1,7 @@
-package ar.edu.unq.ttip.sportbook.persistence.entity
+package ar.edu.unq.ttip.sportbook.persistence.entity.team
 
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.FinishedEventStats
+import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue

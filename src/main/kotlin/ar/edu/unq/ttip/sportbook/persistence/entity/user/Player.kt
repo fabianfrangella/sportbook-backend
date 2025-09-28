@@ -1,6 +1,11 @@
-package ar.edu.unq.ttip.sportbook.persistence.entity
+package ar.edu.unq.ttip.sportbook.persistence.entity.user
 
-import BusinessException
+import ar.edu.unq.ttip.sportbook.exception.BusinessException
+import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.Event
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.football.FootballEvent
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.paddle.PaddleEvent
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.volley.VolleyEvent
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue

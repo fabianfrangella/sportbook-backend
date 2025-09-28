@@ -1,5 +1,12 @@
-package ar.edu.unq.ttip.sportbook.persistence.entity
+package ar.edu.unq.ttip.sportbook.persistence.entity.event.football
 
+import ar.edu.unq.ttip.sportbook.exception.BadRequestException
+import ar.edu.unq.ttip.sportbook.exception.BusinessException
+import ar.edu.unq.ttip.sportbook.persistence.entity.exception.DuplicatePlayerException
+import ar.edu.unq.ttip.sportbook.persistence.entity.exception.NotTeamMemberException
+import ar.edu.unq.ttip.sportbook.persistence.entity.team.Position
+import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player
+import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
 import jakarta.persistence.*
 
 @Entity
@@ -45,13 +52,17 @@ class FootballLineup {
 
 
     fun addPlayerToPosition(player: Player, position: Position) {
+        if (!team.hasPlayerId(player.id)) {
+            throw NotTeamMemberException(player.name)
+        }
+
         if (positionsByPlayer.containsKey(position)) {
-            throw IllegalArgumentException("La posición $position ya está ocupada")
+            throw BusinessException("La posición $position ya está ocupada")
         }
         if (positionsByPlayer.containsValue(player)) {
-            throw IllegalArgumentException("El jugador ${player.name} ya está en el campo")
+            throw BusinessException("El jugador ${player.name} ya está en el campo")
         }
-        positionsByPlayer.put(position, player)
+        positionsByPlayer[position] = player
         if (initialLineup.none { it.id == player.id })
             initialLineup.add(player)
         if (bench.any { it.id == player.id })
@@ -59,7 +70,7 @@ class FootballLineup {
     }
 
     fun removePlayerFromPosition(position: Position) {
-        val player = positionsByPlayer[position] ?: throw IllegalArgumentException("No hay ningún jugador en la posición $position")
+        val player = positionsByPlayer[position] ?: throw BusinessException("No hay ningún jugador en la posición $position")
         positionsByPlayer.remove(position)
         initialLineup.removeIf{ it.id == player.id}
         bench.add(player)
@@ -67,7 +78,7 @@ class FootballLineup {
 
     fun addPlayerToBench(player: Player) {
         if (initialLineup.contains(player) || bench.contains(player)) {
-            throw IllegalArgumentException("El jugador ${player.name} ya está en el banco")
+            throw DuplicatePlayerException(player.name)
         }
         bench.add(player)
     }
@@ -83,19 +94,4 @@ class FootballLineup {
 
         initialLineup.removeIf { it.id == player.id }
     }
-}
-
-enum class Position {
-    GK, // Arquero
-    RB, // Lateral derecho
-    LB, // Lateral izquierdo
-    CB, // Defensa central
-    LIB,// Libero
-    CM, // Mediocampista central
-    RM, // Mediocampista derecho
-    LM, // Mediocampista izquierdo
-    ST, // Delantero
-    CT, // Centro delantero
-    RW, // Extremo derecho
-    LW // Extremo izquierdo
 }

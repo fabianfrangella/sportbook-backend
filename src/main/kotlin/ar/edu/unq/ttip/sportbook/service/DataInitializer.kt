@@ -1,13 +1,13 @@
 package ar.edu.unq.ttip.sportbook.service
 
-import ar.edu.unq.ttip.sportbook.persistence.entity.FootballEvent
-import ar.edu.unq.ttip.sportbook.persistence.entity.Location
-import ar.edu.unq.ttip.sportbook.persistence.entity.PaddleEvent
-import ar.edu.unq.ttip.sportbook.persistence.entity.Player
-import ar.edu.unq.ttip.sportbook.persistence.entity.SportUser
-import ar.edu.unq.ttip.sportbook.persistence.entity.Team
-import ar.edu.unq.ttip.sportbook.persistence.entity.TransferData
-import ar.edu.unq.ttip.sportbook.persistence.entity.VolleyEvent
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.football.FootballEvent
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.Location
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.paddle.PaddleEvent
+import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player
+import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportUser
+import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.TransferData
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.volley.VolleyEvent
 import ar.edu.unq.ttip.sportbook.persistence.repository.EventJpaRepository
 import jakarta.annotation.PostConstruct
 

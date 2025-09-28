@@ -1,5 +1,8 @@
-package ar.edu.unq.ttip.sportbook.persistence.entity
+package ar.edu.unq.ttip.sportbook.persistence.entity.event
 
+import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player
+import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
+import ar.edu.unq.ttip.sportbook.persistence.entity.team.TeamGoal
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
@@ -45,4 +48,8 @@ class FinishedEventStats {
         inverseJoinColumns = [JoinColumn(name = "player_id")]
     )
     var missingPlayers: MutableSet<Player> = mutableSetOf()
+
+    fun isVictoryFor(userId: Long): Boolean = winningTeam?.players?.any { it.user.id == userId } == true
+
+    fun mvpUsernameOrNull(): String? = mvp?.user?.username
 }

@@ -1,6 +1,11 @@
-package ar.edu.unq.ttip.sportbook.persistence.entity
+package ar.edu.unq.ttip.sportbook.persistence.entity.event
 
-import BusinessException
+import ar.edu.unq.ttip.sportbook.exception.BusinessException
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.football.FootballEvent
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.paddle.PaddleEvent
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.volley.VolleyEvent
+import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player
+import ar.edu.unq.ttip.sportbook.persistence.entity.user.Sport
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
@@ -115,4 +120,6 @@ abstract class Event() {
             alias?.let { data.alias = it }
         }
     }
+
+    fun hasParticipant(userId: Long): Boolean? = players?.any { it.user.id == userId }
 }
