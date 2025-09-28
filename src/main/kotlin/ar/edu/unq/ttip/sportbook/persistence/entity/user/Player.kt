@@ -7,7 +7,7 @@ import ar.edu.unq.ttip.sportbook.persistence.entity.event.football.FootballEvent
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.paddle.PaddleEvent
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.volley.VolleyEvent
 import jakarta.persistence.CascadeType
-import jakarta.persistence.Entity;
+import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id

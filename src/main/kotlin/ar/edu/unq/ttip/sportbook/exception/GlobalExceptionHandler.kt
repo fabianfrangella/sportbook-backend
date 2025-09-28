@@ -91,7 +91,7 @@ class GlobalExceptionHandler {
         val body = ApiErrorResponse(
             status = status.value(),
             error = status.reasonPhrase,
-            message = ex.message ?: "Error de dominio"
+            message = ex.message
         )
         return ResponseEntity.status(status).body(body)
     }
@@ -102,7 +102,7 @@ class GlobalExceptionHandler {
         val body = ApiErrorResponse(
             status = status.value(),
             error = status.reasonPhrase,
-            message = ex.message ?: "Conflicto con el estado actual"
+            message = ex.message
         )
         return ResponseEntity.status(status).body(body)
     }

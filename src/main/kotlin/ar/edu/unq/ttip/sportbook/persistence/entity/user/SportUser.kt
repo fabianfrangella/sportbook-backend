@@ -15,10 +15,10 @@ class SportUser() {
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     var password: String? = null
-    var username: String? = null
-    var email: String? = null
-    var name: String? = null
-    var lastName: String? = null
+    final var username: String? = null
+    final var email: String? = null
+    final var name: String? = null
+    final var lastName: String? = null
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     var dateOfBirth: LocalDate? = null
@@ -45,14 +45,5 @@ class SportUser() {
         this.name = name
         this.lastName = lastName
         this.dateOfBirth = dateOfBirth
-    }
-
-    fun addProfile(profile: SportProfile) {
-        val existing = profiles.firstOrNull { it.sport == profile.sport }
-        if (existing != null) {
-            throw BusinessException("El usuario ya tiene perfil para ${profile.sport}")
-        }
-        profiles.add(profile)
-        profile.user = this
     }
 }

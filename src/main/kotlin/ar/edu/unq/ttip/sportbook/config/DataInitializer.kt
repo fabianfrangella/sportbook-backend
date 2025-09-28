@@ -1,4 +1,4 @@
-package ar.edu.unq.ttip.sportbook.service
+package ar.edu.unq.ttip.sportbook.config
 
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.football.FootballEvent
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Location
@@ -9,8 +9,8 @@ import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.TransferData
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.volley.VolleyEvent
 import ar.edu.unq.ttip.sportbook.persistence.repository.EventJpaRepository
+import ar.edu.unq.ttip.sportbook.service.EventService
 import jakarta.annotation.PostConstruct
-
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
@@ -18,7 +18,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.random.Random
-
 
 @Service
 class DataInitializer(val eventService: EventService, val eventJpaRepository: EventJpaRepository) {

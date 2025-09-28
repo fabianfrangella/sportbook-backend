@@ -14,8 +14,7 @@ import jakarta.persistence.Table
 @Entity
 @Table(name = "VOLLEY_EVENT")
 class VolleyEvent : Event() {
-    init { this.sport = Sport.VOLLEY
-    }
+    init { this.sport = Sport.VOLLEY }
     @OneToMany(targetEntity = Team::class, cascade = [CascadeType.ALL])
     @JoinTable(
         name = "team_volley",

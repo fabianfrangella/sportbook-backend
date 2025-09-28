@@ -1,22 +1,15 @@
-package ar.edu.unq.ttip.sportbook.service
+package ar.edu.unq.ttip.sportbook.service.auth
 
-import ar.edu.unq.ttip.sportbook.controller.request.LoginRequest
-import ar.edu.unq.ttip.sportbook.controller.response.LoginResponse
 import ar.edu.unq.ttip.sportbook.exception.ConflictException
+import ar.edu.unq.ttip.sportbook.persistence.entity.user.AuthToken
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportUser
 import ar.edu.unq.ttip.sportbook.persistence.repository.SportUserJpaRepository
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-
-data class AuthToken(val token: String, val expiresAt: Long)
-
-data class RegisterCommand(val username: String, val password: String)
 
 @Service
 class AuthService(

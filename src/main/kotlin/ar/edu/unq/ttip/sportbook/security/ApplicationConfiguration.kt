@@ -51,7 +51,7 @@ class ApplicationConfiguration(val sportUserJpaRepository: SportUserJpaRepositor
 }
 
 class UserDetailsImpl(val name: String, val pass: String, val sportUser: SportUser) : UserDetails {
-    override fun getAuthorities(): Collection<GrantedAuthority?>? = listOf()
+    override fun getAuthorities(): Collection<GrantedAuthority?> = listOf()
     override fun getPassword() = pass
     override fun getUsername() = name
 }

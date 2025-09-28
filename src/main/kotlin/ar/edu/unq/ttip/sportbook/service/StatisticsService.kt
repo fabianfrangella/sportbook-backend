@@ -1,6 +1,5 @@
 package ar.edu.unq.ttip.sportbook.service
 
-import ar.edu.unq.ttip.sportbook.exception.InvalidSportException
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Sport
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.FinishedEventStats
 import ar.edu.unq.ttip.sportbook.persistence.repository.FinishedEventStatsRepository

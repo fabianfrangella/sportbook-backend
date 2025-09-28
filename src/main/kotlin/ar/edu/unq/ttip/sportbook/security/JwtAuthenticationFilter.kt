@@ -1,7 +1,7 @@
 package ar.edu.unq.ttip.sportbook.security
 
 import ar.edu.unq.ttip.sportbook.persistence.repository.SportUserJpaRepository
-import ar.edu.unq.ttip.sportbook.service.JwtService
+import ar.edu.unq.ttip.sportbook.service.auth.JwtService
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse

@@ -35,12 +35,4 @@ interface FinishedEventStatsRepository : JpaRepository<FinishedEventStats, Long>
         where p.user.id = :userId and e.sport = :sport
     """)
     fun findAllByUserIdAndSport(@Param("userId") userId: Long, @Param("sport") sport: Sport): List<FinishedEventStats>
-
-    @Query("""
-        select count(fes) 
-        from FinishedEventStats fes
-        join fes.event e
-        where e.sport = :sport
-    """)
-    fun countBySport(@Param("sport") sport: Sport): Long
 }

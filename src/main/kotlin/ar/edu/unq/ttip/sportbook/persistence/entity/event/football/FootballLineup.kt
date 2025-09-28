@@ -1,6 +1,5 @@
 package ar.edu.unq.ttip.sportbook.persistence.entity.event.football
 
-import ar.edu.unq.ttip.sportbook.exception.BadRequestException
 import ar.edu.unq.ttip.sportbook.exception.BusinessException
 import ar.edu.unq.ttip.sportbook.persistence.entity.exception.DuplicatePlayerException
 import ar.edu.unq.ttip.sportbook.persistence.entity.exception.NotTeamMemberException

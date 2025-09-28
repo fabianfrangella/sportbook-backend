@@ -3,7 +3,7 @@ package ar.edu.unq.ttip.sportbook.controller
 import ar.edu.unq.ttip.sportbook.controller.request.LoginRequest
 import ar.edu.unq.ttip.sportbook.controller.response.LoginResponse
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportUser
-import ar.edu.unq.ttip.sportbook.service.AuthService
+import ar.edu.unq.ttip.sportbook.service.auth.AuthService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*
     name = "Autenticación",
     description = "Endpoints de autenticación y registro de usuarios"
 )
-class AuthorizationController(val authService: AuthService) {
+class AuthController(val authService: AuthService) {
 
     @PostMapping("/login")
     @Operation(

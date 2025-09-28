@@ -1,4 +1,4 @@
-package ar.edu.unq.ttip.sportbook.service
+package ar.edu.unq.ttip.sportbook.service.auth
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

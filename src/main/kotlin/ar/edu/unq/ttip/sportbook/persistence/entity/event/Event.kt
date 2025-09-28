@@ -51,7 +51,7 @@ abstract class Event() {
     var minPlayers: Int = 0
     var maxPlayers: Int = 0
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    lateinit var dateTime: LocalDateTime;
+    lateinit var dateTime: LocalDateTime
     @ManyToOne(cascade = [CascadeType.ALL])
     lateinit var location: Location
     var cost: BigDecimal? = null
@@ -121,5 +121,4 @@ abstract class Event() {
         }
     }
 
-    fun hasParticipant(userId: Long): Boolean? = players?.any { it.user.id == userId }
 }
