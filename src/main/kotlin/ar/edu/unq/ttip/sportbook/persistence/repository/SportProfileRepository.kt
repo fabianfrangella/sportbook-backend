@@ -5,6 +5,6 @@ import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportProfile
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface SportProfileRepository : JpaRepository<SportProfile, Long> {
-    fun findByUserIdAndSport(id: Long, sport: Sport): SportProfile
+    fun findByUserIdAndSport(userId: Long, sport: Sport): SportProfile?
     fun findAllByUserId(userId: Long): List<SportProfile>
 }

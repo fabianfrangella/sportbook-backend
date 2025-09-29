@@ -46,4 +46,13 @@ class SportUser() {
         this.lastName = lastName
         this.dateOfBirth = dateOfBirth
     }
+
+    fun addProfile(profile: SportProfile) {
+        val existing = profiles.firstOrNull { it.sport == profile.sport }
+        if (existing != null) {
+            throw BusinessException("El usuario ya tiene perfil para ${profile.sport}")
+        }
+        profiles.add(profile)
+        profile.user = this // owning side
+    }
 }

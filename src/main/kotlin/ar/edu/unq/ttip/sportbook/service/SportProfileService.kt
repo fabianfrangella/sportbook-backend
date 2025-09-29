@@ -79,11 +79,17 @@ class SportProfileService(
         buildDetails: () -> SportProfileDetail
     ): SportProfile {
         val userId = requireNotNull(user.id) { "SportUser.id no puede ser null" }
+
         val existing = sportProfileRepository.findByUserIdAndSport(userId, sport)
 
-        val profile: SportProfile = run {
+        val profile = if (existing != null) {
             existing.updateDetails(buildDetails())
             existing
+        } else {
+            val created = SportProfile(user = user, sport = sport, details = buildDetails())
+            created.updateDetails(buildDetails())
+            user.addProfile(created)
+            created
         }
 
         return sportProfileRepository.save(profile)
