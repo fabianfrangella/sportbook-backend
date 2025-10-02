@@ -2,7 +2,9 @@ package ar.edu.unq.ttip.sportbook.service
 
 import ar.edu.unq.ttip.sportbook.controller.request.FinishEventRequest
 import ar.edu.unq.ttip.sportbook.controller.request.UpdateEventRequest
+import ar.edu.unq.ttip.sportbook.controller.response.*
 import ar.edu.unq.ttip.sportbook.exception.BadRequestException
+import ar.edu.unq.ttip.sportbook.exception.BusinessException
 import ar.edu.unq.ttip.sportbook.exception.NotFoundException
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Event
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.FinishedEventStats
@@ -17,6 +19,7 @@ import ar.edu.unq.ttip.sportbook.persistence.repository.FinishedEventStatsReposi
 import ar.edu.unq.ttip.sportbook.persistence.repository.TeamJpaRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
+import kotlin.math.max
 
 @Service
 class EventService(
@@ -165,6 +168,11 @@ class EventService(
     @Transactional
     fun finishEvent(eventId: Long, finishEventData: FinishEventRequest): FinishedEventStats {
         val event = getEvent(eventId)
+
+        if (event.isFinished) {
+            throw BusinessException("El evento $eventId ya fue finalizado")
+        }
+
         event.isFinished = true
         eventJpaRepository.save(event)
 
@@ -198,5 +206,95 @@ class EventService(
             }
 
         return finishedEventStatsRepository.save(stats)
+    }
+
+    @Transactional
+    fun getStats(eventId: Long): EventStatsResponse {
+        val event: Event = eventJpaRepository.findById(eventId)
+            .orElseThrow { NotFoundException("Evento $eventId no existe") }
+
+        if (!event.isFinished) {
+            throw BadRequestException("El evento $eventId aún no está finalizado")
+        }
+
+        val stats: FinishedEventStats = finishedEventStatsRepository.findByEventIdWithGoals(eventId)
+            ?: finishedEventStatsRepository.findByEventId(eventId)
+            ?: throw NotFoundException("No hay estadísticas para el evento $eventId")
+
+        val registered = event.players?.size ?: 0
+        val missing = stats.missingPlayers.toList()
+        val absent = missing.size
+        val present = max(registered - absent, 0)
+        val attendanceRate = if (registered > 0) present.toDouble() / registered else 0.0
+
+        val goals: List<TeamGoal> = stats.goals.toList()
+        val totalGoals = goals.size
+
+        val goalsByTeam: Map<Long, Int> = goals
+            .groupBy { it.team?.id ?: -1 }
+            .mapValues { (_, v) -> v.size }
+            .filterKeys { it != -1L }
+
+        val winningId = stats.winningTeam?.id
+        val winningColor = stats.winningTeam?.color
+
+        val scores = goalsByTeam
+            .map { (teamId, count) ->
+                TeamScoreDTO(
+                    teamId = teamId,
+                    color = if (teamId == winningId) winningColor else goals.firstOrNull { it.team?.id == teamId }?.team?.color,
+                    goals = count,
+                    isWinner = (teamId == winningId)
+                )
+            }
+            .sortedByDescending { it.goals }
+
+        val goalsByPlayer: Map<Long, Pair<Player, Int>> = goals
+            .groupBy { it.player?.id ?: -1 }
+            .filterKeys { it != -1L }
+            .mapValues { (_, list) ->
+                val anyPlayer = list.first().player!!
+                anyPlayer to list.size
+            }
+
+        val scorersRanking = goalsByPlayer
+            .entries
+            .sortedByDescending { it.value.second }
+            .map { (playerId, pair) ->
+                val (player, count) = pair
+                PlayerGoalsDTO(
+                    player = PlayerSummary(id = player.id, name = player.name),
+                    teamId = goals.firstOrNull { it.player?.id == playerId }?.team?.id,
+                    goals = count
+                )
+            }
+
+        val mvpSummary = PlayerSummary(id = stats.mvp?.id, name = stats.mvp?.name)
+
+        val missingSummaries = missing
+            .map { PlayerSummary(id = it.id, name = it.name) }
+            .sortedWith(compareBy { it.name })
+
+        val winningTeamSummary = TeamSummary(id = winningId, color = winningColor)
+
+        return EventStatsResponse(
+            eventId = event.id,
+            sport = event.sport,
+            dateTime = event.dateTime,
+            finished = event.isFinished,
+
+            totalRegisteredPlayers = registered,
+            presentPlayers = present,
+            absentPlayers = absent,
+            attendanceRate = attendanceRate,
+
+            totalGoals = totalGoals,
+            scores = scores,
+            scorersRanking = scorersRanking,
+
+            winningTeam = winningTeamSummary,
+            mvp = mvpSummary,
+            missingPlayers = missingSummaries,
+        )
     }
 }

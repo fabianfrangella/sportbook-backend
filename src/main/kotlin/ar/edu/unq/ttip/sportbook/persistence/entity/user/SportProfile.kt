@@ -10,6 +10,7 @@ import jakarta.persistence.*
 @Entity
 @Table(name = "SPORT_PROFILE")
 class SportProfile(
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonIgnore

@@ -14,9 +14,11 @@ import jakarta.persistence.Table
 @Entity
 @Table(name = "TEAM")
 class Team() {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0
+
     @ManyToMany(targetEntity = Player::class, cascade = [CascadeType.ALL])
     @JoinTable(
         name = "team_player",
@@ -24,6 +26,7 @@ class Team() {
         inverseJoinColumns = [JoinColumn(name = "player_id")]
     )
     var players: MutableList<Player> = mutableListOf()
+
     lateinit var color: String
 
     fun hasPlayerId(playerId: Long): Boolean = players.any { it.id == playerId }

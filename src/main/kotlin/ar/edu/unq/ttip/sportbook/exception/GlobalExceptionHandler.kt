@@ -49,60 +49,65 @@ class GlobalExceptionHandler {
             status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
             error = HttpStatus.INTERNAL_SERVER_ERROR.reasonPhrase,
             message = ex.message,
-            path = request.requestURI
+            path = request.requestURI,
         )
         return ResponseEntity(body, HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
     @ExceptionHandler(NotFoundException::class)
-    fun handleNotFound(ex: NotFoundException): ResponseEntity<ApiErrorResponse> {
+    fun handleNotFound(ex: NotFoundException, request: HttpServletRequest): ResponseEntity<ApiErrorResponse> {
         val body = ApiErrorResponse(
             status = HttpStatus.NOT_FOUND.value(),
             error  = HttpStatus.NOT_FOUND.reasonPhrase,
-            message = ex.message ?: "Resource not found"
+            message = ex.message ?: "Resource not found",
+            path = request.requestURI,
         )
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body)
     }
 
     @ExceptionHandler(BadRequestException::class)
-    fun handleBadRequest(ex: BadRequestException): ResponseEntity<ApiErrorResponse> {
+    fun handleBadRequest(ex: BadRequestException, request: HttpServletRequest): ResponseEntity<ApiErrorResponse> {
         val body = ApiErrorResponse(
             status = HttpStatus.BAD_REQUEST.value(),
             error  = HttpStatus.BAD_REQUEST.reasonPhrase,
-            message = ex.message ?: "Bad request"
+            message = ex.message ?: "Bad request",
+            path = request.requestURI,
         )
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body)
     }
 
     @ExceptionHandler(ConflictException::class)
-    fun handleConflict(ex: ConflictException): ResponseEntity<ApiErrorResponse> {
+    fun handleConflict(ex: ConflictException, request: HttpServletRequest): ResponseEntity<ApiErrorResponse> {
         val status = HttpStatus.CONFLICT
         val body = ApiErrorResponse(
             status = status.value(),
             error = status.reasonPhrase,
-            message = ex.message ?: "Conflicto en la solicitud"
+            message = ex.message ?: "Conflicto en la solicitud",
+            path = request.requestURI,
         )
         return ResponseEntity.status(status).body(body)
     }
 
     @ExceptionHandler(BusinessException::class)
-    fun handleDomain(ex: BusinessException): ResponseEntity<ApiErrorResponse> {
+    fun handleDomain(ex: BusinessException, request: HttpServletRequest): ResponseEntity<ApiErrorResponse> {
         val status = HttpStatus.BAD_REQUEST
         val body = ApiErrorResponse(
             status = status.value(),
             error = status.reasonPhrase,
-            message = ex.message
+            message = ex.message,
+            path = request.requestURI,
         )
         return ResponseEntity.status(status).body(body)
     }
 
     @ExceptionHandler(DuplicatePlayerException::class)
-    fun handleDuplicate(ex: DuplicatePlayerException): ResponseEntity<ApiErrorResponse> {
+    fun handleDuplicate(ex: DuplicatePlayerException, request: HttpServletRequest): ResponseEntity<ApiErrorResponse> {
         val status = HttpStatus.CONFLICT
         val body = ApiErrorResponse(
             status = status.value(),
             error = status.reasonPhrase,
-            message = ex.message
+            message = ex.message,
+            path = request.requestURI,
         )
         return ResponseEntity.status(status).body(body)
     }

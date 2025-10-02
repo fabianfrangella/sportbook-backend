@@ -2,6 +2,7 @@ package ar.edu.unq.ttip.sportbook.controller
 
 import ar.edu.unq.ttip.sportbook.controller.request.FinishEventRequest
 import ar.edu.unq.ttip.sportbook.controller.request.UpdateEventRequest
+import ar.edu.unq.ttip.sportbook.controller.response.EventStatsResponse
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Event
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.FinishedEventStats
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.football.FootballLineup
@@ -145,4 +146,14 @@ class EventController(
         @RequestBody finishEventData: FinishEventRequest
     ): FinishedEventStats =
         eventService.finishEvent(eventId, finishEventData)
+
+    @GetMapping("/{eventId}/stats")
+    @Operation(
+        summary = "Obtener estadísticas del evento",
+        method = "GET",
+        description = "Devuelve las estadísticas de un evento finalizado."
+    )
+    fun getEventStats(
+        @PathVariable eventId: Long,
+    ): EventStatsResponse = eventService.getStats(eventId)
 }
