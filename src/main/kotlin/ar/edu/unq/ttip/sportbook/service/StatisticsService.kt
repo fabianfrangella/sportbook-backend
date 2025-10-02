@@ -1,77 +1,59 @@
 package ar.edu.unq.ttip.sportbook.service
 
-import ar.edu.unq.ttip.sportbook.controller.response.SportStatsDTO
-import ar.edu.unq.ttip.sportbook.controller.response.UserSportStatsDTO
-import ar.edu.unq.ttip.sportbook.controller.response.UserStatsDTO
-import ar.edu.unq.ttip.sportbook.persistence.entity.Sport
+import ar.edu.unq.ttip.sportbook.persistence.entity.user.Sport
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.FinishedEventStats
 import ar.edu.unq.ttip.sportbook.persistence.repository.FinishedEventStatsRepository
+import ar.edu.unq.ttip.sportbook.service.command.SportStats
+import ar.edu.unq.ttip.sportbook.service.command.UserSportStats
+import ar.edu.unq.ttip.sportbook.service.command.UserStats
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Transactional(readOnly = true)
 class StatisticsService(
     private val finishedEventStatsRepository: FinishedEventStatsRepository
 ) {
 
-    fun getSportStats(sport: String): SportStatsDTO {
-        val sportEnum = Sport.valueOf(sport.uppercase())
-        val stats = finishedEventStatsRepository.findAll()
-            .filter { it.event?.sport == sportEnum }
+    fun getSportStats(sport: Sport): SportStats {
+        val stats = finishedEventStatsRepository.findAllBySport(sport)
 
         val matchesPlayed = stats.size
-        val mostMvpUser = stats
-            .mapNotNull { it.mvp?.user?.username }
+        val mostMvpUsername = stats.asSequence()
+            .mapNotNull { it.mvpUsernameOrNull() }
             .groupingBy { it }
             .eachCount()
             .maxByOrNull { it.value }
             ?.key
 
-        return SportStatsDTO(
-            sport = sportEnum.name,
-            matchesPlayed = matchesPlayed,
-            mostMvpUser = mostMvpUser ?: "N/A"
-        )
+        return SportStats(sport = sport, matchesPlayed = matchesPlayed, mostMvpUsername = mostMvpUsername)
     }
 
-    fun getUserStats(userId: Long): UserStatsDTO {
-        val stats = finishedEventStatsRepository.findAll()
-            .filter { fes -> fes.event?.players?.any { it.user.id == userId } == true }
+    fun getUserStats(userId: Long): UserStats {
+        val stats = finishedEventStatsRepository.findAllByUserId(userId)
 
-        val statsBySport: Map<String, UserSportStatsDTO> =
-            stats.groupBy { it.event?.sport?.name ?: "UNKNOWN" }
-                .mapValues { (sport, events) ->
-                    buildUserSportStats(userId, sport, events)
-                }
+        val bySport: Map<Sport, UserSportStats> = stats
+            .groupBy { it.event!!.sport }
+            .mapValues { (sport, events) -> buildUserSportStats(userId, sport, events) }
 
-        return UserStatsDTO(userId = userId, statsBySport = statsBySport)
+        return UserStats(userId = userId, bySport = bySport)
     }
 
-    fun getUserSportStats(userId: Long, sport: String): UserSportStatsDTO {
-        val sportEnum = Sport.valueOf(sport.uppercase())
-        val stats = finishedEventStatsRepository.findAll()
-            .filter {
-                it.event?.sport == sportEnum &&
-                        it.event?.players?.any { p -> p.user.id == userId } == true
-            }
-
-        return buildUserSportStats(userId, sportEnum.name, stats)
+    fun getUserSportStats(userId: Long, sport: Sport): UserSportStats {
+        val stats = finishedEventStatsRepository.findAllByUserIdAndSport(userId, sport)
+        return buildUserSportStats(userId, sport, stats)
     }
 
     private fun buildUserSportStats(
         userId: Long,
-        sport: String,
-        stats: List<ar.edu.unq.ttip.sportbook.persistence.entity.FinishedEventStats>
-    ): UserSportStatsDTO {
-        val matchesPlayed = stats.size
-        val victories = stats.count { fes ->
-            fes.winningTeam?.players?.any { it.user.id == userId } == true
-        }
-        val mvps = stats.count { fes -> fes.mvp?.user?.id == userId }
-
-        return UserSportStatsDTO(
+        sport: Sport,
+        stats: List<FinishedEventStats>
+    ): UserSportStats =
+        UserSportStats(
             sport = sport,
-            matchesPlayed = matchesPlayed,
-            victories = victories,
-            mvps = mvps
+            matchesPlayed = stats.size,
+            victories = stats.count { it.isVictoryFor(userId) },
+            mvps = stats.count { it.mvp?.user?.id == userId }
         )
-    }
 }
+

@@ -1,15 +1,13 @@
 package ar.edu.unq.ttip.sportbook.service
 
-import ar.edu.unq.ttip.sportbook.persistence.entity.FootballEvent
-import ar.edu.unq.ttip.sportbook.persistence.entity.FootballLineup
-import ar.edu.unq.ttip.sportbook.persistence.entity.Position
-import ar.edu.unq.ttip.sportbook.persistence.entity.Team
+import ar.edu.unq.ttip.sportbook.exception.NotFoundException
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.football.FootballEvent
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.football.FootballLineup
+import ar.edu.unq.ttip.sportbook.persistence.entity.team.Position
+import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
 import ar.edu.unq.ttip.sportbook.persistence.repository.FootballLineupRepository
 import ar.edu.unq.ttip.sportbook.persistence.repository.PlayerJpaRepository
-
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import org.springframework.web.server.ResponseStatusException
 
 @Service
 class FootballLineupService(
@@ -30,14 +28,10 @@ class FootballLineupService(
 
     fun addPlayerToPosition(lineupId: Long, playerId: Long, position: Position): FootballLineup {
         val lineup = footballLineupRepository.findById(lineupId)
-            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Lineup not found") }
+            .orElseThrow { NotFoundException("Lineup not found") }
 
         val player = playerRepository.findById(playerId)
-            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found") }
-
-        if (!lineup.team.players.contains(player)) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Player is not in the team")
-        }
+            .orElseThrow { NotFoundException("Player not found") }
 
         lineup.addPlayerToPosition(player, position)
         return footballLineupRepository.save(lineup)
@@ -45,20 +39,10 @@ class FootballLineupService(
 
     fun removePlayerFromPosition(lineupId: Long, position: Position): FootballLineup {
         val lineup = footballLineupRepository.findById(lineupId)
-            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Lineup not found") }
+            .orElseThrow { NotFoundException("Lineup not found") }
 
         lineup.removePlayerFromPosition(position)
         return footballLineupRepository.save(lineup)
-    }
-
-    fun addPlayerToBench(lineupId: Long, playerId: Long) : FootballLineup {
-        val lineup = footballLineupRepository.findById(lineupId)
-            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Lineup not found") }
-        val player = playerRepository.findById(playerId)
-            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found") }
-
-        lineup.addPlayerToBench(player)
-        return lineup
     }
 
     fun save(lineup: FootballLineup): FootballLineup {

@@ -1,6 +1,6 @@
 package ar.edu.unq.ttip.sportbook.security
 
-import ar.edu.unq.ttip.sportbook.persistence.entity.SportUser
+import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportUser
 import ar.edu.unq.ttip.sportbook.persistence.repository.SportUserJpaRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -51,7 +51,7 @@ class ApplicationConfiguration(val sportUserJpaRepository: SportUserJpaRepositor
 }
 
 class UserDetailsImpl(val name: String, val pass: String, val sportUser: SportUser) : UserDetails {
-    override fun getAuthorities(): Collection<GrantedAuthority?>? = listOf()
+    override fun getAuthorities(): Collection<GrantedAuthority?> = listOf()
     override fun getPassword() = pass
     override fun getUsername() = name
 }
