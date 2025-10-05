@@ -24,7 +24,6 @@ import kotlin.math.max
 class EventService(
     val eventJpaRepository: EventJpaRepository,
     val playerJpaRepository: PlayerJpaRepository,
-    val teamJpaRepository: TeamJpaRepository,
     val lineupService: LineupService,
     val finishedEventStatsRepository: FinishedEventStatsRepository
 ) {
@@ -39,14 +38,6 @@ class EventService(
     fun getEvent(id: Long): Event =
         eventJpaRepository.findById(id)
             .orElseThrow { NotFoundException("Evento no encontrado") }
-
-    fun getFootballEvent(id: Long): FootballEvent {
-        val event = getEvent(id)
-        if (event !is FootballEvent) {
-            throw BadRequestException("El evento no es de fútbol")
-        }
-        return event
-    }
 
     fun getAllEvents(): List<Event> {
         return eventJpaRepository.findAll()
