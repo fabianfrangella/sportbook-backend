@@ -98,25 +98,18 @@ class EventService(
             updateRequest.creator,
             updateRequest.organizer
         )
+        event.updateLocation(
+            updateRequest.locationX,
+            updateRequest.locationY,
+            updateRequest.locationPlaceName
+        )
 
-        if (updateRequest.locationX != null || updateRequest.locationY != null || updateRequest.locationPlaceName != null) {
-            event.updateLocation(
-                updateRequest.locationX,
-                updateRequest.locationY,
-                updateRequest.locationPlaceName
-            )
-        }
+        event.updateTransferData(
+            updateRequest.transferDataCbu,
+            updateRequest.transferDataAlias
+        )
 
-        if (updateRequest.transferDataCbu != null || updateRequest.transferDataAlias != null) {
-            event.updateTransferData(
-                updateRequest.transferDataCbu,
-                updateRequest.transferDataAlias
-            )
-        }
-
-        if (event is FootballEvent) {
-            event.updatePitchSize(updateRequest.pitchSize)
-        }
+        event.updatePitchSize(updateRequest.pitchSize)
 
         return eventJpaRepository.save(event)
     }

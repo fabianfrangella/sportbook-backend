@@ -31,4 +31,9 @@ class VolleyEvent : Event() {
     override fun createLineups(): List<Lineup> {
         throw NotImplementedError("Lineup creation not implemented for VolleyEvent")
     }
+
+    override fun updatePitchSize(size: Int?) {
+        // TODO: averiguar de a cuantos jugadores se puede jugar al volley y acomodar un pitchSize para ello, si es que tiene sentido
+        throw NotImplementedError("Pitch size is not applicable for VolleyEvent")
+    }
 }

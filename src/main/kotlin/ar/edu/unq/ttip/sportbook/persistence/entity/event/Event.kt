@@ -123,4 +123,6 @@ abstract class Event() {
 
     abstract fun createLineups() : List<Lineup>
 
+    abstract fun updatePitchSize(size: Int?)
+
 }

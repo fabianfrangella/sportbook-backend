@@ -48,7 +48,7 @@ class FootballEvent : Event() {
         return lineup
     }
 
-    fun updatePitchSize(size: Int?) {
+    override fun updatePitchSize(size: Int?) {
         size?.let { pitchSize = it }
     }
 }

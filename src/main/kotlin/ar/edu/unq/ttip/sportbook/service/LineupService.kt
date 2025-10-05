@@ -43,10 +43,6 @@ class LineupService(
         return lineupRepository.save(lineup)
     }
 
-    fun save(lineup: Lineup): Lineup {
-        return lineupRepository.save(lineup)
-    }
-
     fun movePlayerFromTeamToBench(player: Player, teamId: Long, event: Event) {
         val lineups = lineupRepository.findByEvent(event)
         lineups.forEach {
