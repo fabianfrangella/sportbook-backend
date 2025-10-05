@@ -36,4 +36,9 @@ class PaddleEvent() : Event() {
         // TODO: averiguar de a cuantos jugadores se puede jugar al paddle y acomodar un pitchSize para ello, si es que tiene sentido
         throw NotImplementedError("Pitch size is not applicable for PaddleEvent")
     }
+
+    override fun getTeam(teamId: Long): Team {
+        return teams.find { it.id == teamId }
+            ?: throw IllegalArgumentException("El equipo con id $teamId no pertenece a este evento")
+    }
 }

@@ -121,39 +121,9 @@ class EventService(
         if (event.isFinished) {
             throw BusinessException("El evento $eventId ya fue finalizado")
         }
-
-        event.isFinished = true
+        event.finish()
         eventJpaRepository.save(event)
-
-        val stats = FinishedEventStats()
-        stats.event = event
-
-        // Crear y asociar los goles
-        stats.goals = finishEventData.goals.map { goalRequest ->
-            TeamGoal().apply {
-                team = teamJpaRepository.findById(goalRequest.teamId)
-                    .orElseThrow { NotFoundException("Equipo ${goalRequest.teamId} no encontrado") }
-                player = playerJpaRepository.findById(goalRequest.playerId)
-                    .orElseThrow { NotFoundException("Jugador ${goalRequest.playerId} no encontrado") }
-                finishedEventStats = stats
-            }
-        }.toMutableList()
-
-        // Asociar equipo ganador
-        stats.winningTeam = teamJpaRepository.findById(finishEventData.winningTeamId)
-            .orElseThrow { NotFoundException("Equipo ganador ${finishEventData.winningTeamId} no encontrado") }
-
-        // Asociar MVP
-        stats.mvp = playerJpaRepository.findById(finishEventData.mvpId)
-            .orElseThrow { NotFoundException("Jugador MVP ${finishEventData.mvpId} no encontrado") }
-
-        // Asociar jugadores ausentes
-        stats.missingPlayers = finishEventData.missingPlayerIds
-            .mapTo(mutableSetOf()) { playerId ->
-                playerJpaRepository.findById(playerId)
-                    .orElseThrow { NotFoundException("Jugador ausente $playerId no encontrado") }
-            }
-
+        val stats = FinishedEventStats(event, finishEventData)
         return finishedEventStatsRepository.save(stats)
     }
 

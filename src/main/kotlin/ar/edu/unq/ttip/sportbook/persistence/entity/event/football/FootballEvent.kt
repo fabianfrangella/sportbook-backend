@@ -51,4 +51,10 @@ class FootballEvent : Event() {
     override fun updatePitchSize(size: Int?) {
         size?.let { pitchSize = it }
     }
+
+    override fun getTeam(teamId: Long): Team {
+        if (firstTeam?.id == teamId) return firstTeam!!
+        if (secondTeam?.id == teamId) return secondTeam!!
+        throw BadRequestException("El equipo con id $teamId no pertenece a este evento")
+    }
 }

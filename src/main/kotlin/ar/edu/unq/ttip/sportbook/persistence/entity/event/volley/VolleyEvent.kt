@@ -36,4 +36,9 @@ class VolleyEvent : Event() {
         // TODO: averiguar de a cuantos jugadores se puede jugar al volley y acomodar un pitchSize para ello, si es que tiene sentido
         throw NotImplementedError("Pitch size is not applicable for VolleyEvent")
     }
+
+    override fun getTeam(teamId: Long): Team {
+        return teams.find { it.id == teamId }
+            ?: throw IllegalArgumentException("El equipo con id $teamId no pertenece a este evento")
+    }
 }
