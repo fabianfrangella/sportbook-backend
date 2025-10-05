@@ -6,7 +6,6 @@ import ar.edu.unq.ttip.sportbook.controller.response.EventStatsResponse
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Event
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.FinishedEventStats
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Lineup
-import ar.edu.unq.ttip.sportbook.persistence.entity.event.football.FootballLineup
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.Position
 import ar.edu.unq.ttip.sportbook.security.UserDetailsImpl
 import ar.edu.unq.ttip.sportbook.service.EventService
@@ -96,7 +95,7 @@ class EventController(
         description = "Devuelve las alineaciones (lineups) del evento indicado."
     )
     fun getEventLineups(@PathVariable("eventId") eventId: Long): List<Lineup> {
-        val footballEvent = eventService.getFootballEvent(eventId)
+        val footballEvent = eventService.getEvent(eventId)
         return lineupService.getEventLineups(footballEvent)
     }
 
