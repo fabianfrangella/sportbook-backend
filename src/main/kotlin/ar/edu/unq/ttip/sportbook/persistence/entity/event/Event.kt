@@ -121,4 +121,6 @@ abstract class Event() {
         }
     }
 
+    abstract fun createLineups() : List<Lineup>
+
 }

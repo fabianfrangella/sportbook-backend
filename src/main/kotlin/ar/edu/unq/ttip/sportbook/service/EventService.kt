@@ -9,7 +9,6 @@ import ar.edu.unq.ttip.sportbook.exception.NotFoundException
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Event
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.FinishedEventStats
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.football.FootballEvent
-import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportUser
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.TeamGoal
@@ -26,38 +25,15 @@ class EventService(
     val eventJpaRepository: EventJpaRepository,
     val playerJpaRepository: PlayerJpaRepository,
     val teamJpaRepository: TeamJpaRepository,
-    val footballLineupService: FootballLineupService,
+    val lineupService: LineupService,
     val finishedEventStatsRepository: FinishedEventStatsRepository
 ) {
 
     @Transactional
     fun createEvent(event: Event): Event {
         val saved = eventJpaRepository.save(event)
-
-        if (saved is FootballEvent) {
-            val teams = listOfNotNull(saved.firstTeam, saved.secondTeam)
-            if (teams.isEmpty()) {
-                throw BadRequestException("El evento de fútbol debe tener al menos un equipo asignado")
-            }
-
-            teams.forEach { team -> createAndPopulateFootballLineup(saved, team) }
-        }
-
+        lineupService.createLineups(event)
         return saved
-    }
-
-    private fun createAndPopulateFootballLineup(event: FootballEvent, team: Team) {
-        val lineup = footballLineupService.createLineup(event, team)
-
-        val players: List<Player> = team.players
-        val distinctCount = players.map { it.id }.toSet().size
-        if (distinctCount != players.size) {
-            throw BadRequestException("El equipo ${team.color} contiene jugadores duplicados")
-        }
-
-        players.forEach { player ->
-            lineup.addPlayerToBench(player)
-        }
     }
 
     fun getEvent(id: Long): Event =
@@ -85,21 +61,9 @@ class EventService(
             .orElseThrow { NotFoundException("Evento no encontrado") }
         val player = playerJpaRepository.findByUserUsername(user.username!!)
             .orElseThrow { NotFoundException("Jugador no encontrado") }
-
         player.joinTeam(event, teamId)
 
-        if (event is FootballEvent) {
-            val lineups = footballLineupService.getEventLineups(event)
-            lineups.forEach {
-                if (it.team.id != teamId) {
-                    it.removePlayer(player)
-                } else {
-                    it.addPlayerToBench(player)
-                }
-                footballLineupService.save(it)
-            }
-        }
-
+        lineupService.movePlayerFromTeamToBench(player, teamId, event)
         return eventJpaRepository.save(event)
     }
 
@@ -120,12 +84,12 @@ class EventService(
             .orElseThrow { NotFoundException("Jugador no encontrado") }
 
         event.leave(player)
-
+        lineupService.removePlayerFromLineups(event, player)
         if (event is FootballEvent) {
-            val lineups = footballLineupService.getEventLineups(event)
+            val lineups = lineupService.getEventLineups(event)
             lineups.forEach { lineup ->
                 lineup.removePlayer(player)
-                footballLineupService.save(lineup)
+                lineupService.save(lineup)
             }
         }
 

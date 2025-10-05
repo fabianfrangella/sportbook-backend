@@ -1,6 +1,7 @@
 package ar.edu.unq.ttip.sportbook.persistence.entity.event.football
 
 import ar.edu.unq.ttip.sportbook.exception.BusinessException
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.Lineup
 import ar.edu.unq.ttip.sportbook.persistence.entity.exception.DuplicatePlayerException
 import ar.edu.unq.ttip.sportbook.persistence.entity.exception.NotTeamMemberException
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.Position
@@ -10,11 +11,7 @@ import jakarta.persistence.*
 
 @Entity
 @Table(name = "FOOTBALL_LINEUP")
-class FootballLineup {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = 0
-
+class FootballLineup : Lineup() {
     @ManyToMany
     @JoinTable(
         name = "football_lineup_positions",
@@ -33,24 +30,8 @@ class FootballLineup {
     )
     var bench: MutableList<Player> = mutableListOf()
 
-    @ManyToMany
-    @JoinTable(
-        name = "football_lineup_initial",
-        joinColumns = [JoinColumn(name = "lineup_id")],
-        inverseJoinColumns = [JoinColumn(name = "player_id")]
-    )
-    var initialLineup: MutableList<Player> = mutableListOf()
 
-    @ManyToOne
-    @JoinColumn(name = "event_id")
-    lateinit var event: FootballEvent
-
-    @ManyToOne
-    @JoinColumn(name = "team_id")
-    lateinit var team: Team
-
-
-    fun addPlayerToPosition(player: Player, position: Position) {
+    override fun addPlayerToPosition(player: Player, position: Position) {
         if (!team.hasPlayerId(player.id)) {
             throw NotTeamMemberException(player.name)
         }
@@ -68,21 +49,21 @@ class FootballLineup {
             bench.removeIf { it.id == player.id }
     }
 
-    fun removePlayerFromPosition(position: Position) {
+    override fun removePlayerFromPosition(position: Position) {
         val player = positionsByPlayer[position] ?: throw BusinessException("No hay ningún jugador en la posición $position")
         positionsByPlayer.remove(position)
         initialLineup.removeIf{ it.id == player.id}
         bench.add(player)
     }
 
-    fun addPlayerToBench(player: Player) {
+    override fun addPlayerToBench(player: Player) {
         if (initialLineup.contains(player) || bench.contains(player)) {
             throw DuplicatePlayerException(player.name)
         }
         bench.add(player)
     }
 
-    fun removePlayer(player: Player) {
+    override fun removePlayer(player: Player) {
         positionsByPlayer.entries
             .find { it.value.id == player.id }
             ?.let { entry ->

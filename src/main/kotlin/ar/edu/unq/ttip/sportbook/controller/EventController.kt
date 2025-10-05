@@ -5,11 +5,12 @@ import ar.edu.unq.ttip.sportbook.controller.request.UpdateEventRequest
 import ar.edu.unq.ttip.sportbook.controller.response.EventStatsResponse
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Event
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.FinishedEventStats
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.Lineup
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.football.FootballLineup
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.Position
 import ar.edu.unq.ttip.sportbook.security.UserDetailsImpl
 import ar.edu.unq.ttip.sportbook.service.EventService
-import ar.edu.unq.ttip.sportbook.service.FootballLineupService
+import ar.edu.unq.ttip.sportbook.service.LineupService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
@@ -23,7 +24,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 @Tag(name = "Eventos", description = "Endpoints para gestionar eventos deportivos")
 class EventController(
     val eventService: EventService,
-    val footballLineupService: FootballLineupService
+    val lineupService: LineupService
 ) {
 
     @PostMapping
@@ -92,11 +93,11 @@ class EventController(
     @Operation(
         summary = "Obtener alineaciones del evento",
         method = "GET",
-        description = "Devuelve las alineaciones (lineups) del evento de fútbol indicado."
+        description = "Devuelve las alineaciones (lineups) del evento indicado."
     )
-    fun getEventLineups(@PathVariable("eventId") eventId: Long): List<FootballLineup> {
+    fun getEventLineups(@PathVariable("eventId") eventId: Long): List<Lineup> {
         val footballEvent = eventService.getFootballEvent(eventId)
-        return footballLineupService.getEventLineups(footballEvent)
+        return lineupService.getEventLineups(footballEvent)
     }
 
     @PutMapping("/lineup/{lineupId}/position")
@@ -109,8 +110,8 @@ class EventController(
         @PathVariable("lineupId") lineupId: Long,
         @RequestParam position: Position,
         @RequestParam playerId: Long
-    ): FootballLineup =
-        footballLineupService.addPlayerToPosition(lineupId, playerId, position)
+    ): Lineup =
+        lineupService.addPlayerToPosition(lineupId, playerId, position)
 
     @DeleteMapping("/lineup/{lineupId}/position")
     @Operation(
@@ -121,8 +122,8 @@ class EventController(
     fun removePlayerFromPosition(
         @PathVariable("lineupId") lineupId: Long,
         @RequestParam position: Position
-    ): FootballLineup =
-        footballLineupService.removePlayerFromPosition(lineupId, position)
+    ): Lineup =
+        lineupService.removePlayerFromPosition(lineupId, position)
 
     @PutMapping("/{id}")
     @Operation(

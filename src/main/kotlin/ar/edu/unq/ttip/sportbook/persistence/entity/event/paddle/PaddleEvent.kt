@@ -4,6 +4,7 @@ import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Sport
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Event
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.Lineup
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.JoinColumn
@@ -25,5 +26,9 @@ class PaddleEvent() : Event() {
 
     override fun removePlayerFromTeams(player: Player) {
         teams.forEach { team -> team.players.remove(player) }
+    }
+
+    override fun createLineups(): List<Lineup> {
+        throw NotImplementedError("Lineups are not implemented for PaddleEvent")
     }
 }
