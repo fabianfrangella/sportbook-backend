@@ -4,6 +4,7 @@ import ar.edu.unq.ttip.sportbook.exception.NotFoundException
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Event
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Lineup
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.Position
+import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player
 import ar.edu.unq.ttip.sportbook.persistence.repository.LineupRepository
 import ar.edu.unq.ttip.sportbook.persistence.repository.PlayerJpaRepository
@@ -43,10 +44,10 @@ class LineupService(
         return lineupRepository.save(lineup)
     }
 
-    fun movePlayerFromTeamToBench(player: Player, teamId: Long, event: Event) {
+    fun movePlayerFromTeamToBench(player: Player, team: Team, event: Event) {
         val lineups = lineupRepository.findByEvent(event)
         lineups.forEach {
-            if (it.team.id != teamId) {
+            if (it.team == team) {
                 it.removePlayer(player)
             } else {
                 it.addPlayerToBench(player)

@@ -25,7 +25,8 @@ class EventService(
     val eventJpaRepository: EventJpaRepository,
     val playerJpaRepository: PlayerJpaRepository,
     val lineupService: LineupService,
-    val finishedEventStatsRepository: FinishedEventStatsRepository
+    val finishedEventStatsRepository: FinishedEventStatsRepository,
+    val teamRepository: TeamJpaRepository
 ) {
 
     @Transactional
@@ -52,9 +53,11 @@ class EventService(
             .orElseThrow { NotFoundException("Evento no encontrado") }
         val player = playerJpaRepository.findByUserUsername(user.username!!)
             .orElseThrow { NotFoundException("Jugador no encontrado") }
-        player.joinTeam(event, teamId)
+        val team = teamRepository.findById(teamId)
+            .orElseThrow { NotFoundException("Equipo no encontrado") }
+        player.joinTeam(event, team)
 
-        lineupService.movePlayerFromTeamToBench(player, teamId, event)
+        lineupService.movePlayerFromTeamToBench(player, team, event)
         return eventJpaRepository.save(event)
     }
 
