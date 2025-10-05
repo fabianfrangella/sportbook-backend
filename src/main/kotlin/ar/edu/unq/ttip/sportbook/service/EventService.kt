@@ -85,14 +85,6 @@ class EventService(
 
         event.leave(player)
         lineupService.removePlayerFromLineups(event, player)
-        if (event is FootballEvent) {
-            val lineups = lineupService.getEventLineups(event)
-            lineups.forEach { lineup ->
-                lineup.removePlayer(player)
-                lineupService.save(lineup)
-            }
-        }
-
         return eventJpaRepository.save(event)
     }
 
