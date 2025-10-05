@@ -26,7 +26,7 @@ abstract class Lineup {
 
     @ManyToOne
     @JoinColumn(name = "event_id")
-    lateinit var event: FootballEvent
+    lateinit var event: Event
 
     @ManyToOne
     @JoinColumn(name = "team_id")
