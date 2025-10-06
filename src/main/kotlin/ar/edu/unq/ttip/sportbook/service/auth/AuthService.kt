@@ -1,7 +1,6 @@
 package ar.edu.unq.ttip.sportbook.service.auth
 
 import ar.edu.unq.ttip.sportbook.exception.ConflictException
-import ar.edu.unq.ttip.sportbook.persistence.entity.user.AuthToken
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportUser
 import ar.edu.unq.ttip.sportbook.persistence.repository.SportUserJpaRepository
 import org.springframework.security.authentication.AuthenticationManager
@@ -19,14 +18,14 @@ class AuthService(
     private val passwordEncoder: PasswordEncoder
 ) {
 
-    fun login(username: String, rawPassword: String): AuthToken {
+    fun login(username: String, rawPassword: String): String {
         val auth = authenticationManager.authenticate(
             UsernamePasswordAuthenticationToken(username, rawPassword)
         )
         val principal = auth.principal as UserDetails
 
         val token = jwtService.generateToken(principal)
-        return AuthToken(token, jwtService.expirationTime)
+        return token
     }
 
     @Transactional
