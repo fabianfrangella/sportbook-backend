@@ -10,6 +10,7 @@ import ar.edu.unq.ttip.sportbook.persistence.entity.event.TransferData
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.volley.VolleyEvent
 import ar.edu.unq.ttip.sportbook.persistence.repository.EventJpaRepository
 import ar.edu.unq.ttip.sportbook.service.EventService
+import ar.edu.unq.ttip.sportbook.service.auth.AuthService
 import jakarta.annotation.PostConstruct
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -20,7 +21,9 @@ import java.time.temporal.ChronoUnit
 import kotlin.random.Random
 
 @Service
-class DataInitializer(val eventService: EventService, val eventJpaRepository: EventJpaRepository) {
+class DataInitializer(val eventService: EventService,
+                      val eventJpaRepository: EventJpaRepository,
+                      val authService: AuthService) {
 
     @PostConstruct
     @Transactional
@@ -172,5 +175,12 @@ class DataInitializer(val eventService: EventService, val eventJpaRepository: Ev
 
         eventService.createEvent(footballEvent)
         eventJpaRepository.saveAll(listOf(volleyEvent,paddleEvent))
+        authService.register(SportUser().apply {
+            username = "admin"
+            password = "1234"
+            name = "Lionel"
+            lastName = "Messi"
+            email = "lio87kpo@hotmail.com"
+        })
     }
 }

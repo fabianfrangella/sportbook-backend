@@ -1,5 +1,6 @@
 package ar.edu.unq.ttip.sportbook.persistence.entity.event
 
+import ar.edu.unq.ttip.sportbook.controller.request.FinishEventRequest
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.TeamGoal
@@ -20,7 +21,7 @@ import jakarta.persistence.Table
 
 @Entity
 @Table(name = "FINISHED_EVENT_STATS")
-class FinishedEventStats {
+class FinishedEventStats() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0
@@ -52,4 +53,18 @@ class FinishedEventStats {
     fun isVictoryFor(userId: Long): Boolean = winningTeam?.players?.any { it.user.id == userId } == true
 
     fun mvpUsernameOrNull(): String? = mvp?.user?.username
+
+    constructor(event: Event, finishEventData: FinishEventRequest) : this() {
+        this.event = event
+        this.goals = finishEventData.goals.map { teamGoalRequest ->
+            TeamGoal(
+                team = event.getTeam(teamGoalRequest.teamId),
+                player = event.getPlayer(teamGoalRequest.playerId),
+                finishedEventStats = this
+            )
+        }.toMutableList()
+        this.winningTeam = event.getTeam(finishEventData.winningTeamId)
+        this.mvp = event.getPlayer(finishEventData.mvpId)
+        this.missingPlayers = finishEventData.missingPlayerIds.map { event.getPlayer(it) }.toMutableSet()
+    }
 }

@@ -30,4 +30,19 @@ class Team() {
     lateinit var color: String
 
     fun hasPlayerId(playerId: Long): Boolean = players.any { it.id == playerId }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Team) return false
+
+        if (id != other.id) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
+    }
+
+
 }

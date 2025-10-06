@@ -4,6 +4,7 @@ import ar.edu.unq.ttip.sportbook.exception.BusinessException
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.football.FootballEvent
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.paddle.PaddleEvent
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.volley.VolleyEvent
+import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Sport
 import com.fasterxml.jackson.annotation.JsonFormat
@@ -120,5 +121,23 @@ abstract class Event() {
             alias?.let { data.alias = it }
         }
     }
+
+    abstract fun createLineups() : List<Lineup>
+
+    abstract fun updatePitchSize(size: Int?)
+
+    fun finish() {
+        if (isFinished) {
+            throw BusinessException("El evento $id ya fue finalizado")
+        }
+        isFinished = true
+    }
+
+    fun getPlayer(playerId: Long): Player {
+        return players?.find { it.id == playerId }
+            ?: throw BusinessException("Jugador $playerId no encontrado en el evento")
+    }
+
+    abstract fun getTeam(teamId: Long) : Team
 
 }

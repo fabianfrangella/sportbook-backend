@@ -1,9 +1,11 @@
 package ar.edu.unq.ttip.sportbook.persistence.entity.event.football
 
+import ar.edu.unq.ttip.sportbook.exception.BadRequestException
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Sport
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Event
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.Lineup
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.ManyToOne
@@ -24,7 +26,35 @@ class FootballEvent : Event() {
         secondTeam?.players?.remove(player)
     }
 
-    fun updatePitchSize(size: Int?) {
+    override fun createLineups(): List<Lineup> {
+        return listOf(firstTeam, secondTeam).map {
+            createAndPopulateFootballLineup(it!!)
+        }
+    }
+
+    private fun createAndPopulateFootballLineup(team: Team) : Lineup {
+        val lineup = FootballLineup()
+        lineup.event = this
+        lineup.team = team
+        val players: List<Player> = team.players
+        val distinctCount = players.map { it.id }.toSet().size
+        if (distinctCount != players.size) {
+            throw BadRequestException("El equipo ${team.color} contiene jugadores duplicados")
+        }
+
+        players.forEach { player ->
+            lineup.addPlayerToBench(player)
+        }
+        return lineup
+    }
+
+    override fun updatePitchSize(size: Int?) {
         size?.let { pitchSize = it }
+    }
+
+    override fun getTeam(teamId: Long): Team {
+        if (firstTeam?.id == teamId) return firstTeam!!
+        if (secondTeam?.id == teamId) return secondTeam!!
+        throw BadRequestException("El equipo con id $teamId no pertenece a este evento")
     }
 }

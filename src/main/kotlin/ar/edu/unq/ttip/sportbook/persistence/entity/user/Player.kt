@@ -29,22 +29,21 @@ class Player() {
         this.user = user
     }
 
-    fun joinTeam(event: Event, teamId: Long) {
+    fun joinTeam(event: Event, team: Team) {
         if (event.players!!.none { it.id == this.id }) {
             throw BusinessException("No estás registrado en el evento")
         }
         when (event) {
-            is FootballEvent -> joinFootballTeam(event, teamId)
-            is PaddleEvent -> joinPaddleEvent(event, teamId)
-            is VolleyEvent -> joinVolleyEvent(event, teamId)
+            is FootballEvent -> joinFootballTeam(event, team)
+            is PaddleEvent -> joinPaddleEvent(event, team)
+            is VolleyEvent -> joinVolleyEvent(event, team)
             else -> throw BusinessException("El evento no es de futbol")
         }
     }
 
-    private fun joinVolleyEvent(event: VolleyEvent, teamId: Long) {
-        val team = event.teams.find { it.id == teamId } ?: throw BusinessException("El equipo no pertenece a este evento")
+    private fun joinVolleyEvent(event: VolleyEvent, team: Team) {
         joinTeamForMultipleTeamsEvent(team, event.teams, event.maxPlayers)
-        removeFromTeams(event.teams, teamId)
+        removeFromTeams(event.teams, team)
     }
 
     private fun joinTeamForMultipleTeamsEvent(
@@ -61,41 +60,32 @@ class Player() {
         team.players.add(this)
     }
 
-    private fun removeFromTeams(teams: List<Team>, teamId: Long) {
-        teams.forEach {
-            if (it.id != teamId) {
-                it.players.removeIf({ it.id == this.id })
+    private fun removeFromTeams(teams: List<Team>, team: Team) {
+        teams.forEach { otherTeam ->
+            if (otherTeam != team) {
+                otherTeam.players.removeIf { it == this }
             }
         }
     }
 
-    private fun joinPaddleEvent(event: PaddleEvent, teamId: Long) {
-        val team = event.teams.find { it.id == teamId } ?: throw BusinessException("El equipo no pertenece a este evento")
+    private fun joinPaddleEvent(event: PaddleEvent, team: Team) {
         joinTeamForMultipleTeamsEvent(team, event.teams, event.maxPlayers)
-        removeFromTeams(event.teams, teamId)
+        removeFromTeams(event.teams, team)
     }
 
-    private fun joinFootballTeam(event: FootballEvent, teamId: Long) {
-        val team = getJoiningFootballTeam(event, teamId)
-        val otherTeam = getOtherFootballTeam(event, teamId)
+    private fun joinFootballTeam(event: FootballEvent, team: Team) {
+        val otherTeam = getOtherFootballTeam(event, team)
         validateTeam(team, event)
-        team!!.players.add(this)
-        if (otherTeam!!.players.any { it.id == this.id }) {
-            otherTeam.players.removeIf({ it.id == this.id })
+        team.players.add(this)
+        if (otherTeam!!.players.any { it == this }) {
+            otherTeam.players.removeIf { it == this }
         }
     }
 
-    private fun getJoiningFootballTeam(event: FootballEvent, teamId: Long) =
-        when (teamId) {
-            event.firstTeam?.id -> event.firstTeam
-            event.secondTeam?.id -> event.secondTeam
-            else -> throw BusinessException("El equipo no pertenece a este evento")
-        }
-
-    private fun getOtherFootballTeam(event: FootballEvent, teamId: Long) =
-        when (teamId) {
-            event.firstTeam?.id -> event.secondTeam
-            event.secondTeam?.id -> event.firstTeam
+    private fun getOtherFootballTeam(event: FootballEvent, team: Team) =
+        when (team) {
+            event.firstTeam -> event.secondTeam
+            event.secondTeam -> event.firstTeam
             else -> throw BusinessException("El equipo no pertenece a este evento")
         }
 
@@ -106,8 +96,26 @@ class Player() {
         if (team!!.players.size >= event.maxPlayers / 2) {
             throw BusinessException("El equipo ya tiene la cantidad maxima de jugadores")
         }
-        if (team.players.any { it.id == this.id }) {
+        if (team.players.any { it == this }) {
             throw BusinessException("Ya eres parte del equipo!")
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Player) return false
+
+        if (id != other.id) return false
+        if (name != other.name) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + name.hashCode()
+        return result
+    }
+
+
 }

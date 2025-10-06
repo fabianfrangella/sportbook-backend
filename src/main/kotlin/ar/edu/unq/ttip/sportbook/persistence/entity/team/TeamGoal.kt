@@ -13,7 +13,7 @@ import jakarta.persistence.Table
 
 @Entity
 @Table(name = "TEAM_GOAL")
-class TeamGoal {
+class TeamGoal() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0
@@ -30,4 +30,10 @@ class TeamGoal {
     @JoinColumn(name = "finished_event_stats_id")
     @JsonIgnore
     var finishedEventStats: FinishedEventStats? = null
+
+    constructor(team: Team, player: Player, finishedEventStats: FinishedEventStats) : this() {
+        this.team = team
+        this.player = player
+        this.finishedEventStats = finishedEventStats
+    }
 }

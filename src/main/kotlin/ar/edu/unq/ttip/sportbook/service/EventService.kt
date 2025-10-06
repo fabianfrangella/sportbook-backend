@@ -9,7 +9,6 @@ import ar.edu.unq.ttip.sportbook.exception.NotFoundException
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Event
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.FinishedEventStats
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.football.FootballEvent
-import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportUser
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.TeamGoal
@@ -25,52 +24,21 @@ import kotlin.math.max
 class EventService(
     val eventJpaRepository: EventJpaRepository,
     val playerJpaRepository: PlayerJpaRepository,
-    val teamJpaRepository: TeamJpaRepository,
-    val footballLineupService: FootballLineupService,
-    val finishedEventStatsRepository: FinishedEventStatsRepository
+    val lineupService: LineupService,
+    val finishedEventStatsRepository: FinishedEventStatsRepository,
+    val teamRepository: TeamJpaRepository
 ) {
 
     @Transactional
     fun createEvent(event: Event): Event {
         val saved = eventJpaRepository.save(event)
-
-        if (saved is FootballEvent) {
-            val teams = listOfNotNull(saved.firstTeam, saved.secondTeam)
-            if (teams.isEmpty()) {
-                throw BadRequestException("El evento de fútbol debe tener al menos un equipo asignado")
-            }
-
-            teams.forEach { team -> createAndPopulateFootballLineup(saved, team) }
-        }
-
+        lineupService.createLineups(event)
         return saved
-    }
-
-    private fun createAndPopulateFootballLineup(event: FootballEvent, team: Team) {
-        val lineup = footballLineupService.createLineup(event, team)
-
-        val players: List<Player> = team.players
-        val distinctCount = players.map { it.id }.toSet().size
-        if (distinctCount != players.size) {
-            throw BadRequestException("El equipo ${team.color} contiene jugadores duplicados")
-        }
-
-        players.forEach { player ->
-            lineup.addPlayerToBench(player)
-        }
     }
 
     fun getEvent(id: Long): Event =
         eventJpaRepository.findById(id)
             .orElseThrow { NotFoundException("Evento no encontrado") }
-
-    fun getFootballEvent(id: Long): FootballEvent {
-        val event = getEvent(id)
-        if (event !is FootballEvent) {
-            throw BadRequestException("El evento no es de fútbol")
-        }
-        return event
-    }
 
     fun getAllEvents(): List<Event> {
         return eventJpaRepository.findAll()
@@ -85,21 +53,11 @@ class EventService(
             .orElseThrow { NotFoundException("Evento no encontrado") }
         val player = playerJpaRepository.findByUserUsername(user.username!!)
             .orElseThrow { NotFoundException("Jugador no encontrado") }
+        val team = teamRepository.findById(teamId)
+            .orElseThrow { NotFoundException("Equipo no encontrado") }
+        player.joinTeam(event, team)
 
-        player.joinTeam(event, teamId)
-
-        if (event is FootballEvent) {
-            val lineups = footballLineupService.getEventLineups(event)
-            lineups.forEach {
-                if (it.team.id != teamId) {
-                    it.removePlayer(player)
-                } else {
-                    it.addPlayerToBench(player)
-                }
-                footballLineupService.save(it)
-            }
-        }
-
+        lineupService.movePlayerFromTeamToBench(player, team, event)
         return eventJpaRepository.save(event)
     }
 
@@ -120,15 +78,7 @@ class EventService(
             .orElseThrow { NotFoundException("Jugador no encontrado") }
 
         event.leave(player)
-
-        if (event is FootballEvent) {
-            val lineups = footballLineupService.getEventLineups(event)
-            lineups.forEach { lineup ->
-                lineup.removePlayer(player)
-                footballLineupService.save(lineup)
-            }
-        }
-
+        lineupService.removePlayerFromLineups(event, player)
         return eventJpaRepository.save(event)
     }
 
@@ -142,25 +92,18 @@ class EventService(
             updateRequest.creator,
             updateRequest.organizer
         )
+        event.updateLocation(
+            updateRequest.locationX,
+            updateRequest.locationY,
+            updateRequest.locationPlaceName
+        )
 
-        if (updateRequest.locationX != null || updateRequest.locationY != null || updateRequest.locationPlaceName != null) {
-            event.updateLocation(
-                updateRequest.locationX,
-                updateRequest.locationY,
-                updateRequest.locationPlaceName
-            )
-        }
+        event.updateTransferData(
+            updateRequest.transferDataCbu,
+            updateRequest.transferDataAlias
+        )
 
-        if (updateRequest.transferDataCbu != null || updateRequest.transferDataAlias != null) {
-            event.updateTransferData(
-                updateRequest.transferDataCbu,
-                updateRequest.transferDataAlias
-            )
-        }
-
-        if (event is FootballEvent) {
-            event.updatePitchSize(updateRequest.pitchSize)
-        }
+        event.updatePitchSize(updateRequest.pitchSize)
 
         return eventJpaRepository.save(event)
     }
@@ -172,39 +115,9 @@ class EventService(
         if (event.isFinished) {
             throw BusinessException("El evento $eventId ya fue finalizado")
         }
-
-        event.isFinished = true
+        event.finish()
         eventJpaRepository.save(event)
-
-        val stats = FinishedEventStats()
-        stats.event = event
-
-        // Crear y asociar los goles
-        stats.goals = finishEventData.goals.map { goalRequest ->
-            TeamGoal().apply {
-                team = teamJpaRepository.findById(goalRequest.teamId)
-                    .orElseThrow { NotFoundException("Equipo ${goalRequest.teamId} no encontrado") }
-                player = playerJpaRepository.findById(goalRequest.playerId)
-                    .orElseThrow { NotFoundException("Jugador ${goalRequest.playerId} no encontrado") }
-                finishedEventStats = stats
-            }
-        }.toMutableList()
-
-        // Asociar equipo ganador
-        stats.winningTeam = teamJpaRepository.findById(finishEventData.winningTeamId)
-            .orElseThrow { NotFoundException("Equipo ganador ${finishEventData.winningTeamId} no encontrado") }
-
-        // Asociar MVP
-        stats.mvp = playerJpaRepository.findById(finishEventData.mvpId)
-            .orElseThrow { NotFoundException("Jugador MVP ${finishEventData.mvpId} no encontrado") }
-
-        // Asociar jugadores ausentes
-        stats.missingPlayers = finishEventData.missingPlayerIds
-            .mapTo(mutableSetOf()) { playerId ->
-                playerJpaRepository.findById(playerId)
-                    .orElseThrow { NotFoundException("Jugador ausente $playerId no encontrado") }
-            }
-
+        val stats = FinishedEventStats(event, finishEventData)
         return finishedEventStatsRepository.save(stats)
     }
 
