@@ -1,24 +1,22 @@
 package ar.edu.unq.ttip.sportbook.service.auth
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
-import java.security.Key;
-import java.util.Date;
-import java.util.HashMap;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
+import io.jsonwebtoken.Claims
+import io.jsonwebtoken.Jwts
+import io.jsonwebtoken.io.Decoders
+import io.jsonwebtoken.security.Keys
+import java.security.Key
+import java.util.Date
+import java.util.HashMap
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.stereotype.Service
+import java.time.Duration
 
 @Service
-class JwtService {
-    @Value("\${security.jwt.secret-key}")
-    private val secretKey: String? = null
-
-    @Value("\${security.jwt.expiration-time}")
-    val expirationTime: Long = 0
+class JwtService(
+    @Value("\${security.jwt.secret-key}") private val secretKey: String,
+    @Value("\${security.jwt.expiration-time}") private val expirationTime: Duration
+) {
 
     fun extractUsername(token: String?): String {
         val claims = extractAllClaims(token)
@@ -30,7 +28,7 @@ class JwtService {
     }
 
     fun generateToken(extraClaims: MutableMap<String?, Any?>?, userDetails: UserDetails): String {
-        return buildToken(extraClaims, userDetails, this.expirationTime)
+        return buildToken(extraClaims, userDetails, expirationTime.toMillis())
     }
 
     private fun buildToken(

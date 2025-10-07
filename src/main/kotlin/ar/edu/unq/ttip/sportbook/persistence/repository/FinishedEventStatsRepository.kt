@@ -2,6 +2,7 @@ package ar.edu.unq.ttip.sportbook.persistence.repository
 
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.FinishedEventStats
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Sport
+import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
@@ -36,22 +37,14 @@ interface FinishedEventStatsRepository : JpaRepository<FinishedEventStats, Long>
     """)
     fun findAllByUserIdAndSport(@Param("userId") userId: Long, @Param("sport") sport: Sport): List<FinishedEventStats>
 
-    @Query("""
-        select fes
-        from FinishedEventStats fes
-        join fetch fes.goals g
-        join fetch g.team t
-        join fetch g.player p
-        join fetch p.user u
-        where fes.event.id = :eventId
-    """)
-    fun findByEventIdWithGoals(@Param("eventId") eventId: Long): FinishedEventStats?
-
-    // fallback liviano si no hay goles
-    @Query("""
-        select fes
-        from FinishedEventStats fes
-        where fes.event.id = :eventId
-    """)
-    fun findByEventId(@Param("eventId") eventId: Long): FinishedEventStats?
+    @EntityGraph(attributePaths = [
+        "goals",
+        "goals.team",
+        "goals.player",
+        "winningTeam",
+        "mvp",
+        "missingPlayers"
+    ])
+    @Query("select distinct fes from FinishedEventStats fes where fes.event.id = :eventId")
+    fun fetchGraphByEventId(@Param("eventId") eventId: Long): FinishedEventStats?
 }

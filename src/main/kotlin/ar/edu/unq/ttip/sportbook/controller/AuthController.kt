@@ -26,7 +26,7 @@ class AuthController(val authService: AuthService) {
     )
     fun login(@RequestBody req: LoginRequest): LoginResponse {
         val token = authService.login(req.username, req.password)
-        return LoginResponse(token = token.token, expiresIn = token.expiresAt)
+        return LoginResponse(token = token)
     }
 
 
