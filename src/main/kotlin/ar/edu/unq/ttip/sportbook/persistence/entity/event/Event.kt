@@ -8,6 +8,7 @@ import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Sport
 import com.fasterxml.jackson.annotation.JsonFormat
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import jakarta.persistence.CascadeType
@@ -20,13 +21,10 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Inheritance
 import jakarta.persistence.InheritanceType
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.JoinTable
-import jakarta.persistence.ManyToMany
 import jakarta.persistence.ManyToOne
+import jakarta.persistence.OneToMany
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
-import jakarta.persistence.UniqueConstraint
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 import java.math.BigDecimal
@@ -58,14 +56,8 @@ abstract class Event() {
     var cost: BigDecimal? = null
     @OneToOne(cascade = [CascadeType.ALL])
     var transferData: TransferData? = null
-    @ManyToMany(targetEntity = Player::class, cascade = [CascadeType.ALL])
-    @JoinTable(
-        name = "event_player",
-        joinColumns = [JoinColumn(name = "event_id")],
-        inverseJoinColumns = [JoinColumn(name = "player_id")],
-        uniqueConstraints =  [UniqueConstraint(columnNames = ["event_id", "player_id"])]
-    )
-    var players: List<Player>? = null
+    @OneToMany(mappedBy = "event", cascade = [CascadeType.ALL], targetEntity = Player::class)
+    var players: List<Player> = listOf()
     lateinit var creator: String
     lateinit var organizer: String
 
@@ -75,16 +67,21 @@ abstract class Event() {
 
     var isFinished: Boolean = false
 
+    @OneToOne(mappedBy = "event", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @JsonIgnore
+    var finishedStats: FinishedEventStats? = null
+
     fun canJoin(username: String) : Boolean {
         if (isFull()) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "El evento está completo")
-        return players?.find { player -> player.user.username == username } == null
+        return players.find { player -> player.user.username == username } == null
     }
 
-    private fun isFull() = players?.size!! >= maxPlayers
+    private fun isFull() = players.size >= maxPlayers
     fun join(player: Player) {
-        if (canJoin(player.user.username!!))
-            players = players?.plus(player)
-        else
+        if (canJoin(player.user.username!!)) {
+            players = players.plus(player)
+            player.event = this
+        } else
             throw BusinessException("Ya sos parte de este evento!")
     }
 
@@ -95,6 +92,7 @@ abstract class Event() {
 
         removePlayerFromTeams(player)
         players = players!!.filter { it != player }
+        player.event = null
     }
 
     protected abstract fun removePlayerFromTeams(player: Player)
@@ -140,4 +138,5 @@ abstract class Event() {
 
     abstract fun getTeam(teamId: Long) : Team
 
+    abstract fun getFairnessScore(): Double
 }

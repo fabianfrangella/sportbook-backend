@@ -2,8 +2,10 @@ package ar.edu.unq.ttip.sportbook.persistence.entity.user
 
 import ar.edu.unq.ttip.sportbook.exception.BusinessException
 import com.fasterxml.jackson.annotation.JsonFormat
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.*
+import jakarta.persistence.FetchType
 import java.time.LocalDate
 
 @Entity
@@ -31,6 +33,15 @@ class SportUser() {
     )
     var profiles: MutableList<SportProfile> = mutableListOf()
 
+    @OneToMany(
+        mappedBy = "user",
+        cascade = [CascadeType.ALL],
+        orphanRemoval = true,
+        fetch = FetchType.EAGER
+    )
+    @JsonIgnore
+    var players: MutableList<Player> = mutableListOf()
+
     constructor(
         password: String,
         username: String,
@@ -55,4 +66,37 @@ class SportUser() {
         profiles.add(profile)
         profile.user = this // owning side
     }
+
+    fun wasMvpInPastEvents(playerId: Long): Boolean {
+        return players
+            .mapNotNull { it.event?.finishedStats }
+            .any { stats -> stats.mvp?.id == playerId }
+    }
+
+    fun getGoalsInPastEvents(playerId: Long): Int {
+        return players
+            .mapNotNull { it.event?.finishedStats }
+            .sumOf { stats -> stats.goals.count { it.player!!.id == playerId } }
+    }
+
+    fun wasAbsentInPastEvents(playerId: Long): Boolean {
+        return players
+            .mapNotNull { it.event?.finishedStats }
+            .any { stats -> stats.missingPlayers.any { it.id == playerId } }
+    }
+
+    fun calculatePlayerScore(sport: Sport): Double {
+        val sportProfile = profiles.find { it.sport == sport }
+
+        val currentPlayerId = players.firstOrNull()?.id ?: return 0.0
+
+        val mvpScore = if (wasMvpInPastEvents(currentPlayerId)) 10.0 else 0.0
+        val goalScore = getGoalsInPastEvents(currentPlayerId).toDouble()
+        val skillScore = if (sportProfile != null) sportProfile.details.ability!!.toDouble() else 5.0
+        val playsOftenScore = if (sportProfile != null && sportProfile.details.playsOften) 10.0 else 5.0
+        val absenceScore = if (wasAbsentInPastEvents(currentPlayerId)) 0.0 else 10.0
+
+        return (mvpScore + goalScore + skillScore + playsOftenScore + absenceScore) / 5.0
+    }
+
 }

@@ -29,7 +29,7 @@ class SportProfileService(
                     positions = cmd.positions.toMutableList(),
                     favoritePosition = cmd.favoritePosition,
                     ability = cmd.ability,
-                    playsOften = cmd.playsOften
+                    playsOften = cmd.playsOften?: false
                 )
             }
         )
@@ -44,7 +44,7 @@ class SportProfileService(
                     positions = cmd.positions.toMutableList(),
                     favoritePosition = cmd.favoritePosition,
                     ability = cmd.ability,
-                    playsOften = cmd.playsOften,
+                    playsOften = cmd.playsOften?: false,
                     blockHeight = cmd.blockHeight,
                     rolePreference = cmd.rolePreference
                 )
@@ -60,7 +60,7 @@ class SportProfileService(
                 PaddleProfileDetail(
                     preferredSide = cmd.preferredSide,
                     ability = cmd.ability,
-                    playsOften = cmd.playsOften,
+                    playsOften = cmd.playsOften?: false,
                     playStyle = cmd.playStyle,
                     playedTournaments = cmd.playedTournaments
                 )

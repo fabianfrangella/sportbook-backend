@@ -40,4 +40,27 @@ class VolleyEvent : Event() {
         return teams.find { it.id == teamId }
             ?: throw IllegalArgumentException("El equipo con id $teamId no pertenece a este evento")
     }
+
+    override fun getFairnessScore(): Double {
+        if (teams.isEmpty()) {
+            return 0.0
+        }
+
+        // Calculamos el puntaje promedio de cada equipo
+        val teamScores = teams.map { team ->
+            team.players.map { it.user.calculatePlayerScore(sport) }.average()
+        }
+
+        // Para volley, calculamos la desviación estándar entre los puntajes de los equipos
+        val mean = teamScores.average()
+        val variance = teamScores.map { score ->
+            (score - mean) * (score - mean)
+        }.average()
+        val standardDeviation = kotlin.math.sqrt(variance)
+
+        // Una desviación de 0 significa equipos perfectamente parejos (10 puntos)
+        // Una desviación de 3 o más significa equipos muy disparejos (0 puntos)
+        return kotlin.math.max(10.0 - (standardDeviation * 3.33), 0.0)
+    }
+
 }

@@ -6,13 +6,15 @@ import ar.edu.unq.ttip.sportbook.persistence.entity.event.Event
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.football.FootballEvent
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.paddle.PaddleEvent
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.volley.VolleyEvent
+import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.JoinColumn
 
 @Entity
 @Table(name = "PLAYER")
@@ -21,8 +23,13 @@ class Player() {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0
     lateinit var name: String
-    @OneToOne(cascade = [CascadeType.ALL])
+    @ManyToOne(cascade = [CascadeType.ALL])
     lateinit var user: SportUser
+
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "event_id")
+    var event: Event? = null
 
     constructor(name: String, user: SportUser) : this() {
         this.name = name
@@ -30,7 +37,7 @@ class Player() {
     }
 
     fun joinTeam(event: Event, team: Team) {
-        if (event.players!!.none { it.id == this.id }) {
+        if (event.players.none { it.id == this.id }) {
             throw BusinessException("No estás registrado en el evento")
         }
         when (event) {

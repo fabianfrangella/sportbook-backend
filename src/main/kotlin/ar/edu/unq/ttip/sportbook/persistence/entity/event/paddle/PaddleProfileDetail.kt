@@ -7,9 +7,9 @@ import jakarta.persistence.*
 @Table(name = "PADDLE_PROFILE_DETAIL")
 class PaddleProfileDetail(
     var preferredSide: String? = null,
-    var ability: Int? = null,
-    var playsOften: Boolean? = null,
     var playStyle: String? = null,
-    var playedTournaments: Boolean? = null
-) : SportProfileDetail()
+    var playedTournaments: Boolean? = null,
+    playsOften: Boolean = false,
+    ability: Int? = null
+) : SportProfileDetail(playsOften, ability)
 
