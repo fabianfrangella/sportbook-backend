@@ -198,10 +198,11 @@ class DataInitializer(val eventService: EventService,
         }
 
         eventService.createEvent(footballEvent)
-        val emptyFootballEvent = FootballEvent()
-        emptyFootballEvent.apply {
-            minPlayers = 22
-            maxPlayers = 24
+        val papiFutbolEvent = FootballEvent()
+        val papiFutbolPlayers = newPlayers.drop(27).take(5).map { it.event = papiFutbolEvent; it }
+        papiFutbolEvent.apply {
+            minPlayers = 10
+            maxPlayers = 10
             dateTime = LocalDateTime.now().plus(10, ChronoUnit.DAYS)
             location = Location().apply {
                 x = "-34.713390223118736"
@@ -213,18 +214,25 @@ class DataInitializer(val eventService: EventService,
                 cbu = "1095432198059"
                 alias = "carpincho.torre.bici"
             }
-            players = listOf()
+            players = papiFutbolPlayers
             creator =  "Fabi"
             organizer = "Fabi"
-            pitchSize = 11
+            pitchSize = 5
             firstTeam = Team().apply {
                 color = "Rojo"
+                players = papiFutbolPlayers
+                    .take(3)
+                    .toMutableList()
             }
             secondTeam = Team().apply {
                 color = "Azul"
+                players = papiFutbolPlayers
+                    .drop(3)
+                    .take(2)
+                    .toMutableList()
             }
         }
-        eventService.createEvent(emptyFootballEvent)
+        eventService.createEvent(papiFutbolEvent)
         eventJpaRepository.saveAll(listOf(volleyEvent,paddleEvent))
         val user = SportUser().apply {
             username = "admin"
