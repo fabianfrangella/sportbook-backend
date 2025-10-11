@@ -52,7 +52,7 @@ class EventService(
     fun joinTeam(eventId: Long, teamId: Long, user: SportUser) : Event {
         val event = eventJpaRepository.findById(eventId)
             .orElseThrow { NotFoundException("Evento no encontrado") }
-        val player = playerJpaRepository.findByUserUsername(user.username!!)
+        val player = playerJpaRepository.findByUserUsernameAndEventId(user.username!!, eventId)
             .orElseThrow { NotFoundException("Jugador no encontrado") }
         val team = teamRepository.findById(teamId)
             .orElseThrow { NotFoundException("Equipo no encontrado") }
@@ -66,7 +66,7 @@ class EventService(
         user: SportUser,
         event: Event
     ): Event {
-        val player = playerJpaRepository.findByUserUsername(user.username!!).orElse(Player(name = user.name!!, user = user))
+        val player = Player(name = user.name!!, user = user)
         event.join(player)
         eventJpaRepository.save(event)
         return event
@@ -75,7 +75,7 @@ class EventService(
     fun leaveEvent(eventId: Long, user: SportUser) : Event {
         val event = eventJpaRepository.findById(eventId)
             .orElseThrow { NotFoundException("Evento no encontrado") }
-        val player = playerJpaRepository.findByUserUsername(user.username!!)
+        val player = playerJpaRepository.findByUserUsernameAndEventId(user.username!!, eventId)
             .orElseThrow { NotFoundException("Jugador no encontrado") }
 
         event.leave(player)
@@ -113,9 +113,6 @@ class EventService(
     fun finishEvent(eventId: Long, finishEventData: FinishEventRequest): FinishedEventStats {
         val event = getEvent(eventId)
 
-        if (event.isFinished) {
-            throw BusinessException("El evento $eventId ya fue finalizado")
-        }
         event.finish()
         eventJpaRepository.save(event)
         val stats = FinishedEventStats(event, finishEventData)

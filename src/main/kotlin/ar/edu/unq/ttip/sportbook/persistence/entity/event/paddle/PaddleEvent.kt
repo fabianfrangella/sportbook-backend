@@ -40,4 +40,29 @@ class PaddleEvent() : Event() {
         return teams.find { it.id == teamId }
             ?: throw IllegalArgumentException("El equipo con id $teamId no pertenece a este evento")
     }
+
+    override fun getFairnessScore(): Double {
+        if (teams.isEmpty()) {
+            return 0.0
+        }
+
+        // Calculamos el puntaje promedio de cada equipo
+        val teamScores = teams.map { team ->
+            team.players.map { it.user.calculatePlayerScore(sport) }.average()
+        }
+
+        // Encontramos la diferencia máxima entre cualquier par de equipos
+        var maxDifference = 0.0
+        for (i in teamScores.indices) {
+            for (j in i + 1 until teamScores.size) {
+                val difference = kotlin.math.abs(teamScores[i] - teamScores[j])
+                if (difference > maxDifference) {
+                    maxDifference = difference
+                }
+            }
+        }
+
+        return kotlin.math.max(10.0 - maxDifference, 0.0)
+    }
+
 }

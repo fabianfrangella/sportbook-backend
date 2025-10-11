@@ -7,7 +7,6 @@ import ar.edu.unq.ttip.sportbook.persistence.entity.team.TeamGoal
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
-import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -26,7 +25,7 @@ class FinishedEventStats() {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "event_id")
     @JsonIgnore
     var event: Event? = null
@@ -34,11 +33,11 @@ class FinishedEventStats() {
     @OneToMany(mappedBy = "finishedEventStats", cascade = [CascadeType.ALL], orphanRemoval = true)
     var goals: MutableList<TeamGoal> = mutableListOf()
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "winning_team_id")
     var winningTeam: Team? = null
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "mvp_id")
     var mvp: Player? = null
 

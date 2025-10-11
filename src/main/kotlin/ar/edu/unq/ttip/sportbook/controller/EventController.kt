@@ -9,6 +9,7 @@ import ar.edu.unq.ttip.sportbook.persistence.entity.event.Lineup
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.Position
 import ar.edu.unq.ttip.sportbook.security.UserDetailsImpl
 import ar.edu.unq.ttip.sportbook.service.EventService
+import ar.edu.unq.ttip.sportbook.service.FairnessService
 import ar.edu.unq.ttip.sportbook.service.LineupService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -23,7 +24,8 @@ import org.springframework.web.bind.annotation.ResponseStatus
 @Tag(name = "Eventos", description = "Endpoints para gestionar eventos deportivos")
 class EventController(
     val eventService: EventService,
-    val lineupService: LineupService
+    val lineupService: LineupService,
+    val fairnessService: FairnessService
 ) {
 
     @PostMapping
@@ -156,4 +158,12 @@ class EventController(
     fun getEventStats(
         @PathVariable eventId: Long,
     ): EventStatsResponse = eventService.getStats(eventId)
+
+    @GetMapping("/{eventId}/fairness-score")
+    @Operation(
+        summary = "Obtener fairness score de un evento",
+        method = "GET",
+        description = "Devuelve el fairness score de un evento."
+    )
+    fun getFairnessScore(@PathVariable eventId: Long): Int = fairnessService.getFairnessScore(eventId)
 }

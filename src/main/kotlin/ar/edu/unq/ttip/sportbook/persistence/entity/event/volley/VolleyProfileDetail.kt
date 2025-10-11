@@ -12,9 +12,9 @@ class VolleyProfileDetail(
     var positions: MutableList<String> = mutableListOf(),
 
     var favoritePosition: String? = null,
-    var ability: Int? = null,
-    var playsOften: Boolean? = null,
     var blockHeight: Int? = null,
-    var rolePreference: String? = null
-) : SportProfileDetail()
+    var rolePreference: String? = null,
+    playsOften: Boolean = false,
+    ability: Int? = null
+) : SportProfileDetail(playsOften, ability)
 

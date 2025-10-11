@@ -7,5 +7,5 @@ import java.util.Optional
 
 @Repository
 interface PlayerJpaRepository : JpaRepository<Player, Long> {
-    fun findByUserUsername(username: String) : Optional<Player>
+    fun findByUserUsernameAndEventId(username: String, eventId: Long) : Optional<Player>
 }

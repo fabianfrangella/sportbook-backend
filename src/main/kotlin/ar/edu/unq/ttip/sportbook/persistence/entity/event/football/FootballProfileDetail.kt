@@ -10,9 +10,8 @@ class FootballProfileDetail(
     @CollectionTable(name = "FOOTBALL_POSITIONS", joinColumns = [JoinColumn(name = "profile_id")])
     @Column(name = "position")
     var positions: MutableList<String> = mutableListOf(),
-
     var favoritePosition: String? = null,
-    var ability: Int? = null,
-    var playsOften: Boolean? = null
-) : SportProfileDetail()
+    playsOften: Boolean = false,
+    ability: Int? = null
+) : SportProfileDetail(playsOften, ability)
 

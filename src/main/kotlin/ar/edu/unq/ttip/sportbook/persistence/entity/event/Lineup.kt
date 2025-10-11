@@ -38,7 +38,6 @@ abstract class Lineup {
         joinColumns = [JoinColumn(name = "lineup_id")],
         inverseJoinColumns = [JoinColumn(name = "player_id")]
     )
-
     var initialLineup: MutableList<Player> = mutableListOf()
     abstract fun addPlayerToPosition(player: Player, position: Position)
     abstract fun removePlayerFromPosition(position: Position)

@@ -7,7 +7,12 @@ import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportUser
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.TransferData
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.football.FootballProfileDetail
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.paddle.PaddleProfileDetail
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.volley.VolleyEvent
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.volley.VolleyProfileDetail
+import ar.edu.unq.ttip.sportbook.persistence.entity.user.Sport
+import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportProfile
 import ar.edu.unq.ttip.sportbook.persistence.repository.EventJpaRepository
 import ar.edu.unq.ttip.sportbook.service.EventService
 import ar.edu.unq.ttip.sportbook.service.auth.AuthService
@@ -80,10 +85,25 @@ class DataInitializer(val eventService: EventService,
                 lastName = "Last Name $it",
                 email = "$playerName@gmail.com",
                 dateOfBirth = LocalDate.of(1994,9,20))
+            player.user.profiles = mutableListOf(
+                SportProfile(player.user, Sport.FOOTBALL, FootballProfileDetail().apply {
+                    ability = Random.nextInt(1, 5)
+                    playsOften = Random.nextBoolean()
+                }),
+                SportProfile(player.user, Sport.PADDLE, PaddleProfileDetail().apply {
+                    ability = Random.nextInt(1, 5)
+                    playsOften = Random.nextBoolean()
+                }),
+                SportProfile(player.user, Sport.VOLLEY, VolleyProfileDetail().apply {
+                    ability = Random.nextInt(1, 5)
+                    playsOften = Random.nextBoolean()
+                }))
             player
         }
 
-        val footballEvent = FootballEvent().apply {
+        val footballEvent = FootballEvent()
+        val footballPlayers = newPlayers.take(22).map { it.event = footballEvent; it }
+        footballEvent.apply {
             minPlayers = 22
             maxPlayers = 24
             dateTime = LocalDateTime.now().plus(10, ChronoUnit.DAYS)
@@ -97,26 +117,28 @@ class DataInitializer(val eventService: EventService,
                 cbu = "1095432198059"
                 alias = "carpincho.torre.bici"
             }
-            players = newPlayers.take(22)
+            players = footballPlayers
             creator =  "Fabi"
             organizer = "Fabi"
             pitchSize = 11
             firstTeam = Team().apply {
                 color = "Rojo"
-                players = newPlayers
+                players = footballPlayers
                     .take(11)
                     .toMutableList()
             }
             secondTeam = Team().apply {
                 color = "Azul"
-                players = newPlayers
+                players = footballPlayers
                     .drop(11)
                     .take(11)
                     .toMutableList()
             }
         }
 
-        val volleyEvent = VolleyEvent().apply {
+        val volleyEvent = VolleyEvent()
+        val volleyPlayers = newPlayers.drop(22).take(5).map { it.event = volleyEvent; it }
+        volleyEvent.apply {
             minPlayers = 10
             maxPlayers = 20
             dateTime = LocalDateTime.now().plus(10, ChronoUnit.DAYS)
@@ -130,10 +152,10 @@ class DataInitializer(val eventService: EventService,
                 cbu = "1231243124132"
                 alias = "pez.roto.cuero"
             }
-            players = newPlayers.drop(22).take(5)
+            players = volleyPlayers
             creator =  "Fabi"
             organizer = "Fabi"
-            teams = newPlayers.drop(22).take(2).map {
+            teams = volleyPlayers.map {
                 Team().apply {
                     val colors = listOf("Rojo", "Azul", "Verde", "Negro", "Blanco")
                     val randomIndex = Random.nextInt(colors.size);
@@ -145,7 +167,9 @@ class DataInitializer(val eventService: EventService,
         }
 
 
-        val paddleEvent = PaddleEvent().apply {
+        val paddleEvent = PaddleEvent()
+        val paddlePlayers = newPlayers.drop(42).take(5).map { it.event = paddleEvent; it }
+        paddleEvent.apply {
             minPlayers = 10
             maxPlayers = 20
             dateTime = LocalDateTime.now().plus(10, ChronoUnit.DAYS)
@@ -159,10 +183,10 @@ class DataInitializer(val eventService: EventService,
                 cbu = "12312312312"
                 alias = "obi.juan.kenobi"
             }
-            players = newPlayers.drop(42).take(5)
+            players = paddlePlayers
             creator =  "Fabi"
             organizer = "Fabi"
-            teams = newPlayers.drop(42).take(4).map {
+            teams = paddlePlayers.take(4).map {
                 Team().apply {
                     val colors = listOf("Rojo", "Azul", "Verde", "Negro", "Blanco")
                     val randomIndex = Random.nextInt(colors.size);
@@ -174,13 +198,62 @@ class DataInitializer(val eventService: EventService,
         }
 
         eventService.createEvent(footballEvent)
+        val papiFutbolEvent = FootballEvent()
+        val papiFutbolPlayers = newPlayers.drop(27).take(5).map { it.event = papiFutbolEvent; it }
+        papiFutbolEvent.apply {
+            minPlayers = 10
+            maxPlayers = 10
+            dateTime = LocalDateTime.now().plus(10, ChronoUnit.DAYS)
+            location = Location().apply {
+                x = "-34.713390223118736"
+                y = "-58.28190778950768"
+                placeName = "ABC Ateneo Bernal"
+            }
+            cost = BigDecimal(10000)
+            transferData = TransferData().apply {
+                cbu = "1095432198059"
+                alias = "carpincho.torre.bici"
+            }
+            players = papiFutbolPlayers
+            creator =  "Fabi"
+            organizer = "Fabi"
+            pitchSize = 5
+            firstTeam = Team().apply {
+                color = "Rojo"
+                players = papiFutbolPlayers
+                    .take(3)
+                    .toMutableList()
+            }
+            secondTeam = Team().apply {
+                color = "Azul"
+                players = papiFutbolPlayers
+                    .drop(3)
+                    .take(2)
+                    .toMutableList()
+            }
+        }
+        eventService.createEvent(papiFutbolEvent)
         eventJpaRepository.saveAll(listOf(volleyEvent,paddleEvent))
-        authService.register(SportUser().apply {
+        val user = SportUser().apply {
             username = "admin"
             password = "1234"
             name = "Lionel"
             lastName = "Messi"
             email = "lio87kpo@hotmail.com"
-        })
+        }
+        user.profiles = mutableListOf(
+            SportProfile(user, Sport.FOOTBALL, FootballProfileDetail().apply {
+                ability = 10
+                playsOften = true
+            }),
+            SportProfile(user, Sport.PADDLE, PaddleProfileDetail().apply {
+                ability = 10
+                playsOften = true
+            }),
+            SportProfile(user, Sport.VOLLEY, VolleyProfileDetail().apply {
+                    ability = 10
+                    playsOften = true
+            }))
+        authService.register(user)
     }
 }

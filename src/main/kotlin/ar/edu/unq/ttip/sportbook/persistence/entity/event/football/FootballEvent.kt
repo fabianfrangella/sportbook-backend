@@ -57,4 +57,18 @@ class FootballEvent : Event() {
         if (secondTeam?.id == teamId) return secondTeam!!
         throw BadRequestException("El equipo con id $teamId no pertenece a este evento")
     }
+
+    override fun getFairnessScore(): Double {
+        if (firstTeam == null || secondTeam == null || firstTeam?.players == null || secondTeam?.players == null) {
+            return 0.0
+        }
+
+        val firstTeamScore = firstTeam!!.players.map { it.user.calculatePlayerScore(sport) }.average()
+        val secondTeamScore = secondTeam!!.players.map { it.user.calculatePlayerScore(sport) }.average()
+
+        // Calculamos qué tan parejos están los equipos (diferencia máxima de 10 puntos)
+        val scoreDifference = kotlin.math.abs(firstTeamScore - secondTeamScore)
+        return kotlin.math.max(10.0 - scoreDifference, 0.0)
+    }
+
 }
