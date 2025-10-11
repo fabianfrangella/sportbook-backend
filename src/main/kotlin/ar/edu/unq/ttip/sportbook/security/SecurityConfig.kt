@@ -26,12 +26,13 @@ class SecurityConfig(
             .authorizeHttpRequests { authorize ->
                 authorize
                     .requestMatchers(
-                        "/sportbook/auth/login",
-                        "/sportbook/auth/register",
-                        "/auth/login",
-                        "/auth/register",
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/actuator/prometheus",
                         "/h2-console/**",
-                        "/actuator/prometheus"
+                        "/auth/**",
+                        "/sportbook/auth/**"
                     ).permitAll()
                     .anyRequest().authenticated()
             }
