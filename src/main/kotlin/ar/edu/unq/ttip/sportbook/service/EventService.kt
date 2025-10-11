@@ -113,9 +113,6 @@ class EventService(
     fun finishEvent(eventId: Long, finishEventData: FinishEventRequest): FinishedEventStats {
         val event = getEvent(eventId)
 
-        if (event.isFinished) {
-            throw BusinessException("El evento $eventId ya fue finalizado")
-        }
         event.finish()
         eventJpaRepository.save(event)
         val stats = FinishedEventStats(event, finishEventData)
