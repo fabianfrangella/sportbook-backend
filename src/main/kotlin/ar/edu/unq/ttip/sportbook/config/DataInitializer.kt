@@ -15,6 +15,7 @@ import ar.edu.unq.ttip.sportbook.persistence.entity.user.Sport
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportProfile
 import ar.edu.unq.ttip.sportbook.persistence.repository.EventJpaRepository
 import ar.edu.unq.ttip.sportbook.service.EventService
+import ar.edu.unq.ttip.sportbook.service.ProfilePictureService
 import ar.edu.unq.ttip.sportbook.service.auth.AuthService
 import jakarta.annotation.PostConstruct
 import org.springframework.stereotype.Service
@@ -24,11 +25,14 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.random.Random
+import org.springframework.web.multipart.MultipartFile
+import java.io.File
 
 @Service
 class DataInitializer(val eventService: EventService,
                       val eventJpaRepository: EventJpaRepository,
-                      val authService: AuthService) {
+                      val authService: AuthService,
+                      val profilePictureService: ProfilePictureService) {
 
     @PostConstruct
     @Transactional
@@ -255,5 +259,23 @@ class DataInitializer(val eventService: EventService,
                     playsOften = true
             }))
         authService.register(user)
+
+        // Cargamos la foto de perfil para el usuario admin
+        val imageResource = this::class.java.getResourceAsStream("/config/admin_profile.png")
+        if (imageResource != null) {
+            val multipartFile = object : MultipartFile {
+                override fun getInputStream() = imageResource
+                override fun getName() = "admin_profile.png"
+                override fun getOriginalFilename() = "admin_profile.png"
+                override fun getContentType() = "image/png"
+                override fun isEmpty() = false
+                override fun getSize() = imageResource.available().toLong()
+                override fun getBytes() = imageResource.readAllBytes()
+                override fun transferTo(dest: File) {
+                    dest.writeBytes(getBytes())
+                }
+            }
+            profilePictureService.uploadProfilePicture(multipartFile, user)
+        }
     }
 }

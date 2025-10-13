@@ -73,7 +73,7 @@ class FootballEvent : Event() {
     override fun balanceTeams() {
         if (firstTeam == null || secondTeam == null) return
 
-        val allPlayers = (firstTeam!!.players + secondTeam!!.players).toMutableList()
+        val allPlayers = players.toMutableList()
         firstTeam!!.clear()
         secondTeam!!.clear()
 
