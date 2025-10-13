@@ -4,7 +4,7 @@ import ar.edu.unq.ttip.sportbook.persistence.repository.EventJpaRepository
 import org.springframework.stereotype.Service
 
 @Service
-class FairnessService(val eventJpaRepository: EventJpaRepository) {
+class FairnessService(val eventJpaRepository: EventJpaRepository, val lineupService: LineupService) {
 
     fun getFairnessScore(eventId: Long) : Int {
         val event = eventJpaRepository.findById(eventId)
@@ -16,6 +16,7 @@ class FairnessService(val eventJpaRepository: EventJpaRepository) {
         val event = eventJpaRepository.findById(eventId)
             .orElseThrow { Exception("Evento no encontrado") }
         event.balanceTeams()
+        lineupService.resetLinups(event)
         eventJpaRepository.save(event)
     }
 }
