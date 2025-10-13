@@ -42,7 +42,7 @@ class EventService(
             .orElseThrow { NotFoundException("Evento no encontrado") }
 
     fun getAllEvents(): List<Event> {
-        return eventJpaRepository.findAll()
+        return eventJpaRepository.findByIsFinishedFalse()
     }
 
     fun join(id: Long, user: SportUser) : Event = eventJpaRepository.findById(id)
@@ -134,4 +134,6 @@ class EventService(
         val calc = calculator.compute(event, stats)
         return mapper.toResponse(event, calc)
     }
+
+    fun getFinishedEvents(): List<Event> = eventJpaRepository.findByIsFinishedTrue()
 }

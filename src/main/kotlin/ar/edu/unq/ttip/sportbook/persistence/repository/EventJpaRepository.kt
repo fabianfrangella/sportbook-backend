@@ -5,4 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface EventJpaRepository : JpaRepository<Event, Long> {}
+interface EventJpaRepository : JpaRepository<Event, Long> {
+    fun findByIsFinishedTrue(): List<Event>
+    fun findByIsFinishedFalse(): List<Event>
+}
