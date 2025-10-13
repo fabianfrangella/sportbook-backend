@@ -63,4 +63,10 @@ class LineupService(
         }
         lineupRepository.saveAll(lineups)
     }
+
+    fun resetLinups(event: Event) {
+        val lineups = lineupRepository.findByEvent(event)
+        lineupRepository.deleteAll(lineups)
+        lineupRepository.saveAll(event.createLineups())
+    }
 }

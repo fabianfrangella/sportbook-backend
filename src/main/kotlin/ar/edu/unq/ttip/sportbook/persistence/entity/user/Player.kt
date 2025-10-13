@@ -36,6 +36,8 @@ class Player() {
         this.user = user
     }
 
+    fun calculateScore(sport: Sport): Double = user.calculatePlayerScore(sport)
+
     fun joinTeam(event: Event, team: Team) {
         if (event.players.none { it.id == this.id }) {
             throw BusinessException("No estás registrado en el evento")

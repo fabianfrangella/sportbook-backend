@@ -44,5 +44,7 @@ class Team() {
         return id.hashCode()
     }
 
+    fun clear() = players.clear()
+
 
 }

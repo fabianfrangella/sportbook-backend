@@ -48,7 +48,7 @@ class VolleyEvent : Event() {
 
         // Calculamos el puntaje promedio de cada equipo
         val teamScores = teams.map { team ->
-            team.players.map { it.user.calculatePlayerScore(sport) }.average()
+            team.players.map { it.calculateScore(sport) }.average()
         }
 
         // Para volley, calculamos la desviación estándar entre los puntajes de los equipos
@@ -61,6 +61,32 @@ class VolleyEvent : Event() {
         // Una desviación de 0 significa equipos perfectamente parejos (10 puntos)
         // Una desviación de 3 o más significa equipos muy disparejos (0 puntos)
         return kotlin.math.max(10.0 - (standardDeviation * 3.33), 0.0)
+    }
+
+    override fun balanceTeams() {
+        if (teams.isEmpty()) return
+
+        val allPlayers = teams.flatMap { it.players }.toMutableList()
+        teams.forEach { it.players.clear() }
+
+        // Ordenamos los jugadores por puntaje de mayor a menor
+        allPlayers.sortByDescending { it.calculateScore(sport) }
+
+        // Distribuimos los jugadores usando el método serpiente
+        // (1ro al equipo 1, 2do al 2, 3ro al 3, 4to al 3, 5to al 2, 6to al 1, etc.)
+        var currentTeamIndex = 0
+        var direction = 1 // 1 para avanzar, -1 para retroceder
+
+        allPlayers.forEach { player ->
+            teams[currentTeamIndex].players.add(player)
+
+            currentTeamIndex += direction
+            if (currentTeamIndex >= teams.size - 1) {
+                direction = -1
+            } else if (currentTeamIndex <= 0) {
+                direction = 1
+            }
+        }
     }
 
 }

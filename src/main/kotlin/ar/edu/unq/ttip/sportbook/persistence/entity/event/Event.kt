@@ -139,4 +139,6 @@ abstract class Event() {
     abstract fun getTeam(teamId: Long) : Team
 
     abstract fun getFairnessScore(): Double
+
+    abstract fun balanceTeams()
 }

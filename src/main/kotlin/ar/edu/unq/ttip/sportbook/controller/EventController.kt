@@ -166,4 +166,13 @@ class EventController(
         description = "Devuelve el fairness score de un evento."
     )
     fun getFairnessScore(@PathVariable eventId: Long): Int = fairnessService.getFairnessScore(eventId)
+
+    @PostMapping("/{eventId}/balance")
+    @Operation(
+        summary = "Balancear evento",
+        method = "POST",
+        description = "Arma los equipos de un evento de manera balanceada."
+    )
+    fun balance(@PathVariable eventId: Long) = fairnessService.balance(eventId)
+
 }
