@@ -1,8 +1,9 @@
-package ar.edu.unq.ttip.sportbook.service.auth
+package ar.edu.unq.ttip.sportbook.controller
 
 import ar.edu.unq.ttip.sportbook.controller.request.LoginRequest
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportUser
 import ar.edu.unq.ttip.sportbook.security.UserDetailsImpl
+import ar.edu.unq.ttip.sportbook.service.auth.AuthService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpHeaders
