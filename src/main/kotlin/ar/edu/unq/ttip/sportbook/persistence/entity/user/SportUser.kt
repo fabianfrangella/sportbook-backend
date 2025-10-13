@@ -15,8 +15,11 @@ class SportUser() {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @get:JsonIgnore
+    @set:JsonProperty
+    @field:JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     var password: String? = null
+
     final var username: String? = null
     final var email: String? = null
     final var name: String? = null
