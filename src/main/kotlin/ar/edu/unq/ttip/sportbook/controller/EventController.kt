@@ -175,4 +175,11 @@ class EventController(
     )
     fun balance(@PathVariable eventId: Long) = fairnessService.balance(eventId)
 
+    @GetMapping("/finished")
+    @Operation(
+        summary = "Obtener los eventos finalizados",
+        method = "GET",
+        description = "Devuelve los eventos finalizados"
+    )
+    fun getFinishedEvents(): List<Event> = eventService.getFinishedEvents()
 }
