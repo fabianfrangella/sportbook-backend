@@ -63,12 +63,29 @@ class FootballEvent : Event() {
             return 0.0
         }
 
-        val firstTeamScore = firstTeam!!.players.map { it.user.calculatePlayerScore(sport) }.average()
-        val secondTeamScore = secondTeam!!.players.map { it.user.calculatePlayerScore(sport) }.average()
+        val firstTeamScore = firstTeam!!.players.map { it.calculateScore(sport) }.average()
+        val secondTeamScore = secondTeam!!.players.map { it.calculateScore(sport) }.average()
 
-        // Calculamos qué tan parejos están los equipos (diferencia máxima de 10 puntos)
         val scoreDifference = kotlin.math.abs(firstTeamScore - secondTeamScore)
         return kotlin.math.max(10.0 - scoreDifference, 0.0)
+    }
+
+    override fun balanceTeams() {
+        if (firstTeam == null || secondTeam == null) return
+
+        val allPlayers = (firstTeam!!.players + secondTeam!!.players).toMutableList()
+        firstTeam!!.clear()
+        secondTeam!!.clear()
+
+        allPlayers.sortByDescending { it.calculateScore(sport) }
+
+        allPlayers.forEachIndexed { index, player ->
+            if (index % 2 == 0) {
+                firstTeam!!.players.add(player)
+            } else {
+                secondTeam!!.players.add(player)
+            }
+        }
     }
 
 }

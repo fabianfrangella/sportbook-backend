@@ -11,4 +11,11 @@ class FairnessService(val eventJpaRepository: EventJpaRepository) {
             .orElseThrow { Exception("Evento no encontrado") }
         return event.getFairnessScore().toInt()
     }
+
+    fun balance(eventId: Long) {
+        val event = eventJpaRepository.findById(eventId)
+            .orElseThrow { Exception("Evento no encontrado") }
+        event.balanceTeams()
+        eventJpaRepository.save(event)
+    }
 }

@@ -48,7 +48,7 @@ class PaddleEvent() : Event() {
 
         // Calculamos el puntaje promedio de cada equipo
         val teamScores = teams.map { team ->
-            team.players.map { it.user.calculatePlayerScore(sport) }.average()
+            team.players.map { it.calculateScore(sport) }.average()
         }
 
         // Encontramos la diferencia máxima entre cualquier par de equipos
@@ -63,6 +63,35 @@ class PaddleEvent() : Event() {
         }
 
         return kotlin.math.max(10.0 - maxDifference, 0.0)
+    }
+
+    override fun balanceTeams() {
+        if (teams.isEmpty()) return
+
+        val allPlayers = teams.flatMap { it.players }.toMutableList()
+        teams.forEach { it.players.clear() }
+
+        // En paddle, generalmente hay equipos de 2 jugadores
+        // Ordenamos los jugadores por puntaje de mayor a menor
+        allPlayers.sortByDescending { it.calculateScore(sport) }
+
+        // Para paddle, aseguramos que los equipos tengan la misma cantidad de jugadores
+        val playersPerTeam = allPlayers.size / teams.size
+
+        // Distribuimos los jugadores asegurando que cada equipo tenga un jugador fuerte y uno más débil
+        allPlayers.forEachIndexed { index, player ->
+            val teamIndex = if (index < teams.size) {
+                // Los mejores jugadores van uno a cada equipo
+                index
+            } else {
+                // Los jugadores restantes se distribuyen empezando por el último equipo
+                teams.size - 1 - (index % teams.size)
+            }
+
+            if (teams[teamIndex].players.size < playersPerTeam) {
+                teams[teamIndex].players.add(player)
+            }
+        }
     }
 
 }
