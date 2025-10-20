@@ -7,7 +7,9 @@ import ar.edu.unq.ttip.sportbook.persistence.entity.event.Event
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.FinishedEventStats
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Lineup
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.Position
+import ar.edu.unq.ttip.sportbook.persistence.entity.user.Role
 import ar.edu.unq.ttip.sportbook.security.UserDetailsImpl
+import ar.edu.unq.ttip.sportbook.security.annotation.PermittedRoles
 import ar.edu.unq.ttip.sportbook.service.EventService
 import ar.edu.unq.ttip.sportbook.service.FairnessService
 import ar.edu.unq.ttip.sportbook.service.LineupService
@@ -35,6 +37,7 @@ class EventController(
         method = "POST",
         description = "Crea un nuevo evento y devuelve el evento creado."
     )
+    @PermittedRoles(roles = [Role.ORGANIZER])
     fun createEvent(@RequestBody eventBody: Event): Event =
         eventService.createEvent(eventBody)
 
@@ -107,6 +110,7 @@ class EventController(
         method = "PUT",
         description = "Agrega un jugador a la posición indicada dentro de una alineación."
     )
+    @PermittedRoles(roles = [Role.ORGANIZER])
     fun addPlayerToPosition(
         @PathVariable("lineupId") lineupId: Long,
         @RequestParam position: Position,
@@ -120,6 +124,7 @@ class EventController(
         method = "DELETE",
         description = "Quita el jugador asignado a la posición indicada dentro de una alineación."
     )
+    @PermittedRoles(roles = [Role.ORGANIZER])
     fun removePlayerFromPosition(
         @PathVariable("lineupId") lineupId: Long,
         @RequestParam position: Position
@@ -143,6 +148,7 @@ class EventController(
         method = "POST",
         description = "Marca el evento como finalizado y devuelve estadísticas del partido."
     )
+    @PermittedRoles(roles = [Role.ORGANIZER])
     fun finishEvent(
         @PathVariable eventId: Long,
         @RequestBody finishEventData: FinishEventRequest
@@ -173,6 +179,7 @@ class EventController(
         method = "POST",
         description = "Arma los equipos de un evento de manera balanceada."
     )
+    @PermittedRoles(roles = [Role.ORGANIZER])
     fun balance(@PathVariable eventId: Long) = fairnessService.balance(eventId)
 
     @GetMapping("/finished")

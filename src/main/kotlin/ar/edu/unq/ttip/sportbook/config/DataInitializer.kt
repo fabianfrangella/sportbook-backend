@@ -11,6 +11,7 @@ import ar.edu.unq.ttip.sportbook.persistence.entity.event.football.FootballProfi
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.paddle.PaddleProfileDetail
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.volley.VolleyEvent
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.volley.VolleyProfileDetail
+import ar.edu.unq.ttip.sportbook.persistence.entity.user.Role
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Sport
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportProfile
 import ar.edu.unq.ttip.sportbook.persistence.repository.EventJpaRepository
@@ -244,6 +245,7 @@ class DataInitializer(val eventService: EventService,
             name = "Lionel"
             lastName = "Messi"
             email = "lio87kpo@hotmail.com"
+            role = Role.ORGANIZER
         }
         user.profiles = mutableListOf(
             SportProfile(user, Sport.FOOTBALL, FootballProfileDetail().apply {
