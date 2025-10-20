@@ -1,11 +1,13 @@
 package ar.edu.unq.ttip.sportbook.service
 
 import ar.edu.unq.ttip.sportbook.exception.NotFoundException
+import ar.edu.unq.ttip.sportbook.exception.UnauthorizedException
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Event
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Lineup
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.Position
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player
+import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportUser
 import ar.edu.unq.ttip.sportbook.persistence.repository.LineupRepository
 import ar.edu.unq.ttip.sportbook.persistence.repository.PlayerJpaRepository
 import org.springframework.stereotype.Service
@@ -25,10 +27,12 @@ class LineupService(
         return lineupRepository.findByEvent(event)
     }
 
-    fun addPlayerToPosition(lineupId: Long, playerId: Long, position: Position): Lineup {
+    fun addPlayerToPosition(lineupId: Long, playerId: Long, position: Position, sportUser: SportUser): Lineup {
         val lineup = lineupRepository.findById(lineupId)
             .orElseThrow { NotFoundException("Lineup not found") }
-
+        if (lineup.getEventOrganizer() != sportUser) {
+            throw UnauthorizedException("Solo el organizador del evento puede modificar la formación")
+        }
         val player = playerRepository.findById(playerId)
             .orElseThrow { NotFoundException("Player not found") }
 
@@ -36,10 +40,12 @@ class LineupService(
         return lineupRepository.save(lineup)
     }
 
-    fun removePlayerFromPosition(lineupId: Long, position: Position): Lineup {
+    fun removePlayerFromPosition(lineupId: Long, position: Position, sportUser: SportUser): Lineup {
         val lineup = lineupRepository.findById(lineupId)
             .orElseThrow { NotFoundException("Lineup not found") }
-
+        if (lineup.getEventOrganizer() != sportUser) {
+            throw UnauthorizedException("Solo el organizador del evento puede modificar la formación")
+        }
         lineup.removePlayerFromPosition(position)
         return lineupRepository.save(lineup)
     }

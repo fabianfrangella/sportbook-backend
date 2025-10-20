@@ -7,6 +7,7 @@ import ar.edu.unq.ttip.sportbook.persistence.entity.event.volley.VolleyEvent
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Sport
+import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportUser
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonSubTypes
@@ -58,8 +59,8 @@ abstract class Event() {
     var transferData: TransferData? = null
     @OneToMany(mappedBy = "event", cascade = [CascadeType.ALL], targetEntity = Player::class)
     var players: List<Player> = listOf()
-    lateinit var creator: String
-    lateinit var organizer: String
+    @ManyToOne(targetEntity = SportUser::class)
+    var organizer: SportUser? = null
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -86,7 +87,7 @@ abstract class Event() {
     }
 
     fun leave(player: Player) {
-        if (!players!!.contains(player)) {
+        if (!players.contains(player)) {
             throw BusinessException("No estás registrado en el evento")
         }
 
@@ -97,9 +98,8 @@ abstract class Event() {
 
     protected abstract fun removePlayerFromTeams(player: Player)
 
-    fun updateBasicFields(cost: BigDecimal?, creator: String?, organizer: String?) {
+    fun updateBasicFields(cost: BigDecimal?, organizer: SportUser?) {
         cost?.let { this.cost = it }
-        creator?.let { this.creator = it }
         organizer?.let { this.organizer = it }
     }
 

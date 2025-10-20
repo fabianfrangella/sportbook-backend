@@ -38,8 +38,9 @@ class EventController(
         description = "Crea un nuevo evento y devuelve el evento creado."
     )
     @PermittedRoles(roles = [Role.ORGANIZER])
-    fun createEvent(@RequestBody eventBody: Event): Event =
-        eventService.createEvent(eventBody)
+    fun createEvent(@RequestBody eventBody: Event,
+                          @AuthenticationPrincipal user: UserDetailsImpl): Event =
+        eventService.createEvent(eventBody, user.sportUser)
 
     @GetMapping("/{id}")
     @Operation(
@@ -114,9 +115,10 @@ class EventController(
     fun addPlayerToPosition(
         @PathVariable("lineupId") lineupId: Long,
         @RequestParam position: Position,
-        @RequestParam playerId: Long
+        @RequestParam playerId: Long,
+        @AuthenticationPrincipal user: UserDetailsImpl
     ): Lineup =
-        lineupService.addPlayerToPosition(lineupId, playerId, position)
+        lineupService.addPlayerToPosition(lineupId, playerId, position, user.sportUser)
 
     @DeleteMapping("/lineup/{lineupId}/position")
     @Operation(
@@ -127,9 +129,10 @@ class EventController(
     @PermittedRoles(roles = [Role.ORGANIZER])
     fun removePlayerFromPosition(
         @PathVariable("lineupId") lineupId: Long,
-        @RequestParam position: Position
+        @RequestParam position: Position,
+        @AuthenticationPrincipal user: UserDetailsImpl
     ): Lineup =
-        lineupService.removePlayerFromPosition(lineupId, position)
+        lineupService.removePlayerFromPosition(lineupId, position, user.sportUser)
 
     @PutMapping("/{id}")
     @Operation(
@@ -151,9 +154,10 @@ class EventController(
     @PermittedRoles(roles = [Role.ORGANIZER])
     fun finishEvent(
         @PathVariable eventId: Long,
-        @RequestBody finishEventData: FinishEventRequest
+        @RequestBody finishEventData: FinishEventRequest,
+        @AuthenticationPrincipal user: UserDetailsImpl
     ): FinishedEventStats =
-        eventService.finishEvent(eventId, finishEventData)
+        eventService.finishEvent(eventId, finishEventData, user.sportUser)
 
     @GetMapping("/{eventId}/stats")
     @Operation(
@@ -180,7 +184,7 @@ class EventController(
         description = "Arma los equipos de un evento de manera balanceada."
     )
     @PermittedRoles(roles = [Role.ORGANIZER])
-    fun balance(@PathVariable eventId: Long) = fairnessService.balance(eventId)
+    fun balance(@PathVariable eventId: Long, @AuthenticationPrincipal user: UserDetailsImpl) = fairnessService.balance(eventId, user.sportUser)
 
     @GetMapping("/finished")
     @Operation(

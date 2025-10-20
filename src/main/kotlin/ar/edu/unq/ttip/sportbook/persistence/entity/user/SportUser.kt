@@ -105,4 +105,18 @@ class SportUser() {
         return (mvpScore + goalScore + skillScore + playsOftenScore + absenceScore) / 5.0
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SportUser) return false
+
+        if (id != other.id) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
+    }
+
+
 }
