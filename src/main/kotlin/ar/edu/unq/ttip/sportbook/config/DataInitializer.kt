@@ -210,6 +210,7 @@ class DataInitializer(val eventService: EventService,
                     players = listOf(it).toMutableList()
                 }
             }
+            organizer = julian
         }
 
 
@@ -239,6 +240,7 @@ class DataInitializer(val eventService: EventService,
                     players = listOf(it).toMutableList()
                 }
             }
+            organizer = messi
         }
 
         eventService.createEvent(footballEvent, messi)
@@ -277,13 +279,17 @@ class DataInitializer(val eventService: EventService,
         eventService.createEvent(papiFutbolEvent, messi)
         eventJpaRepository.saveAll(listOf(volleyEvent,paddleEvent))
 
-        // Cargamos la foto de perfil para el usuario admin
-        val imageResource = this::class.java.getResourceAsStream("/config/admin_profile.png")
+        loadProfilePicture(messi, "/config/admin_profile.png", "admin_profile.png")
+        loadProfilePicture(julian, "/config/julian_profile.png", "julian_profile.png")
+    }
+
+    private fun loadProfilePicture(user: SportUser, path: String, name: String) {
+        val imageResource = this::class.java.getResourceAsStream(path)
         if (imageResource != null) {
             val multipartFile = object : MultipartFile {
                 override fun getInputStream() = imageResource
-                override fun getName() = "admin_profile.png"
-                override fun getOriginalFilename() = "admin_profile.png"
+                override fun getName() = name
+                override fun getOriginalFilename() = name
                 override fun getContentType() = "image/png"
                 override fun isEmpty() = false
                 override fun getSize() = imageResource.available().toLong()
@@ -292,7 +298,7 @@ class DataInitializer(val eventService: EventService,
                     dest.writeBytes(getBytes())
                 }
             }
-            profilePictureService.uploadProfilePicture(multipartFile, messi)
+            profilePictureService.uploadProfilePicture(multipartFile, user)
         }
     }
 }
