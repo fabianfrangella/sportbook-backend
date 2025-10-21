@@ -43,4 +43,6 @@ abstract class Lineup {
     abstract fun removePlayerFromPosition(position: Position)
     abstract fun addPlayerToBench(player: Player)
     abstract fun removePlayer(player: Player)
+
+    fun getEventOrganizer() = event.organizer
 }

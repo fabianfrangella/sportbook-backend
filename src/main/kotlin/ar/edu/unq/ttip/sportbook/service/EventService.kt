@@ -4,15 +4,17 @@ import ar.edu.unq.ttip.sportbook.controller.request.FinishEventRequest
 import ar.edu.unq.ttip.sportbook.controller.request.UpdateEventRequest
 import ar.edu.unq.ttip.sportbook.controller.response.*
 import ar.edu.unq.ttip.sportbook.exception.BadRequestException
-import ar.edu.unq.ttip.sportbook.exception.BusinessException
 import ar.edu.unq.ttip.sportbook.exception.NotFoundException
+import ar.edu.unq.ttip.sportbook.exception.UnauthorizedException
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Event
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.FinishedEventStats
+import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportUser
 import ar.edu.unq.ttip.sportbook.persistence.repository.EventJpaRepository
 import ar.edu.unq.ttip.sportbook.persistence.repository.PlayerJpaRepository
 import ar.edu.unq.ttip.sportbook.persistence.repository.FinishedEventStatsRepository
+import ar.edu.unq.ttip.sportbook.persistence.repository.SportUserJpaRepository
 import ar.edu.unq.ttip.sportbook.persistence.repository.TeamJpaRepository
 import ar.edu.unq.ttip.sportbook.service.event_stats.EventStatsCalculator
 import ar.edu.unq.ttip.sportbook.service.event_stats.EventStatsMapper
@@ -26,13 +28,14 @@ class EventService(
     val lineupService: LineupService,
     val finishedEventStatsRepository: FinishedEventStatsRepository,
     val teamRepository: TeamJpaRepository,
+    val userRepository: SportUserJpaRepository,
     private val calculator: EventStatsCalculator,
     private val mapper: EventStatsMapper,
 ) {
 
     @Transactional
-    fun createEvent(event: Event): Event {
-        val saved = eventJpaRepository.save(event)
+    fun createEvent(event: Event, sportUser: SportUser): Event {
+        val saved = eventJpaRepository.save(event.apply { organizer = sportUser })
         lineupService.createLineups(event)
         return saved
     }
@@ -87,11 +90,15 @@ class EventService(
     fun updateEvent(id: Long, updateRequest: UpdateEventRequest): Event {
         val event = eventJpaRepository.findById(id)
             .orElseThrow { NotFoundException("Evento no encontrado") }
+        val organizer = if (updateRequest.organizer != null) {
+            userRepository.findByUsername(updateRequest.organizer).orElseThrow()
+        } else {
+            event.organizer
+        }
 
         event.updateBasicFields(
             updateRequest.cost,
-            updateRequest.creator,
-            updateRequest.organizer
+            organizer
         )
         event.updateLocation(
             updateRequest.locationX,
@@ -110,9 +117,11 @@ class EventService(
     }
 
     @Transactional
-    fun finishEvent(eventId: Long, finishEventData: FinishEventRequest): FinishedEventStats {
+    fun finishEvent(eventId: Long, finishEventData: FinishEventRequest, sportUser: SportUser): FinishedEventStats {
         val event = getEvent(eventId)
-
+        if (event.organizer != sportUser) {
+            throw UnauthorizedException("Solo el organizador del evento puede finalizarlo")
+        }
         event.finish()
         eventJpaRepository.save(event)
         val stats = FinishedEventStats(event, finishEventData)
@@ -136,4 +145,23 @@ class EventService(
     }
 
     fun getFinishedEvents(): List<Event> = eventJpaRepository.findByIsFinishedTrue()
+    fun addTeam(eventId: Long, team: Team, sportUser: SportUser): Event {
+        val event = getEvent(eventId)
+        if (event.organizer != sportUser) {
+            throw UnauthorizedException("Solo el organizador del evento puede agregar equipos")
+        }
+        event.addTeam(team)
+        return eventJpaRepository.save(event)
+    }
+
+    fun removeTeam(eventId: Long, teamId: Long, sportUser: SportUser): Event {
+        val event = getEvent(eventId)
+        if (event.organizer != sportUser) {
+            throw UnauthorizedException("Solo el organizador del evento puede remover equipos")
+        }
+        val team = teamRepository.findById(teamId).orElseThrow { NotFoundException("El equipo no existe") }
+        event.removeTeam(team)
+        teamRepository.delete(team)
+        return eventJpaRepository.findById(eventId).orElseThrow()
+    }
 }

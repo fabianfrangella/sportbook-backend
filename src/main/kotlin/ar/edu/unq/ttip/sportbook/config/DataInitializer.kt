@@ -11,6 +11,7 @@ import ar.edu.unq.ttip.sportbook.persistence.entity.event.football.FootballProfi
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.paddle.PaddleProfileDetail
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.volley.VolleyEvent
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.volley.VolleyProfileDetail
+import ar.edu.unq.ttip.sportbook.persistence.entity.user.Role
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Sport
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportProfile
 import ar.edu.unq.ttip.sportbook.persistence.repository.EventJpaRepository
@@ -42,6 +43,51 @@ class DataInitializer(val eventService: EventService,
             println("WILL NOT GENERATE DATA")
             return
         }
+        val messi = SportUser().apply {
+            username = "admin"
+            password = "1234"
+            name = "Lionel"
+            lastName = "Messi"
+            email = "lio87kpo@hotmail.com"
+            role = Role.ORGANIZER
+        }
+        messi.profiles = mutableListOf(
+            SportProfile(messi, Sport.FOOTBALL, FootballProfileDetail().apply {
+                ability = 10
+                playsOften = true
+            }),
+            SportProfile(messi, Sport.PADDLE, PaddleProfileDetail().apply {
+                ability = 10
+                playsOften = true
+            }),
+            SportProfile(messi, Sport.VOLLEY, VolleyProfileDetail().apply {
+                ability = 10
+                playsOften = true
+            }))
+
+        val julian = SportUser().apply {
+            username = "juli"
+            password = "1234"
+            name = "Julian"
+            lastName = "Alvarez"
+            email = "julikpo@hotmail.com"
+            role = Role.ORGANIZER
+        }
+        julian.profiles = mutableListOf(
+            SportProfile(julian, Sport.FOOTBALL, FootballProfileDetail().apply {
+                ability = 10
+                playsOften = true
+            }),
+            SportProfile(julian, Sport.PADDLE, PaddleProfileDetail().apply {
+                ability = 10
+                playsOften = true
+            }),
+            SportProfile(julian, Sport.VOLLEY, VolleyProfileDetail().apply {
+                ability = 10
+                playsOften = true
+            }))
+        authService.register(messi)
+        authService.register(julian)
         val newPlayers = (1..35).map {
             val names = listOf("Fabi",
                 "Aaron",
@@ -122,8 +168,6 @@ class DataInitializer(val eventService: EventService,
                 alias = "carpincho.torre.bici"
             }
             players = footballPlayers
-            creator =  "Fabi"
-            organizer = "Fabi"
             pitchSize = 11
             firstTeam = Team().apply {
                 color = "Rojo"
@@ -157,8 +201,6 @@ class DataInitializer(val eventService: EventService,
                 alias = "pez.roto.cuero"
             }
             players = volleyPlayers
-            creator =  "Fabi"
-            organizer = "Fabi"
             teams = volleyPlayers.map {
                 Team().apply {
                     val colors = listOf("Rojo", "Azul", "Verde", "Negro", "Blanco")
@@ -168,6 +210,7 @@ class DataInitializer(val eventService: EventService,
                     players = listOf(it).toMutableList()
                 }
             }
+            organizer = julian
         }
 
 
@@ -188,8 +231,6 @@ class DataInitializer(val eventService: EventService,
                 alias = "obi.juan.kenobi"
             }
             players = paddlePlayers
-            creator =  "Fabi"
-            organizer = "Fabi"
             teams = paddlePlayers.take(4).map {
                 Team().apply {
                     val colors = listOf("Rojo", "Azul", "Verde", "Negro", "Blanco")
@@ -199,9 +240,10 @@ class DataInitializer(val eventService: EventService,
                     players = listOf(it).toMutableList()
                 }
             }
+            organizer = messi
         }
 
-        eventService.createEvent(footballEvent)
+        eventService.createEvent(footballEvent, messi)
         val papiFutbolEvent = FootballEvent()
         val papiFutbolPlayers = newPlayers.drop(27).take(5).map { it.event = papiFutbolEvent; it }
         papiFutbolEvent.apply {
@@ -219,8 +261,6 @@ class DataInitializer(val eventService: EventService,
                 alias = "carpincho.torre.bici"
             }
             players = papiFutbolPlayers
-            creator =  "Fabi"
-            organizer = "Fabi"
             pitchSize = 5
             firstTeam = Team().apply {
                 color = "Rojo"
@@ -236,37 +276,20 @@ class DataInitializer(val eventService: EventService,
                     .toMutableList()
             }
         }
-        eventService.createEvent(papiFutbolEvent)
+        eventService.createEvent(papiFutbolEvent, messi)
         eventJpaRepository.saveAll(listOf(volleyEvent,paddleEvent))
-        val user = SportUser().apply {
-            username = "admin"
-            password = "1234"
-            name = "Lionel"
-            lastName = "Messi"
-            email = "lio87kpo@hotmail.com"
-        }
-        user.profiles = mutableListOf(
-            SportProfile(user, Sport.FOOTBALL, FootballProfileDetail().apply {
-                ability = 10
-                playsOften = true
-            }),
-            SportProfile(user, Sport.PADDLE, PaddleProfileDetail().apply {
-                ability = 10
-                playsOften = true
-            }),
-            SportProfile(user, Sport.VOLLEY, VolleyProfileDetail().apply {
-                    ability = 10
-                    playsOften = true
-            }))
-        authService.register(user)
 
-        // Cargamos la foto de perfil para el usuario admin
-        val imageResource = this::class.java.getResourceAsStream("/config/admin_profile.png")
+        loadProfilePicture(messi, "/config/admin_profile.png", "admin_profile.png")
+        loadProfilePicture(julian, "/config/julian_profile.png", "julian_profile.png")
+    }
+
+    private fun loadProfilePicture(user: SportUser, path: String, name: String) {
+        val imageResource = this::class.java.getResourceAsStream(path)
         if (imageResource != null) {
             val multipartFile = object : MultipartFile {
                 override fun getInputStream() = imageResource
-                override fun getName() = "admin_profile.png"
-                override fun getOriginalFilename() = "admin_profile.png"
+                override fun getName() = name
+                override fun getOriginalFilename() = name
                 override fun getContentType() = "image/png"
                 override fun isEmpty() = false
                 override fun getSize() = imageResource.available().toLong()

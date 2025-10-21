@@ -45,13 +45,16 @@ class SportUser() {
     @JsonIgnore
     var players: MutableList<Player> = mutableListOf()
 
+    var role: Role = Role.PLAYER
+
     constructor(
         password: String,
         username: String,
         email: String,
         name: String,
         lastName: String,
-        dateOfBirth: LocalDate
+        dateOfBirth: LocalDate,
+        role: Role = Role.PLAYER
     ) : this() {
         this.password = password
         this.username = username
@@ -59,6 +62,7 @@ class SportUser() {
         this.name = name
         this.lastName = lastName
         this.dateOfBirth = dateOfBirth
+        this.role = role
     }
 
     fun addProfile(profile: SportProfile) {
@@ -100,5 +104,19 @@ class SportUser() {
 
         return (mvpScore + goalScore + skillScore + playsOftenScore + absenceScore) / 5.0
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SportUser) return false
+
+        if (id != other.id) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
+    }
+
 
 }

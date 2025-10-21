@@ -88,4 +88,16 @@ class FootballEvent : Event() {
         }
     }
 
+    override fun addTeam(team: Team) {
+        if (firstTeam == null) {
+            firstTeam = team
+        } else if (secondTeam == null) {
+            secondTeam = team
+        } else {
+            throw BadRequestException("Ya hay dos equipos en este evento")
+        }
+    }
+
+    override fun removeTeam(team: Team) {}
+
 }

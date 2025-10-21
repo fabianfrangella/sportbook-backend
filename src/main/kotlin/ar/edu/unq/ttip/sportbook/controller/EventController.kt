@@ -7,7 +7,10 @@ import ar.edu.unq.ttip.sportbook.persistence.entity.event.Event
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.FinishedEventStats
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Lineup
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.Position
+import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
+import ar.edu.unq.ttip.sportbook.persistence.entity.user.Role
 import ar.edu.unq.ttip.sportbook.security.UserDetailsImpl
+import ar.edu.unq.ttip.sportbook.security.annotation.PermittedRoles
 import ar.edu.unq.ttip.sportbook.service.EventService
 import ar.edu.unq.ttip.sportbook.service.FairnessService
 import ar.edu.unq.ttip.sportbook.service.LineupService
@@ -35,8 +38,10 @@ class EventController(
         method = "POST",
         description = "Crea un nuevo evento y devuelve el evento creado."
     )
-    fun createEvent(@RequestBody eventBody: Event): Event =
-        eventService.createEvent(eventBody)
+    @PermittedRoles(roles = [Role.ORGANIZER])
+    fun createEvent(@RequestBody eventBody: Event,
+                          @AuthenticationPrincipal user: UserDetailsImpl): Event =
+        eventService.createEvent(eventBody, user.sportUser)
 
     @GetMapping("/{id}")
     @Operation(
@@ -107,12 +112,14 @@ class EventController(
         method = "PUT",
         description = "Agrega un jugador a la posición indicada dentro de una alineación."
     )
+    @PermittedRoles(roles = [Role.ORGANIZER])
     fun addPlayerToPosition(
         @PathVariable("lineupId") lineupId: Long,
         @RequestParam position: Position,
-        @RequestParam playerId: Long
+        @RequestParam playerId: Long,
+        @AuthenticationPrincipal user: UserDetailsImpl
     ): Lineup =
-        lineupService.addPlayerToPosition(lineupId, playerId, position)
+        lineupService.addPlayerToPosition(lineupId, playerId, position, user.sportUser)
 
     @DeleteMapping("/lineup/{lineupId}/position")
     @Operation(
@@ -120,11 +127,13 @@ class EventController(
         method = "DELETE",
         description = "Quita el jugador asignado a la posición indicada dentro de una alineación."
     )
+    @PermittedRoles(roles = [Role.ORGANIZER])
     fun removePlayerFromPosition(
         @PathVariable("lineupId") lineupId: Long,
-        @RequestParam position: Position
+        @RequestParam position: Position,
+        @AuthenticationPrincipal user: UserDetailsImpl
     ): Lineup =
-        lineupService.removePlayerFromPosition(lineupId, position)
+        lineupService.removePlayerFromPosition(lineupId, position, user.sportUser)
 
     @PutMapping("/{id}")
     @Operation(
@@ -143,11 +152,13 @@ class EventController(
         method = "POST",
         description = "Marca el evento como finalizado y devuelve estadísticas del partido."
     )
+    @PermittedRoles(roles = [Role.ORGANIZER])
     fun finishEvent(
         @PathVariable eventId: Long,
-        @RequestBody finishEventData: FinishEventRequest
+        @RequestBody finishEventData: FinishEventRequest,
+        @AuthenticationPrincipal user: UserDetailsImpl
     ): FinishedEventStats =
-        eventService.finishEvent(eventId, finishEventData)
+        eventService.finishEvent(eventId, finishEventData, user.sportUser)
 
     @GetMapping("/{eventId}/stats")
     @Operation(
@@ -173,7 +184,8 @@ class EventController(
         method = "POST",
         description = "Arma los equipos de un evento de manera balanceada."
     )
-    fun balance(@PathVariable eventId: Long) = fairnessService.balance(eventId)
+    @PermittedRoles(roles = [Role.ORGANIZER])
+    fun balance(@PathVariable eventId: Long, @AuthenticationPrincipal user: UserDetailsImpl) = fairnessService.balance(eventId, user.sportUser)
 
     @GetMapping("/finished")
     @Operation(
@@ -182,4 +194,30 @@ class EventController(
         description = "Devuelve los eventos finalizados"
     )
     fun getFinishedEvents(): List<Event> = eventService.getFinishedEvents()
+
+    @PutMapping("/{eventId}/add-team")
+    @Operation(
+        summary = "Agregar equipo a un evento",
+        method = "PUT",
+        description = "Agrega un equipo a un evento existente."
+    )
+    @PermittedRoles(roles = [Role.ORGANIZER])
+    fun addTeam(
+        @PathVariable eventId: Long,
+        @RequestBody team: Team,
+        @AuthenticationPrincipal user: UserDetailsImpl
+    ): Event = eventService.addTeam(eventId, team, user.sportUser)
+
+    @DeleteMapping("/{eventId}/remove-team/{teamId}")
+    @Operation(
+        summary = "Remover equipo de un evento",
+        method = "DELETE",
+        description = "Remueve un equipo de un evento existente."
+    )
+    @PermittedRoles(roles = [Role.ORGANIZER])
+    fun removeTeam(
+        @PathVariable eventId: Long,
+        @PathVariable teamId: Long,
+        @AuthenticationPrincipal user: UserDetailsImpl
+    ): Event = eventService.removeTeam(eventId, teamId, user.sportUser)
 }
