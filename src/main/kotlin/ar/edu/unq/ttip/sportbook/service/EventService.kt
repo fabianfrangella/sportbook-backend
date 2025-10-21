@@ -8,6 +8,7 @@ import ar.edu.unq.ttip.sportbook.exception.NotFoundException
 import ar.edu.unq.ttip.sportbook.exception.UnauthorizedException
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Event
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.FinishedEventStats
+import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportUser
 import ar.edu.unq.ttip.sportbook.persistence.repository.EventJpaRepository
@@ -144,4 +145,23 @@ class EventService(
     }
 
     fun getFinishedEvents(): List<Event> = eventJpaRepository.findByIsFinishedTrue()
+    fun addTeam(eventId: Long, team: Team, sportUser: SportUser): Event {
+        val event = getEvent(eventId)
+        if (event.organizer != sportUser) {
+            throw UnauthorizedException("Solo el organizador del evento puede agregar equipos")
+        }
+        event.addTeam(team)
+        return eventJpaRepository.save(event)
+    }
+
+    fun removeTeam(eventId: Long, teamId: Long, sportUser: SportUser): Event {
+        val event = getEvent(eventId)
+        if (event.organizer != sportUser) {
+            throw UnauthorizedException("Solo el organizador del evento puede remover equipos")
+        }
+        val team = teamRepository.findById(teamId).orElseThrow { NotFoundException("El equipo no existe") }
+        event.removeTeam(team)
+        teamRepository.delete(team)
+        return eventJpaRepository.findById(eventId).orElseThrow()
+    }
 }

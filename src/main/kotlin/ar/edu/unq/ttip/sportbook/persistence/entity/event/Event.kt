@@ -141,4 +141,6 @@ abstract class Event() {
     abstract fun getFairnessScore(): Double
 
     abstract fun balanceTeams()
+    abstract fun addTeam(team: Team)
+    abstract fun removeTeam(team: Team)
 }
