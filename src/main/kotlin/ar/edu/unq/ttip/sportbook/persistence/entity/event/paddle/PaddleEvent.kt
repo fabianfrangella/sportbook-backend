@@ -94,4 +94,13 @@ class PaddleEvent() : Event() {
         }
     }
 
+    override fun addTeam(team: Team) {
+        teams = teams + team
+    }
+
+    override fun removeTeam(team: Team) {
+        team.clear()
+        teams = teams.filter { it != team }
+    }
+
 }

@@ -7,6 +7,7 @@ import ar.edu.unq.ttip.sportbook.persistence.entity.event.Event
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.FinishedEventStats
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Lineup
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.Position
+import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Role
 import ar.edu.unq.ttip.sportbook.security.UserDetailsImpl
 import ar.edu.unq.ttip.sportbook.security.annotation.PermittedRoles
@@ -193,4 +194,30 @@ class EventController(
         description = "Devuelve los eventos finalizados"
     )
     fun getFinishedEvents(): List<Event> = eventService.getFinishedEvents()
+
+    @PutMapping("/{eventId}/add-team")
+    @Operation(
+        summary = "Agregar equipo a un evento",
+        method = "PUT",
+        description = "Agrega un equipo a un evento existente."
+    )
+    @PermittedRoles(roles = [Role.ORGANIZER])
+    fun addTeam(
+        @PathVariable eventId: Long,
+        @RequestBody team: Team,
+        @AuthenticationPrincipal user: UserDetailsImpl
+    ): Event = eventService.addTeam(eventId, team, user.sportUser)
+
+    @DeleteMapping("/{eventId}/remove-team/{teamId}")
+    @Operation(
+        summary = "Remover equipo de un evento",
+        method = "DELETE",
+        description = "Remueve un equipo de un evento existente."
+    )
+    @PermittedRoles(roles = [Role.ORGANIZER])
+    fun removeTeam(
+        @PathVariable eventId: Long,
+        @PathVariable teamId: Long,
+        @AuthenticationPrincipal user: UserDetailsImpl
+    ): Event = eventService.removeTeam(eventId, teamId, user.sportUser)
 }
