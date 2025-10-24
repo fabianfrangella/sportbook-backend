@@ -61,7 +61,7 @@ class EventService(
             .orElseThrow { NotFoundException("Equipo no encontrado") }
         player.joinTeam(event, team)
 
-        lineupService.movePlayerFromTeamToBench(player, team, event)
+        lineupService.joinLineup(player, team, event)
         return eventJpaRepository.save(event)
     }
 

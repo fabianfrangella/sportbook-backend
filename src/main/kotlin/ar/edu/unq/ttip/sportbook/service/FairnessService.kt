@@ -20,8 +20,9 @@ class FairnessService(val eventJpaRepository: EventJpaRepository, val lineupServ
         if (event.organizer != sportUser) {
             throw UnauthorizedException("Solo el organizador del evento puede balancear los equipos")
         }
+        lineupService.deleteLineups(event)
         event.balanceTeams()
-        lineupService.resetLinups(event)
+        lineupService.createLineups(event)
         eventJpaRepository.save(event)
     }
 }

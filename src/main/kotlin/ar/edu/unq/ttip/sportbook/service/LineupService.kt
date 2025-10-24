@@ -50,15 +50,10 @@ class LineupService(
         return lineupRepository.save(lineup)
     }
 
-    fun movePlayerFromTeamToBench(player: Player, team: Team, event: Event) {
+    fun joinLineup(player: Player, team: Team, event: Event) {
         val lineups = lineupRepository.findByEvent(event)
-        lineups.forEach {
-            if (it.team == team) {
-                it.removePlayer(player)
-            } else {
-                it.addPlayerToBench(player)
-            }
-        }
+        lineups.find { it.team == team }?.addPlayerToBench(player)
+        lineups.filter { it.team != team }.forEach { it.removePlayer(player) }
         lineupRepository.saveAll(lineups)
     }
 
@@ -70,9 +65,8 @@ class LineupService(
         lineupRepository.saveAll(lineups)
     }
 
-    fun resetLinups(event: Event) {
+    fun deleteLineups(event: Event) {
         val lineups = lineupRepository.findByEvent(event)
         lineupRepository.deleteAll(lineups)
-        lineupRepository.saveAll(event.createLineups())
     }
 }
