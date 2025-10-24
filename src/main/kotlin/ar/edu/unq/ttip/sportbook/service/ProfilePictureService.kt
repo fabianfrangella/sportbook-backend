@@ -24,6 +24,7 @@ class ProfilePictureService(
         }
     }
 
+    @Transactional
     fun getProfilePicture(user: SportUser): ByteArray? {
         return profilePictureRepository.findByUser(user)?.binaryData
     }

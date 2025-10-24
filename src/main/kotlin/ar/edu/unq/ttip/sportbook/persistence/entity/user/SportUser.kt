@@ -81,6 +81,7 @@ class SportUser() {
             .any { it.user.id == this.id }
     }
 
+    @JsonIgnore
     fun getGoalsInPastEvents(): Int {
         return players
             .mapNotNull { it.event?.finishedStats }

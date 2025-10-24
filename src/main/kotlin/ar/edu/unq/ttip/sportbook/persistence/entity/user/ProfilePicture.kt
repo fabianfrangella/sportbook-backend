@@ -1,5 +1,6 @@
 package ar.edu.unq.ttip.sportbook.persistence.entity.user
 
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -8,6 +9,7 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.Lob
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
+import org.hibernate.annotations.JdbcTypeCode
 import org.springframework.web.multipart.MultipartFile
 
 @Entity
@@ -18,6 +20,8 @@ class ProfilePicture() {
     var id : Long = 0
 
     @Lob
+    @JdbcTypeCode(java.sql.Types.BINARY)
+    @Column(columnDefinition = "BYTEA")
     lateinit var binaryData: ByteArray
 
     @JoinColumn(name = "user_id")
