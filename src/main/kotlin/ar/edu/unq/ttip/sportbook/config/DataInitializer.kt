@@ -50,6 +50,7 @@ class DataInitializer(val eventService: EventService,
             lastName = "Messi"
             email = "lio87kpo@hotmail.com"
             role = Role.ORGANIZER
+            dateOfBirth = LocalDate.of(1987,6,24)
         }
         messi.profiles = mutableListOf(
             SportProfile(messi, Sport.FOOTBALL, FootballProfileDetail().apply {
@@ -72,6 +73,7 @@ class DataInitializer(val eventService: EventService,
             lastName = "Alvarez"
             email = "julikpo@hotmail.com"
             role = Role.ORGANIZER
+            dateOfBirth = LocalDate.of(2000,1,31)
         }
         julian.profiles = mutableListOf(
             SportProfile(julian, Sport.FOOTBALL, FootballProfileDetail().apply {
