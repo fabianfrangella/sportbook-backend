@@ -1,5 +1,6 @@
 package ar.edu.unq.ttip.sportbook.persistence.entity.user
 
+import ar.edu.unq.ttip.sportbook.controller.request.UpdateUserDataRequest
 import ar.edu.unq.ttip.sportbook.exception.BusinessException
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
@@ -110,6 +111,35 @@ class SportUser() {
         val absenceScore = if (wasAbsentInPastEvents()) 0.0 else 10.0
 
         return listOf(mvpScore, goalScore, skillScore, playsOftenScore, absenceScore).average()
+    }
+
+    fun updateWith(updateUserData: UpdateUserDataRequest) {
+        this.username = updateUserData.username ?: this.username
+        this.email = updateUserData.email ?: this.email
+        this.name = updateUserData.name ?: this.name
+        this.lastName = updateUserData.lastName ?: this.lastName
+        this.dateOfBirth = updateUserData.dateOfBirth ?: this.dateOfBirth
+        this.role = updateUserData.role?: this.role
+        if (this.additionalInfo == null) {
+            val additionalInfo = AdditionalInfo()
+            additionalInfo.gender = updateUserData.gender
+            additionalInfo.phoneNumber = updateUserData.phoneNumber
+            additionalInfo.address = updateUserData.address
+            additionalInfo.city = updateUserData.city
+            additionalInfo.country = updateUserData.country
+            additionalInfo.languages = updateUserData.languages
+            this.additionalInfo = additionalInfo
+        } else {
+            this.additionalInfo?.gender = updateUserData.gender ?: this.additionalInfo?.gender
+            this.additionalInfo?.phoneNumber = updateUserData.phoneNumber ?: this.additionalInfo?.phoneNumber
+            this.additionalInfo?.address = updateUserData.address ?: this.additionalInfo?.address
+            this.additionalInfo?.city = updateUserData.city ?: this.additionalInfo?.city
+            this.additionalInfo?.country = updateUserData.country ?: this.additionalInfo?.country
+            if (updateUserData.languages.isNotEmpty()) {
+                this.additionalInfo?.languages = updateUserData.languages
+            }
+        }
+
     }
 
     override fun equals(other: Any?): Boolean {
