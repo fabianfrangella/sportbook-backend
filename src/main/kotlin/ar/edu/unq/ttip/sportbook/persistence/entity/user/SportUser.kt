@@ -49,7 +49,7 @@ class SportUser() {
     var role: Role = Role.PLAYER
 
     @JoinColumn(name = "additional_info_id")
-    @OneToOne(targetEntity = AdditionalInfo::class)
+    @OneToOne(targetEntity = AdditionalInfo::class, cascade = [CascadeType.ALL])
     var additionalInfo: AdditionalInfo? = null
 
     constructor(
