@@ -47,6 +47,10 @@ class SportUser() {
 
     var role: Role = Role.PLAYER
 
+    @JoinColumn(name = "additional_info_id")
+    @OneToOne(targetEntity = AdditionalInfo::class)
+    var additionalInfo: AdditionalInfo? = null
+
     constructor(
         password: String,
         username: String,
@@ -54,7 +58,8 @@ class SportUser() {
         name: String,
         lastName: String,
         dateOfBirth: LocalDate,
-        role: Role = Role.PLAYER
+        role: Role = Role.PLAYER,
+        additionalInfo: AdditionalInfo? = null,
     ) : this() {
         this.password = password
         this.username = username
@@ -63,6 +68,7 @@ class SportUser() {
         this.lastName = lastName
         this.dateOfBirth = dateOfBirth
         this.role = role
+        this.additionalInfo = additionalInfo
     }
 
     fun addProfile(profile: SportProfile) {
@@ -103,7 +109,7 @@ class SportUser() {
         val playsOftenScore = if (sportProfile != null && sportProfile.details.playsOften) 10.0 else 5.0
         val absenceScore = if (wasAbsentInPastEvents()) 0.0 else 10.0
 
-        return (mvpScore + goalScore + skillScore + playsOftenScore + absenceScore) / 5.0
+        return listOf(mvpScore, goalScore, skillScore, playsOftenScore, absenceScore).average()
     }
 
     override fun equals(other: Any?): Boolean {
