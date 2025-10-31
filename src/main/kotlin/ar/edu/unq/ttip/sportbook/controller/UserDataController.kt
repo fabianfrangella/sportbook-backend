@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.CrossOrigin
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -33,4 +34,12 @@ class UserDataController(val sportUserService: SportUserService) {
         @PathVariable("userId") userId: Long,
         @RequestBody userData: UpdateUserDataRequest
     ): SportUser = sportUserService.updateSportUser(userId, userData)
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(
+        summary = "Obtener usuarios",
+        method = "GET",
+        description = "Endpoint para obtener todos los usuarios.")
+    fun getAllUsers(): List<SportUser> = sportUserService.getAllUsers()
 }

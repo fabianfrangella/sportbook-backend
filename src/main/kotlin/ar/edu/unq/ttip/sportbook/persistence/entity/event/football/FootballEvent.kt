@@ -99,5 +99,11 @@ class FootballEvent : Event() {
     }
 
     override fun removeTeam(team: Team) {}
+    override fun setTeamPlayers() {
+        firstTeam?.players?.forEach { it.user = players.find { player -> player.user == it.user }!!.user }
+        secondTeam?.players?.forEach { it.user = players.find { player -> player.user == it.user }!!.user }
+        players = (firstTeam!!.players + secondTeam!!.players).toMutableList()
+        players.forEach { it.event = this }
+    }
 
 }

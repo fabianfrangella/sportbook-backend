@@ -106,8 +106,8 @@ class SportUser() {
 
         val mvpScore = if (wasMvpInPastEvents()) 10.0 else 0.0
         val goalScore = getGoalsInPastEvents().toDouble()
-        val skillScore = if (sportProfile != null) sportProfile.details.ability!!.toDouble() else 5.0
-        val playsOftenScore = if (sportProfile != null && sportProfile.details.playsOften) 10.0 else 5.0
+        val skillScore = if (sportProfile != null) sportProfile.details?.ability!!.toDouble() else 5.0
+        val playsOftenScore = if (sportProfile != null && sportProfile.details!!.playsOften) 10.0 else 5.0
         val absenceScore = if (wasAbsentInPastEvents()) 0.0 else 10.0
 
         return listOf(mvpScore, goalScore, skillScore, playsOftenScore, absenceScore).average()

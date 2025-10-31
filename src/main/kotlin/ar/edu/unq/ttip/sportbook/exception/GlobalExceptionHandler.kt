@@ -3,6 +3,8 @@ package ar.edu.unq.ttip.sportbook.exception
 import ar.edu.unq.ttip.sportbook.controller.response.ApiErrorResponse
 import ar.edu.unq.ttip.sportbook.persistence.entity.exception.DuplicatePlayerException
 import jakarta.servlet.http.HttpServletRequest
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -11,6 +13,8 @@ import org.springframework.web.server.ResponseStatusException
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
+
+    val logger: Logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
 
     @ExceptionHandler(ResponseStatusException::class)
     fun handleResponseStatusException(
@@ -23,6 +27,7 @@ class GlobalExceptionHandler {
             message = ex.reason,
             path = request.requestURI
         )
+        logger.error("Response status exception", ex)
         return ResponseEntity(body, ex.statusCode)
     }
 
@@ -37,6 +42,7 @@ class GlobalExceptionHandler {
             message = ex.message ?: "Elemento no encontrado",
             path = request.requestURI
         )
+        logger.error("No such element", ex)
         return ResponseEntity(body, HttpStatus.NOT_FOUND)
     }
 
@@ -51,6 +57,7 @@ class GlobalExceptionHandler {
             message = ex.message,
             path = request.requestURI,
         )
+        logger.error("Unhandled exception occurred", ex)
         return ResponseEntity(body, HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
@@ -62,6 +69,7 @@ class GlobalExceptionHandler {
             message = ex.message ?: "Resource not found",
             path = request.requestURI,
         )
+        logger.error("Not found exception", ex)
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body)
     }
 
@@ -73,6 +81,7 @@ class GlobalExceptionHandler {
             message = ex.message ?: "Bad request",
             path = request.requestURI,
         )
+        logger.info("Bad request exception", ex)
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body)
     }
 
@@ -85,6 +94,7 @@ class GlobalExceptionHandler {
             message = ex.message ?: "Conflicto en la solicitud",
             path = request.requestURI,
         )
+        logger.error("Conflict exception", ex)
         return ResponseEntity.status(status).body(body)
     }
 
@@ -97,6 +107,7 @@ class GlobalExceptionHandler {
             message = ex.message,
             path = request.requestURI,
         )
+        logger.info("Business exception", ex)
         return ResponseEntity.status(status).body(body)
     }
 
@@ -109,6 +120,7 @@ class GlobalExceptionHandler {
             message = ex.message,
             path = request.requestURI,
         )
+        logger.info("Duplicate player exception", ex)
         return ResponseEntity.status(status).body(body)
     }
 }

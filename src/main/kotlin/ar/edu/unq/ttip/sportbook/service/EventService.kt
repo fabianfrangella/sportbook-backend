@@ -33,8 +33,14 @@ class EventService(
     private val mapper: EventStatsMapper,
 ) {
 
-    @Transactional
     fun createEvent(event: Event, sportUser: SportUser): Event {
+        // HACKAZO para que no explote por detached entity, esto no se mergea así, hay que refactorizar bien el create event
+        // para que no venga con players ya seteados y hacer el seteo de los players en un endpoint aparte
+        event.players.forEach {
+            it.user = userRepository.findById(it.user.id).orElseThrow()
+        }
+        // esto es parte del hackazo también, no va
+        event.setTeamPlayers()
         val saved = eventJpaRepository.save(event.apply { organizer = sportUser })
         lineupService.createLineups(event)
         return saved

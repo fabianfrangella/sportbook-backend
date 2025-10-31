@@ -143,4 +143,5 @@ abstract class Event() {
     abstract fun balanceTeams()
     abstract fun addTeam(team: Team)
     abstract fun removeTeam(team: Team)
+    abstract fun setTeamPlayers()
 }

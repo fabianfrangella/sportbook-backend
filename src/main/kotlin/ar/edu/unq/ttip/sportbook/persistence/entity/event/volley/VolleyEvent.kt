@@ -98,4 +98,10 @@ class VolleyEvent : Event() {
         teams = teams.filter { it != team }
     }
 
+
+    override fun setTeamPlayers() {
+        teams.forEach { team -> team.players.forEach { it.user = players.find { player -> player.user == it.user }!!.user } }
+        players = teams.flatMap { it.players }.toMutableList()
+    }
+
 }

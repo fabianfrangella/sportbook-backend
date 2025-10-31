@@ -1,5 +1,9 @@
 spring:
-
+  logging:
+    level:
+      root: INFO
+      org.springframework.web: DEBUG
+      com.example.sportbook: DEBUG
   profiles:
     default: local
   application:

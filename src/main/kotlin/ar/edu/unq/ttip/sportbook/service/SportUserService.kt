@@ -18,4 +18,8 @@ class SportUserService(val sportUserJpaRepository: SportUserJpaRepository, val a
         }
         return sportUserJpaRepository.save(existentUser)
     }
+
+    fun getAllUsers(): List<SportUser> {
+        return sportUserJpaRepository.findAll()
+    }
 }
