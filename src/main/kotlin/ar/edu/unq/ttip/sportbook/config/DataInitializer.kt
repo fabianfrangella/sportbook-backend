@@ -11,6 +11,7 @@ import ar.edu.unq.ttip.sportbook.persistence.entity.event.football.FootballProfi
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.paddle.PaddleProfileDetail
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.volley.VolleyEvent
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.volley.VolleyProfileDetail
+import ar.edu.unq.ttip.sportbook.persistence.entity.team.TeamColor
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Role
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Sport
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportProfile
@@ -172,13 +173,13 @@ class DataInitializer(val eventService: EventService,
             players = footballPlayers
             pitchSize = 11
             firstTeam = Team().apply {
-                color = "Rojo"
+                color = TeamColor.RED
                 players = footballPlayers
                     .take(11)
                     .toMutableList()
             }
             secondTeam = Team().apply {
-                color = "Azul"
+                color = TeamColor.BLUE
                 players = footballPlayers
                     .drop(11)
                     .take(11)
@@ -205,10 +206,16 @@ class DataInitializer(val eventService: EventService,
             players = volleyPlayers
             teams = volleyPlayers.map {
                 Team().apply {
-                    val colors = listOf("Rojo", "Azul", "Verde", "Negro", "Blanco")
-                    val randomIndex = Random.nextInt(colors.size);
-                    val randomColor = colors[randomIndex]
-                    color = randomColor
+                    // 1. Obtener todos los valores (constantes) del enum
+                    val colors = TeamColor.entries
+
+                    // 2. Generar un índice aleatorio
+                    val randomIndex = Random.nextInt(colors.size)
+
+                    // 3. Asignar el valor del enum aleatorio
+                    color = colors[randomIndex]
+
+                    // Asignar el jugador al equipo
                     players = listOf(it).toMutableList()
                 }
             }
@@ -235,10 +242,16 @@ class DataInitializer(val eventService: EventService,
             players = paddlePlayers
             teams = paddlePlayers.take(4).map {
                 Team().apply {
-                    val colors = listOf("Rojo", "Azul", "Verde", "Negro", "Blanco")
-                    val randomIndex = Random.nextInt(colors.size);
-                    val randomColor = colors[randomIndex]
-                    color = randomColor
+                    // 1. Obtener todos los valores (constantes) del enum
+                    val colors = TeamColor.entries
+
+                    // 2. Generar un índice aleatorio
+                    val randomIndex = Random.nextInt(colors.size)
+
+                    // 3. Asignar el valor del enum aleatorio
+                    color = colors[randomIndex]
+
+                    // Asignar el jugador al equipo
                     players = listOf(it).toMutableList()
                 }
             }
@@ -265,13 +278,13 @@ class DataInitializer(val eventService: EventService,
             players = papiFutbolPlayers
             pitchSize = 5
             firstTeam = Team().apply {
-                color = "Rojo"
+                color = TeamColor.RED
                 players = papiFutbolPlayers
                     .take(3)
                     .toMutableList()
             }
             secondTeam = Team().apply {
-                color = "Azul"
+                color = TeamColor.BLUE
                 players = papiFutbolPlayers
                     .drop(3)
                     .take(2)

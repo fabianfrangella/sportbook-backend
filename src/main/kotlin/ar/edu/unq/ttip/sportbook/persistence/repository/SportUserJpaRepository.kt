@@ -9,4 +9,5 @@ import java.util.Optional
 interface SportUserJpaRepository : JpaRepository<SportUser, Long> {
     fun findByUsername(username: String) : Optional<SportUser>
     fun existsByUsername(username: String): Boolean
+    fun findByUsernameContainingIgnoreCase(username: String): List<SportUser>
 }

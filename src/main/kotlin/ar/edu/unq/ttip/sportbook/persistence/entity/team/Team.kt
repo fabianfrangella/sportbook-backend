@@ -27,7 +27,7 @@ class Team() {
     )
     var players: MutableList<Player> = mutableListOf()
 
-    lateinit var color: String
+    lateinit var color: TeamColor
 
     fun hasPlayerId(playerId: Long): Boolean = players.any { it.id == playerId }
 

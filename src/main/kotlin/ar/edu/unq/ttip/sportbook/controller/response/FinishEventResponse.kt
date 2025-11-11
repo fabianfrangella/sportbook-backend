@@ -1,5 +1,6 @@
 package ar.edu.unq.ttip.sportbook.controller.response
 
+import ar.edu.unq.ttip.sportbook.persistence.entity.team.TeamColor
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Sport
 import java.time.LocalDateTime
 
@@ -25,7 +26,7 @@ data class EventStatsResponse(
 
 data class TeamScoreDTO(
     val teamId: Long,
-    val color: String?,
+    val color: TeamColor?,
     val goals: Int,
     val isWinner: Boolean
 )
@@ -43,5 +44,5 @@ data class PlayerSummary(
 
 data class TeamSummary(
     val id: Long?,
-    val color: String?
+    val color: TeamColor?
 )

@@ -3,6 +3,7 @@ package ar.edu.unq.ttip.sportbook.service.event_stats
 import ar.edu.unq.ttip.sportbook.controller.response.*
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Event
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.FinishedEventStats
+import ar.edu.unq.ttip.sportbook.persistence.entity.team.TeamColor
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.TeamGoal
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player
 import org.springframework.stereotype.Service
@@ -37,7 +38,7 @@ class EventStatsCalculator {
         val totalGoals = goals.size
 
         // Mapa teamId -> color (preferimos color del team en goles y/o del ganador)
-        val teamColorById: MutableMap<Long, String?> = goals.asSequence()
+        val teamColorById: MutableMap<Long, TeamColor?> = goals.asSequence()
             .mapNotNull { it.team?.let { t -> t.id to t.color } }
             .toMap(mutableMapOf())
 
