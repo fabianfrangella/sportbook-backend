@@ -1,301 +1,312 @@
 package ar.edu.unq.ttip.sportbook.config
 
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.*
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.football.FootballEvent
-import ar.edu.unq.ttip.sportbook.persistence.entity.event.Location
-import ar.edu.unq.ttip.sportbook.persistence.entity.event.paddle.PaddleEvent
-import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player
-import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportUser
-import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
-import ar.edu.unq.ttip.sportbook.persistence.entity.event.TransferData
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.football.FootballProfileDetail
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.paddle.PaddleEvent
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.paddle.PaddleProfileDetail
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.volley.VolleyEvent
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.volley.VolleyProfileDetail
+import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.TeamColor
-import ar.edu.unq.ttip.sportbook.persistence.entity.user.Role
-import ar.edu.unq.ttip.sportbook.persistence.entity.user.Sport
-import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportProfile
+import ar.edu.unq.ttip.sportbook.persistence.entity.user.*
 import ar.edu.unq.ttip.sportbook.persistence.repository.EventJpaRepository
-import ar.edu.unq.ttip.sportbook.service.EventService
+import ar.edu.unq.ttip.sportbook.persistence.repository.SportUserJpaRepository
 import ar.edu.unq.ttip.sportbook.service.ProfilePictureService
 import ar.edu.unq.ttip.sportbook.service.auth.AuthService
-import jakarta.annotation.PostConstruct
-import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
+import jakarta.transaction.Transactional
+import org.springframework.boot.CommandLineRunner
+import org.springframework.stereotype.Component
+import org.springframework.web.multipart.MultipartFile
+import java.io.File
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
-import kotlin.random.Random
-import org.springframework.web.multipart.MultipartFile
-import java.io.File
 
-@Service
-class DataInitializer(val eventService: EventService,
-                      val eventJpaRepository: EventJpaRepository,
-                      val authService: AuthService,
-                      val profilePictureService: ProfilePictureService) {
+@Component
+class SportbookDataInitializer(
+    private val authService: AuthService,
+    private val userRepository: SportUserJpaRepository,
+    private val eventRepository: EventJpaRepository,
+    private val profilePictureService: ProfilePictureService,
+) : CommandLineRunner {
 
-    @PostConstruct
     @Transactional
-    fun initialize() {
-        val generateData = System.getenv()["GENERATE_DATA"].toBoolean()
-        if (!generateData) {
-            println("WILL NOT GENERATE DATA")
-            return
-        }
-        val messi = SportUser().apply {
-            username = "admin"
-            password = "1234"
-            name = "Lionel"
-            lastName = "Messi"
-            email = "lio87kpo@hotmail.com"
-            role = Role.ORGANIZER
-            dateOfBirth = LocalDate.of(1987,6,24)
-        }
-        messi.profiles = mutableListOf(
-            SportProfile(messi, Sport.FOOTBALL, FootballProfileDetail().apply {
-                ability = 10
-                playsOften = true
-            }),
-            SportProfile(messi, Sport.PADDLE, PaddleProfileDetail().apply {
-                ability = 10
-                playsOften = true
-            }),
-            SportProfile(messi, Sport.VOLLEY, VolleyProfileDetail().apply {
-                ability = 10
-                playsOften = true
-            }))
+    override fun run(vararg args: String?) {
+        if (userRepository.count() > 0) return // Solo inicializar si la DB está vacía
 
-        val julian = SportUser().apply {
-            username = "juli"
-            password = "1234"
-            name = "Julian"
-            lastName = "Alvarez"
-            email = "julikpo@hotmail.com"
-            role = Role.ORGANIZER
-            dateOfBirth = LocalDate.of(2000,1,31)
+        val users = createUsers()
+        val loc1 = createLocation("34.6037", "-58.3816", "Cancha Central")
+        val loc2 = createLocation("34.5900", "-58.4000", "Pista de Padel UNQ")
+        val loc3 = createLocation("34.5800", "-58.3500", "Gimnasio Cubierto")
+
+        createFootballEvents(users, loc1)
+        createPaddleEvents(users, loc2)
+        createVolleyEvents(users, loc3)
+    }
+
+    // --- UTILS ---
+
+    private fun createLocation(x: String, y: String, name: String): Location {
+        return Location().apply {
+            this.x = x
+            this.y = y
+            this.placeName = name
         }
-        julian.profiles = mutableListOf(
-            SportProfile(julian, Sport.FOOTBALL, FootballProfileDetail().apply {
-                ability = 10
-                playsOften = true
-            }),
-            SportProfile(julian, Sport.PADDLE, PaddleProfileDetail().apply {
-                ability = 10
-                playsOften = true
-            }),
-            SportProfile(julian, Sport.VOLLEY, VolleyProfileDetail().apply {
-                ability = 10
-                playsOften = true
-            }))
-        authService.register(messi)
-        authService.register(julian)
-        val newPlayers = (1..35).map {
-            val names = listOf("Fabi",
-                "Aaron",
-                "Margo",
-                "Tobi",
-                "Tom",
-                "Fran",
-                "Valentin",
-                "Juanma",
-                "Fer",
-                "Elias",
-                "Diego",
-                "Male",
-                "Ale",
-                "Emi",
-                "Lu",
-                "Abi",
-                "Brian",
-                "Santi",
-                "Guido",
-                "Luqui",
-                "Mateo",
-                "Yoel",
-                "Marcos",
-                "Miguel",
-                "Ricardo",
-                "Nico",
-                "Agus",
-                "Pablo",
-                "Gonza",
-                "Juli",
-                "Jose",
-                "Seba",
-                "Pedro",
-                "Matias",
-                "Pepe",
-                "Lautaro",)
-            val playerName = names[it - 1]
-            val player = Player()
-            player.name = playerName
-            player.user = SportUser(
-                username = playerName,
-                password = "",
-                name = playerName,
-                lastName = "Last Name $it",
-                email = "$playerName@gmail.com",
-                dateOfBirth = LocalDate.of(1994,9,20))
-            player.user.profiles = mutableListOf(
-                SportProfile(player.user, Sport.FOOTBALL, FootballProfileDetail().apply {
-                    ability = Random.nextInt(1, 5)
-                    playsOften = Random.nextBoolean()
-                }),
-                SportProfile(player.user, Sport.PADDLE, PaddleProfileDetail().apply {
-                    ability = Random.nextInt(1, 5)
-                    playsOften = Random.nextBoolean()
-                }),
-                SportProfile(player.user, Sport.VOLLEY, VolleyProfileDetail().apply {
-                    ability = Random.nextInt(1, 5)
-                    playsOften = Random.nextBoolean()
-                }))
-            player
+    }
+
+    private fun createPlayer(user: SportUser? = null, name: String? = null): Player {
+        val playerName = user?.name ?: name!!
+        val player = Player().apply {
+            this.name = playerName
+            this.user = user
+        }
+        // Si es un usuario, también agregamos el player a su colección (bidireccionalidad)
+        user?.players?.add(player)
+        return player
+    }
+
+    private fun createTeam(color: TeamColor, vararg players: Player): Team {
+        return Team().apply {
+            this.color = color
+            this.players = players.toMutableList()
+        }
+    }
+
+    // --- STEP 1: USERS AND PROFILES ---
+
+    private fun createUsers(): List<SportUser> {
+        val user1 = SportUser(
+            "1234", "admin", "messi@mail.com", "Lio", "Messi", LocalDate.of(1990, 1, 1), role = Role.ORGANIZER
+        ).apply {
+            addProfile(SportProfile(this, Sport.FOOTBALL, FootballProfileDetail(mutableListOf("ST", "RW"), "ST", true, 9)))
+            addProfile(SportProfile(this, Sport.PADDLE, PaddleProfileDetail("Izquierda", "Ofensivo", true, true, 10)))
         }
 
-        val footballEvent = FootballEvent()
-        val footballPlayers = newPlayers.take(22).map { it.event = footballEvent; it }
-        footballEvent.apply {
-            minPlayers = 22
-            maxPlayers = 24
-            dateTime = LocalDateTime.now().plus(10, ChronoUnit.DAYS)
-            location = Location().apply {
-                x = "-34.713390223118736"
-                y = "-58.28190778950768"
-                placeName = "ABC Ateneo Bernal"
-            }
-            cost = BigDecimal(10000)
-            transferData = TransferData().apply {
-                cbu = "1095432198059"
-                alias = "carpincho.torre.bici"
-            }
-            players = footballPlayers
-            pitchSize = 11
-            firstTeam = Team().apply {
-                color = TeamColor.RED
-                players = footballPlayers
-                    .take(11)
-                    .toMutableList()
-            }
-            secondTeam = Team().apply {
-                color = TeamColor.BLUE
-                players = footballPlayers
-                    .drop(11)
-                    .take(11)
-                    .toMutableList()
-            }
+        val user2 = SportUser(
+            "pass2", "mari_star", "mari@mail.com", "Mariana", "Gomez", LocalDate.of(1995, 5, 10), role = Role.PLAYER
+        ).apply {
+            addProfile(SportProfile(this, Sport.VOLLEY, VolleyProfileDetail(mutableListOf("Opuesto"), "Opuesto", 280, "Ataque", true, 8)))
+            addProfile(SportProfile(this, Sport.FOOTBALL, FootballProfileDetail(mutableListOf("CM", "LB"), "CM", false, 6)))
         }
 
-        val volleyEvent = VolleyEvent()
-        val volleyPlayers = newPlayers.drop(22).take(5).map { it.event = volleyEvent; it }
-        volleyEvent.apply {
-            minPlayers = 10
-            maxPlayers = 20
-            dateTime = LocalDateTime.now().plus(10, ChronoUnit.DAYS)
-            location = Location().apply {
-                x = "-34.713390223118736"
-                y = "-58.28190778950768"
-                placeName = "ABC Ateneo Bernal"
-            }
-            cost = BigDecimal(10000)
-            transferData = TransferData().apply {
-                cbu = "1231243124132"
-                alias = "pez.roto.cuero"
-            }
-            players = volleyPlayers
-            teams = volleyPlayers.map {
-                Team().apply {
-                    // 1. Obtener todos los valores (constantes) del enum
-                    val colors = TeamColor.entries
-
-                    // 2. Generar un índice aleatorio
-                    val randomIndex = Random.nextInt(colors.size)
-
-                    // 3. Asignar el valor del enum aleatorio
-                    color = colors[randomIndex]
-
-                    // Asignar el jugador al equipo
-                    players = listOf(it).toMutableList()
-                }
-            }
-            organizer = julian
+        val user3 = SportUser(
+            "pass3", "pablo_pro", "pablo@mail.com", "Pablo", "Perez", LocalDate.of(1985, 12, 20), role = Role.PLAYER
+        ).apply {
+            addProfile(SportProfile(this, Sport.PADDLE, PaddleProfileDetail("Izquierda", "Defensivo", false, true, 7)))
         }
+        authService.register(user1)
+        authService.register(user2)
+        authService.register(user3)
 
+        loadProfilePicture(user1, "/config/admin_profile.png", "admin_profile.png")
+        loadProfilePicture(user2, "/config/julian_profile.png", "julian_profile.png")
+        userRepository.saveAll(listOf(user1, user2, user3))
+        return listOf(user1, user2, user3)
+    }
 
-        val paddleEvent = PaddleEvent()
-        val paddlePlayers = newPlayers.drop(42).take(5).map { it.event = paddleEvent; it }
-        paddleEvent.apply {
-            minPlayers = 10
-            maxPlayers = 20
-            dateTime = LocalDateTime.now().plus(10, ChronoUnit.DAYS)
-            location = Location().apply {
-                x = "-34.713390223118736"
-                y = "-58.28190778950768"
-                placeName = "ABC Ateneo Bernal"
-            }
-            cost = BigDecimal(10000)
-            transferData = TransferData().apply {
-                cbu = "12312312312"
-                alias = "obi.juan.kenobi"
-            }
-            players = paddlePlayers
-            teams = paddlePlayers.take(4).map {
-                Team().apply {
-                    // 1. Obtener todos los valores (constantes) del enum
-                    val colors = TeamColor.entries
+    // --- STEP 2: EVENTS ---
 
-                    // 2. Generar un índice aleatorio
-                    val randomIndex = Random.nextInt(colors.size)
+    private fun createFootballEvents(users: List<SportUser>, location: Location) {
+        var organizerUser = users.first()
+        val userPlayer1 = createPlayer(users[0])
+        val userPlayer2 = createPlayer(users[1])
 
-                    // 3. Asignar el valor del enum aleatorio
-                    color = colors[randomIndex]
-
-                    // Asignar el jugador al equipo
-                    players = listOf(it).toMutableList()
-                }
-            }
-            organizer = messi
-        }
-
-        eventService.createEvent(footballEvent, messi)
-        val papiFutbolEvent = FootballEvent()
-        val papiFutbolPlayers = newPlayers.drop(27).take(5).map { it.event = papiFutbolEvent; it }
-        papiFutbolEvent.apply {
+        // Evento 1: Fútbol 5 - Jugadores Registrados + Invitados
+        val event1 = FootballEvent().apply {
+            dateTime = LocalDateTime.now().plusDays(1)
             minPlayers = 10
             maxPlayers = 10
-            dateTime = LocalDateTime.now().plus(10, ChronoUnit.DAYS)
-            location = Location().apply {
-                x = "-34.713390223118736"
-                y = "-58.28190778950768"
-                placeName = "ABC Ateneo Bernal"
-            }
-            cost = BigDecimal(10000)
+            this.location = location
+            cost = BigDecimal("2000.00")
             transferData = TransferData().apply {
                 cbu = "1095432198059"
                 alias = "carpincho.torre.bici"
             }
-            players = papiFutbolPlayers
-            pitchSize = 5
-            firstTeam = Team().apply {
-                color = TeamColor.RED
-                players = papiFutbolPlayers
-                    .take(3)
-                    .toMutableList()
-            }
-            secondTeam = Team().apply {
-                color = TeamColor.BLUE
-                players = papiFutbolPlayers
-                    .drop(3)
-                    .take(2)
-                    .toMutableList()
-            }
-        }
-        eventService.createEvent(papiFutbolEvent, messi)
-        eventJpaRepository.saveAll(listOf(volleyEvent,paddleEvent))
+            organizer = organizerUser
 
-        loadProfilePicture(messi, "/config/admin_profile.png", "admin_profile.png")
-        loadProfilePicture(julian, "/config/julian_profile.png", "julian_profile.png")
+            // Jugadores: 2 Registrados, 8 Invitados
+            val initialPlayers = listOf(
+                userPlayer1, // Registrado
+                userPlayer2, // Registrado
+                createPlayer(name = "Invitado Leo"),
+                createPlayer(name = "Invitado Emi"),
+                createPlayer(name = "Invitado Juan"),
+                createPlayer(name = "Invitado Facu"),
+                createPlayer(name = "Invitado Pipo"),
+                createPlayer(name = "Invitado Seba"),
+                createPlayer(name = "Invitado Maxi"),
+                createPlayer(name = "Invitado Nico")
+            )
+            this.players = initialPlayers.onEach { it.event = this } // Setear bidireccionalidad
+
+            // Crear equipos iniciales (vacíos o desbalanceados)
+            firstTeam = createTeam(TeamColor.BLUE)
+            secondTeam = createTeam(TeamColor.RED)
+        }
+
+        // Evento 2: Fútbol 8 - Solo Registrados
+        val event2 = FootballEvent().apply {
+            dateTime = LocalDateTime.now().plusDays(5)
+            minPlayers = 16
+            maxPlayers = 16
+            this.location = location
+            cost = BigDecimal("1500.00")
+            transferData = TransferData().apply {
+                cbu = "1095432198059"
+                alias = "carpincho.torre.bici"
+            }
+            organizer = organizerUser
+
+            // Jugadores: 16 Registrados (usando placeholders para simplificar)
+            this.players = users.map { createPlayer(it) }.toMutableList().onEach { it.event = this }
+            // Agregar 13 jugadores más (asumiendo que hay más usuarios, o creándolos aquí para la demo)
+            // Para simplificar, solo asignamos los 3 creados arriba
+            // En una app real, aquí usarías 16 jugadores únicos.
+
+            firstTeam = createTeam(TeamColor.GREEN)
+            secondTeam = createTeam(TeamColor.WHITE)
+        }
+
+        eventRepository.saveAll(listOf(event1, event2))
+    }
+
+    private fun createPaddleEvents(users: List<SportUser>, location: Location) {
+        var organizerUser = users.first()
+        val userPlayer3 = createPlayer(users[2])
+
+        // Evento 3: Pádel - 4 jugadores (2 equipos)
+        val event3 = PaddleEvent().apply {
+            dateTime = LocalDateTime.now().plusDays(2)
+            minPlayers = 4
+            maxPlayers = 4
+            this.location = location
+            cost = BigDecimal("4000.00")
+            transferData = TransferData().apply {
+                cbu = "1095432198059"
+                alias = "carpincho.torre.bici"
+            }
+            organizer = organizerUser
+
+            // Jugadores: 2 Registrados, 2 Invitados
+            val initialPlayers = listOf(
+                createPlayer(users[0]), // Fede
+                userPlayer3,             // Pablo
+                createPlayer(name = "Invitado Tino"),
+                createPlayer(name = "Invitado Lalo")
+            )
+            this.players = initialPlayers.onEach { it.event = this }
+
+            // Equipos pre-creados
+            val teamA = createTeam(TeamColor.BLUE, initialPlayers[0], initialPlayers[3])
+            val teamB = createTeam(TeamColor.RED, initialPlayers[1], initialPlayers[2])
+            this.teams = listOf(teamA, teamB) // lateinit var teams
+        }
+
+        // Evento 4: Pádel - 8 jugadores (4 equipos)
+        val event4 = PaddleEvent().apply {
+            dateTime = LocalDateTime.now().plusDays(7)
+            minPlayers = 8
+            maxPlayers = 8
+            this.location = location
+            cost = BigDecimal("6000.00")
+            transferData = TransferData().apply {
+                cbu = "1095432198059"
+                alias = "carpincho.torre.bici"
+            }
+            organizer = organizerUser // Mariana organiza
+
+            // Jugadores: 3 Registrados, 5 Invitados
+            val initialPlayers = listOf(
+                createPlayer(users[0]), // Fede
+                createPlayer(users[1]), // Mari
+                createPlayer(users[2]), // Pablo
+                createPlayer(name = "Invitado Ana"),
+                createPlayer(name = "Invitado Sol"),
+                createPlayer(name = "Invitado Gaby"),
+                createPlayer(name = "Invitado Lupe"),
+                createPlayer(name = "Invitado Rocio")
+            )
+            this.players = initialPlayers.onEach { it.event = this }
+
+            // Equipos (vacíos o incompletos)
+            this.teams = listOf(
+                createTeam(TeamColor.WHITE),
+                createTeam(TeamColor.BLACK),
+                createTeam(TeamColor.GREEN),
+                createTeam(TeamColor.RED)
+            )
+        }
+
+        eventRepository.saveAll(listOf(event3, event4))
+    }
+
+    private fun createVolleyEvents(users: List<SportUser>, location: Location) {
+        var organizerUser = users[1] // Mariana organiza
+
+        // Evento 5: Vóley - 6 jugadores (3 vs 3)
+        val event5 = VolleyEvent().apply {
+            dateTime = LocalDateTime.now().plusDays(3)
+            minPlayers = 6
+            maxPlayers = 6
+            this.location = location
+            cost = BigDecimal("1000.00")
+            transferData = TransferData().apply {
+                cbu = "1095432198059"
+                alias = "carpincho.torre.bici"
+            }
+            organizer = organizerUser
+
+            // Jugadores: 1 Registrado, 5 Invitados
+            val initialPlayers = listOf(
+                createPlayer(users[1]), // Mariana
+                createPlayer(name = "I-Voley-1"),
+                createPlayer(name = "I-Voley-2"),
+                createPlayer(name = "I-Voley-3"),
+                createPlayer(name = "I-Voley-4"),
+                createPlayer(name = "I-Voley-5")
+            )
+            this.players = initialPlayers.onEach { it.event = this }
+
+            // Equipos
+            this.teams = listOf(
+                createTeam(TeamColor.BLUE, initialPlayers[0], initialPlayers[2], initialPlayers[4]),
+                createTeam(TeamColor.GREEN, initialPlayers[1], initialPlayers[3], initialPlayers[5])
+            )
+        }
+
+        // Evento 6: Vóley - 12 jugadores (6 vs 6)
+        val event6 = VolleyEvent().apply {
+            dateTime = LocalDateTime.now().plusDays(10)
+            minPlayers = 12
+            maxPlayers = 12
+            this.location = location
+            cost = BigDecimal("1200.00")
+            transferData = TransferData().apply {
+                cbu = "1095432198059"
+                alias = "carpincho.torre.bici"
+            }
+            organizer = organizerUser // Fede organiza
+
+            // Jugadores: 3 Registrados, 9 Invitados (solo 6 para el ejemplo)
+            val initialPlayers = listOf(
+                createPlayer(users[0]),
+                createPlayer(users[1]),
+                createPlayer(users[2]),
+                createPlayer(name = "Inv-A"),
+                createPlayer(name = "Inv-B"),
+                createPlayer(name = "Inv-C")
+            )
+            this.players = initialPlayers.onEach { it.event = this }
+
+            // Equipos (vacíos)
+            this.teams = listOf(
+                createTeam(TeamColor.RED),
+                createTeam(TeamColor.WHITE)
+            )
+        }
+
+        eventRepository.saveAll(listOf(event5, event6))
     }
 
     private fun loadProfilePicture(user: SportUser, path: String, name: String) {
@@ -316,4 +327,5 @@ class DataInitializer(val eventService: EventService,
             profilePictureService.uploadProfilePicture(multipartFile, user)
         }
     }
+
 }

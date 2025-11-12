@@ -49,7 +49,7 @@ class FinishedEventStats() {
     )
     var missingPlayers: MutableSet<Player> = mutableSetOf()
 
-    fun isVictoryFor(userId: Long): Boolean = winningTeam?.players?.any { it.user.id == userId } == true
+    fun isVictoryFor(userId: Long): Boolean = winningTeam?.players?.any { it.user?.id == userId } == true
 
     fun mvpUsernameOrNull(): String? = mvp?.user?.username
 

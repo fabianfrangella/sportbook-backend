@@ -22,21 +22,27 @@ class Player() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0
-    lateinit var name: String
-    @ManyToOne(cascade = [CascadeType.ALL])
-    lateinit var user: SportUser
+    final var name: String? = null
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = true)
+    var user: SportUser? = null
 
     @ManyToOne
+    @JoinColumn(name = "event_id", nullable = true)
     @JsonIgnore
-    @JoinColumn(name = "event_id")
     var event: Event? = null
+
+    @Transient
+    var sportUsername: String? = null
 
     constructor(name: String, user: SportUser) : this() {
         this.name = name
         this.user = user
     }
 
-    fun calculateScore(sport: Sport): Double = user.calculatePlayerScore(sport)
+    fun calculateScore(sport: Sport): Double {
+        return user?.calculatePlayerScore(sport) ?: 0.0
+    }
 
     fun joinTeam(event: Event, team: Team) {
         if (event.players.none { it.id == this.id }) {

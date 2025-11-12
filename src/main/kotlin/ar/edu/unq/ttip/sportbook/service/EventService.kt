@@ -35,9 +35,50 @@ class EventService(
 
     @Transactional
     fun createEvent(event: Event, sportUser: SportUser): Event {
-        val saved = eventJpaRepository.save(event.apply { organizer = sportUser })
-        lineupService.createLineups(event)
-        return saved
+        // 1. **Manejar la bidireccionalidad antes del guardado.**
+        //    Usamos 'apply' en el bucle para establecer el 'event' en cada jugador
+        //    y ejecutar la lógica de validación/conversión.
+
+        // 2. **Refactorizar el bucle:** Usar forEach para aplicar cambios directamente
+        //    a la lista de jugadores recibida, eliminando el .map y la recreación de la lista.
+        event.players.forEach { player ->
+
+            // La validación interna del modelo debe estar en el modelo (ver punto 2).
+            // Por ahora, usamos el código existente para la corrección inmediata:
+
+            // --- Lógica de validación/conversión (a refactorizar) ---
+            if (player.sportUsername != null) {
+                val foundedUser = userRepository.findByUsername(player.sportUsername!!).orElse(null)
+
+                if (foundedUser != null) {
+                    player.user = foundedUser
+                    player.name = foundedUser.name // 💡 CORRECCIÓN: Usar el nombre del usuario
+                } else {
+                    player.user = null
+                    if (player.name.isNullOrBlank()) {
+                        player.name = player.sportUsername!!
+                    }
+                    player.sportUsername = null // Limpiar el campo transitorio
+                }
+            } else if (player.name.isNullOrBlank()) {
+                throw IllegalArgumentException("El jugador debe tener un ID de usuario o un nombre de invitado.")
+            }
+            // --- Fin de lógica de validación/conversión ---
+
+            // Establecer la bidireccionalidad. ESTO ES CRUCIAL.
+            player.event = event
+        }
+
+        // 3. **Simplificar el guardado:** La lista ya está modificada.
+        //    Usamos el `apply` para configurar el organizador ANTES de guardar.
+        event.organizer = sportUser
+        val savedEvent = eventJpaRepository.save(event)
+
+        // 4. Mover la creación de alineaciones al final, después de guardar el evento
+        //    para asegurar que el evento tenga su ID persistido.
+        lineupService.createLineups(savedEvent)
+
+        return savedEvent
     }
 
     fun getEvent(id: Long): Event =

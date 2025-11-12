@@ -33,7 +33,7 @@ class FootballLineup : Lineup() {
 
     override fun addPlayerToPosition(player: Player, position: Position) {
         if (!team.hasPlayerId(player.id)) {
-            throw NotTeamMemberException(player.name)
+            throw player.name?.let { NotTeamMemberException(it) }!!
         }
 
         if (positionsByPlayer.containsKey(position)) {
@@ -58,7 +58,7 @@ class FootballLineup : Lineup() {
 
     override fun addPlayerToBench(player: Player) {
         if (initialLineup.contains(player) || bench.contains(player)) {
-            throw DuplicatePlayerException(player.name)
+            throw player.name?.let { DuplicatePlayerException(it) }!!
         }
         bench.add(player)
     }

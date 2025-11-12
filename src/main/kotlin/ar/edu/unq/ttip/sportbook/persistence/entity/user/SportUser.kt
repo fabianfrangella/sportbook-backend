@@ -85,20 +85,20 @@ class SportUser() {
         return players
             .mapNotNull { it.event?.finishedStats }
             .mapNotNull { it.mvp }
-            .any { it.user.id == this.id }
+            .any { it.user?.id == this.id }
     }
 
     @JsonIgnore
     fun getGoalsInPastEvents(): Int {
         return players
             .mapNotNull { it.event?.finishedStats }
-            .sumOf { stats -> stats.goals.count { it.player!!.user.id == this.id } }
+            .sumOf { stats -> stats.goals.count { it.player!!.user?.id == this.id } }
     }
 
     fun wasAbsentInPastEvents(): Boolean {
         return players
             .mapNotNull { it.event?.finishedStats }
-            .any { stats -> stats.missingPlayers.any { it.user.id == this.id } }
+            .any { stats -> stats.missingPlayers.any { it.user?.id == this.id } }
     }
 
     fun calculatePlayerScore(sport: Sport): Double {
