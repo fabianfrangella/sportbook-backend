@@ -23,7 +23,7 @@ interface FinishedEventStatsRepository : JpaRepository<FinishedEventStats, Long>
         select fes
         from FinishedEventStats fes
         join fes.event e
-        join e.players p
+        join e.unnasignedPlayers p
         where p.user.id = :userId
     """)
     fun findAllByUserId(@Param("userId") userId: Long): List<FinishedEventStats>
@@ -32,7 +32,7 @@ interface FinishedEventStatsRepository : JpaRepository<FinishedEventStats, Long>
         select fes
         from FinishedEventStats fes
         join fes.event e
-        join e.players p
+        join e.unnasignedPlayers p
         where p.user.id = :userId and e.sport = :sport
     """)
     fun findAllByUserIdAndSport(@Param("userId") userId: Long, @Param("sport") sport: Sport): List<FinishedEventStats>

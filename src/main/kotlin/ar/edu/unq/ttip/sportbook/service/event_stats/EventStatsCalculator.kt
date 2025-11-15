@@ -27,7 +27,7 @@ class EventStatsCalculator {
 
     fun compute(event: Event, stats: FinishedEventStats): CalculatedStats {
         // --- asistencia ---
-        val registered = event.players?.size ?: 0
+        val registered = event.unnasignedPlayers?.size ?: 0
         val missingPlayers = stats.missingPlayers.toList()
         val absent = missingPlayers.size
         val present = max(registered - absent, 0)

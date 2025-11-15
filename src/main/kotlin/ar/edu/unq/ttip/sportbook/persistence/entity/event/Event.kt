@@ -12,20 +12,7 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import jakarta.persistence.CascadeType
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.EnumType
-import jakarta.persistence.Enumerated
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.Inheritance
-import jakarta.persistence.InheritanceType
-import jakarta.persistence.ManyToOne
-import jakarta.persistence.OneToMany
-import jakarta.persistence.OneToOne
-import jakarta.persistence.Table
+import jakarta.persistence.*
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 import java.math.BigDecimal
@@ -57,8 +44,9 @@ abstract class Event() {
     var cost: BigDecimal? = null
     @OneToOne(cascade = [CascadeType.ALL])
     var transferData: TransferData? = null
-    @OneToMany(mappedBy = "event", cascade = [CascadeType.ALL], targetEntity = Player::class)
-    var players: List<Player> = listOf()
+    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
+    @JoinColumn(name = "event_id")
+    var unnasignedPlayers: MutableList<Player> = mutableListOf()
     @ManyToOne(targetEntity = SportUser::class)
     var organizer: SportUser? = null
 
@@ -74,26 +62,16 @@ abstract class Event() {
 
     fun canJoin(username: String) : Boolean {
         if (isFull()) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "El evento está completo")
-        return players.find { player -> player.user?.username == username } == null
+        return unnasignedPlayers.find { player -> player.user?.username == username } == null
     }
 
-    private fun isFull() = players.size >= maxPlayers
+    private fun isFull() = unnasignedPlayers.size >= maxPlayers
     fun join(player: Player) {
         if (canJoin(player.user?.username!!)) {
-            players = players.plus(player)
+            unnasignedPlayers.add(player)
             player.event = this
         } else
             throw BusinessException("Ya sos parte de este evento!")
-    }
-
-    fun leave(player: Player) {
-        if (!players.contains(player)) {
-            throw BusinessException("No estás registrado en el evento")
-        }
-
-        removePlayerFromTeams(player)
-        players = players!!.filter { it != player }
-        player.event = null
     }
 
     protected abstract fun removePlayerFromTeams(player: Player)
@@ -132,7 +110,7 @@ abstract class Event() {
     }
 
     fun getPlayer(playerId: Long): Player {
-        return players?.find { it.id == playerId }
+        return unnasignedPlayers.find { it.id == playerId }
             ?: throw BusinessException("Jugador $playerId no encontrado en el evento")
     }
 
@@ -143,4 +121,7 @@ abstract class Event() {
     abstract fun balanceTeams()
     abstract fun addTeam(team: Team)
     abstract fun removeTeam(team: Team)
+
+    abstract fun leave(user: SportUser): Player
+
 }

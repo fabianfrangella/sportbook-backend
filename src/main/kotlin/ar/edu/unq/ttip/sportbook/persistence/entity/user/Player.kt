@@ -7,7 +7,6 @@ import ar.edu.unq.ttip.sportbook.persistence.entity.event.football.FootballEvent
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.paddle.PaddleEvent
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.volley.VolleyEvent
 import com.fasterxml.jackson.annotation.JsonIgnore
-import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -45,7 +44,7 @@ class Player() {
     }
 
     fun joinTeam(event: Event, team: Team) {
-        if (event.players.none { it.id == this.id }) {
+        if (event.unnasignedPlayers.none { it.id == this.id }) {
             throw BusinessException("No estás registrado en el evento")
         }
         when (event) {

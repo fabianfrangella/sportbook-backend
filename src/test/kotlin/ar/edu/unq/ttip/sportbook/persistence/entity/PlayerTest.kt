@@ -47,7 +47,7 @@ class PlayerTest {
             maxPlayers = 10
             firstTeam = team1
             secondTeam = team2
-            players = listOf(player)
+            unnasignedPlayers = listOf(player)
         }
 
         // Execute
@@ -64,7 +64,7 @@ class PlayerTest {
         val player = createPlayer()
         val event = FootballEvent().apply {
             maxPlayers = 10
-            players = listOf() // Empty player list
+            unnasignedPlayers = listOf() // Empty player list
             firstTeam = Team().apply {
                 id = 1L
                 players = mutableListOf()
@@ -102,7 +102,7 @@ class PlayerTest {
             maxPlayers = 10
             firstTeam = team1
             secondTeam = team2
-            players = listOf(player)
+            unnasignedPlayers = listOf(player)
         }
 
         // Execute
@@ -132,7 +132,7 @@ class PlayerTest {
         val event = PaddleEvent().apply {
             maxPlayers = 4
             this.teams = teams
-            players = listOf(player)
+            unnasignedPlayers = listOf(player)
         }
 
         // Execute
@@ -162,7 +162,7 @@ class PlayerTest {
         val event = VolleyEvent().apply {
             maxPlayers = 12
             this.teams = teams
-            players = listOf(player)
+            unnasignedPlayers = listOf(player)
         }
 
         // Execute
@@ -190,7 +190,7 @@ class PlayerTest {
                 players = mutableListOf()
                 color = "Blue"
             }
-            players = listOf(player)
+            unnasignedPlayers = listOf(player)
         }
 
         // Execute & Verify
@@ -217,7 +217,7 @@ class PlayerTest {
                 players = mutableListOf()
                 color = "Blue"
             }
-            players = listOf(player)
+            unnasignedPlayers = listOf(player)
         }
 
         // Execute & Verify
@@ -246,7 +246,7 @@ class PlayerTest {
         val event = PaddleEvent().apply {
             maxPlayers = 4
             this.teams = teams
-            players = listOf(player)
+            unnasignedPlayers = listOf(player)
         }
 
         // Execute & Verify
@@ -275,7 +275,7 @@ class PlayerTest {
         val event = VolleyEvent().apply {
             maxPlayers = 12
             this.teams = teams
-            players = listOf(player)
+            unnasignedPlayers = listOf(player)
         }
 
         // Execute & Verify
@@ -299,7 +299,7 @@ class PlayerTest {
         val event = PaddleEvent().apply {
             maxPlayers = 4
             this.teams = teams
-            players = listOf(player)
+            unnasignedPlayers = listOf(player)
         }
 
         // Execute & Verify
@@ -323,7 +323,7 @@ class PlayerTest {
         val event = VolleyEvent().apply {
             maxPlayers = 12
             this.teams = teams
-            players = listOf(player)
+            unnasignedPlayers = listOf(player)
         }
 
         // Execute & Verify

@@ -1,10 +1,12 @@
 package ar.edu.unq.ttip.sportbook.persistence.entity.event.volley
 
+import ar.edu.unq.ttip.sportbook.exception.NotFoundException
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Sport
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Event
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Lineup
+import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportUser
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.JoinColumn
@@ -63,19 +65,36 @@ class VolleyEvent : Event() {
         return kotlin.math.max(10.0 - (standardDeviation * 3.33), 0.0)
     }
 
+    override fun addTeam(team: Team) {
+        teams = teams + team
+    }
+
+    override fun removeTeam(team: Team) {
+        team.clear()
+        teams = teams.filter { it != team }
+    }
+
+    override fun leave(user: SportUser): Player {
+        val player = teams.flatMap { it.players }.find { it.user?.username == user.username }
+        if (player == null) throw NotFoundException("Jugador no encontrado")
+
+        this.removePlayerFromTeams(player)
+        this.unnasignedPlayers.remove(player)
+        player.event = null
+        return player
+    }
+
     override fun balanceTeams() {
         if (teams.isEmpty()) return
 
-        val allPlayers = teams.flatMap { it.players }.toMutableList()
+        val allPlayers = (teams.flatMap { it.players } + unnasignedPlayers).toMutableList()
         teams.forEach { it.players.clear() }
+        unnasignedPlayers.clear()
 
-        // Ordenamos los jugadores por puntaje de mayor a menor
         allPlayers.sortByDescending { it.calculateScore(sport) }
 
-        // Distribuimos los jugadores usando el método serpiente
-        // (1ro al equipo 1, 2do al 2, 3ro al 3, 4to al 3, 5to al 2, 6to al 1, etc.)
         var currentTeamIndex = 0
-        var direction = 1 // 1 para avanzar, -1 para retroceder
+        var direction = 1
 
         allPlayers.forEach { player ->
             teams[currentTeamIndex].players.add(player)
@@ -87,15 +106,7 @@ class VolleyEvent : Event() {
                 direction = 1
             }
         }
-    }
 
-    override fun addTeam(team: Team) {
-        teams = teams + team
-    }
-
-    override fun removeTeam(team: Team) {
-        team.clear()
-        teams = teams.filter { it != team }
     }
 
 }

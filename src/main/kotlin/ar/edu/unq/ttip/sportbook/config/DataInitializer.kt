@@ -108,7 +108,8 @@ class SportbookDataInitializer(
     // --- STEP 2: EVENTS ---
 
     private fun createFootballEvents(users: List<SportUser>, location: Location) {
-        var organizerUser = users.first()
+        var lioUser = users.first()
+        var marianaUser = users[1]
         val userPlayer1 = createPlayer(users[0])
         val userPlayer2 = createPlayer(users[1])
 
@@ -123,10 +124,11 @@ class SportbookDataInitializer(
                 cbu = "1095432198059"
                 alias = "carpincho.torre.bici"
             }
-            organizer = organizerUser
+            organizer = lioUser
+            pitchSize = 11
 
             // Jugadores: 2 Registrados, 8 Invitados
-            val initialPlayers = listOf(
+            val initialPlayers = mutableListOf(
                 userPlayer1, // Registrado
                 userPlayer2, // Registrado
                 createPlayer(name = "Invitado Leo"),
@@ -136,9 +138,8 @@ class SportbookDataInitializer(
                 createPlayer(name = "Invitado Pipo"),
                 createPlayer(name = "Invitado Seba"),
                 createPlayer(name = "Invitado Maxi"),
-                createPlayer(name = "Invitado Nico")
             )
-            this.players = initialPlayers.onEach { it.event = this } // Setear bidireccionalidad
+            this.unnasignedPlayers = initialPlayers
 
             // Crear equipos iniciales (vacíos o desbalanceados)
             firstTeam = createTeam(TeamColor.BLUE)
@@ -156,10 +157,11 @@ class SportbookDataInitializer(
                 cbu = "1095432198059"
                 alias = "carpincho.torre.bici"
             }
-            organizer = organizerUser
+            organizer = marianaUser
+            pitchSize = 11
 
             // Jugadores: 16 Registrados (usando placeholders para simplificar)
-            this.players = users.map { createPlayer(it) }.toMutableList().onEach { it.event = this }
+            this.unnasignedPlayers = users.map { createPlayer(it) }.toMutableList()
             // Agregar 13 jugadores más (asumiendo que hay más usuarios, o creándolos aquí para la demo)
             // Para simplificar, solo asignamos los 3 creados arriba
             // En una app real, aquí usarías 16 jugadores únicos.
@@ -189,18 +191,18 @@ class SportbookDataInitializer(
             organizer = organizerUser
 
             // Jugadores: 2 Registrados, 2 Invitados
-            val initialPlayers = listOf(
+            val initialPlayers = mutableListOf(
                 createPlayer(users[0]), // Fede
                 userPlayer3,             // Pablo
                 createPlayer(name = "Invitado Tino"),
                 createPlayer(name = "Invitado Lalo")
             )
-            this.players = initialPlayers.onEach { it.event = this }
+            this.unnasignedPlayers = initialPlayers
 
             // Equipos pre-creados
             val teamA = createTeam(TeamColor.BLUE, initialPlayers[0], initialPlayers[3])
             val teamB = createTeam(TeamColor.RED, initialPlayers[1], initialPlayers[2])
-            this.teams = listOf(teamA, teamB) // lateinit var teams
+            this.teams = mutableListOf(teamA, teamB) // lateinit var teams
         }
 
         // Evento 4: Pádel - 8 jugadores (4 equipos)
@@ -217,7 +219,7 @@ class SportbookDataInitializer(
             organizer = organizerUser // Mariana organiza
 
             // Jugadores: 3 Registrados, 5 Invitados
-            val initialPlayers = listOf(
+            val initialPlayers = mutableListOf(
                 createPlayer(users[0]), // Fede
                 createPlayer(users[1]), // Mari
                 createPlayer(users[2]), // Pablo
@@ -227,10 +229,10 @@ class SportbookDataInitializer(
                 createPlayer(name = "Invitado Lupe"),
                 createPlayer(name = "Invitado Rocio")
             )
-            this.players = initialPlayers.onEach { it.event = this }
+            this.unnasignedPlayers = initialPlayers
 
             // Equipos (vacíos o incompletos)
-            this.teams = listOf(
+            this.teams = mutableListOf(
                 createTeam(TeamColor.WHITE),
                 createTeam(TeamColor.BLACK),
                 createTeam(TeamColor.GREEN),
@@ -258,7 +260,7 @@ class SportbookDataInitializer(
             organizer = organizerUser
 
             // Jugadores: 1 Registrado, 5 Invitados
-            val initialPlayers = listOf(
+            val initialPlayers = mutableListOf(
                 createPlayer(users[1]), // Mariana
                 createPlayer(name = "I-Voley-1"),
                 createPlayer(name = "I-Voley-2"),
@@ -266,10 +268,10 @@ class SportbookDataInitializer(
                 createPlayer(name = "I-Voley-4"),
                 createPlayer(name = "I-Voley-5")
             )
-            this.players = initialPlayers.onEach { it.event = this }
+            this.unnasignedPlayers = initialPlayers
 
             // Equipos
-            this.teams = listOf(
+            this.teams = mutableListOf(
                 createTeam(TeamColor.BLUE, initialPlayers[0], initialPlayers[2], initialPlayers[4]),
                 createTeam(TeamColor.GREEN, initialPlayers[1], initialPlayers[3], initialPlayers[5])
             )
@@ -289,7 +291,7 @@ class SportbookDataInitializer(
             organizer = organizerUser // Fede organiza
 
             // Jugadores: 3 Registrados, 9 Invitados (solo 6 para el ejemplo)
-            val initialPlayers = listOf(
+            val initialPlayers = mutableListOf(
                 createPlayer(users[0]),
                 createPlayer(users[1]),
                 createPlayer(users[2]),
@@ -297,10 +299,10 @@ class SportbookDataInitializer(
                 createPlayer(name = "Inv-B"),
                 createPlayer(name = "Inv-C")
             )
-            this.players = initialPlayers.onEach { it.event = this }
+            this.unnasignedPlayers = initialPlayers
 
             // Equipos (vacíos)
-            this.teams = listOf(
+            this.teams = mutableListOf(
                 createTeam(TeamColor.RED),
                 createTeam(TeamColor.WHITE)
             )

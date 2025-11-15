@@ -5,7 +5,7 @@ import java.math.BigDecimal
 data class UpdateEventRequest(
     val cost: BigDecimal?,
     val creator: String?,
-    val organizer: String?,
+    val organizerId: Long?,
     val pitchSize: Int?,
     val transferDataCbu: String?,
     val transferDataAlias: String?,

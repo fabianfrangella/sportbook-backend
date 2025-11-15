@@ -1,11 +1,13 @@
 package ar.edu.unq.ttip.sportbook.persistence.entity.event.football
 
 import ar.edu.unq.ttip.sportbook.exception.BadRequestException
+import ar.edu.unq.ttip.sportbook.exception.NotFoundException
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Sport
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Event
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Lineup
+import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportUser
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.ManyToOne
@@ -70,24 +72,6 @@ class FootballEvent : Event() {
         return kotlin.math.max(10.0 - scoreDifference, 0.0)
     }
 
-    override fun balanceTeams() {
-        if (firstTeam == null || secondTeam == null) return
-
-        val allPlayers = players.toMutableList()
-        firstTeam!!.clear()
-        secondTeam!!.clear()
-
-        allPlayers.sortByDescending { it.calculateScore(sport) }
-
-        allPlayers.forEachIndexed { index, player ->
-            if (index % 2 == 0) {
-                firstTeam!!.players.add(player)
-            } else {
-                secondTeam!!.players.add(player)
-            }
-        }
-    }
-
     override fun addTeam(team: Team) {
         if (firstTeam == null) {
             firstTeam = team
@@ -100,4 +84,36 @@ class FootballEvent : Event() {
 
     override fun removeTeam(team: Team) {}
 
+    override fun leave(user: SportUser): Player {
+        val allPlayersInTeams = listOfNotNull(this.firstTeam, this.secondTeam)
+            .flatMap { it.players }
+
+        val player = (allPlayersInTeams + this.unnasignedPlayers)
+            .find { it.user?.username == user.username }
+
+        if (player == null) throw NotFoundException("Jugador no encontrado")
+
+        this.removePlayerFromTeams(player)
+        this.unnasignedPlayers.remove(player)
+        player.event = null
+        return player
+    }
+
+    override fun balanceTeams() {
+        val allPlayers = (firstTeam!!.players + secondTeam!!.players + unnasignedPlayers).toMutableList()
+        firstTeam!!.clear()
+        secondTeam!!.clear()
+        unnasignedPlayers.clear()
+
+        allPlayers.sortByDescending { it.calculateScore(sport) }
+
+        allPlayers.forEachIndexed { index, player ->
+            if (index % 2 == 0) {
+                firstTeam!!.players.add(player)
+            } else {
+                secondTeam!!.players.add(player)
+            }
+        }
+
+    }
 }
