@@ -39,28 +39,31 @@ class Player() {
         return user?.calculatePlayerScore(sport) ?: 0.0
     }
 
-    fun joinTeam(event: Event, team: Team) {
+    fun joinTeam(event: Event, targetTeam: Team) {
+        val isInUnassigned = event.unnasignedPlayers.any { it.id == this.id }
+        val isInAnyTeam = event.teams.any { team -> team.players.any { it.id == this.id } }
 
-
-        val maxPerTeam = event.maxPlayers / event.teams.size
-        if (team.players.size >= maxPerTeam) {
-            throw BusinessException("El equipo ya está completo.")
+        if (!isInUnassigned && !isInAnyTeam) {
+            throw BusinessException("No estás registrado en este evento.")
         }
 
-        if (team.players.any { it.id == this.id }) {
-            throw BusinessException("Ya eres parte de este equipo.")
+        if (targetTeam.players.any { it.id == this.id }) {
+            return
         }
 
+        val maxPerTeam = if (event.teams.isNotEmpty()) event.maxPlayers / event.teams.size else event.maxPlayers
 
-        if (event.unnasignedPlayers.remove(this))
-
-        event.teams.forEach { otherTeam ->
-            if (otherTeam != team) {
-                otherTeam.players.remove(this)
-            }
+        if (targetTeam.players.size >= maxPerTeam) {
+            throw BusinessException("El equipo destino ya está completo.")
         }
 
-        team.players.add(this)
+        event.unnasignedPlayers.removeIf { it.id == this.id }
+
+        event.teams.forEach { team ->
+            team.players.removeIf { it.id == this.id }
+        }
+        targetTeam.players.add(this)
+        this.event = event
     }
 
     override fun equals(other: Any?): Boolean {

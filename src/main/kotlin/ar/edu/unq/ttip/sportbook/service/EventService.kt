@@ -62,28 +62,23 @@ class EventService(
         val event = eventJpaRepository.findById(eventId)
             .orElseThrow { NotFoundException("Evento no encontrado") }
 
-        val team = event.teams.find { it.id == teamId }
+        val targetTeam = event.teams.find { it.id == teamId }
             ?: throw NotFoundException("Equipo no encontrado")
 
-
         var player = event.unnasignedPlayers.find { it.user?.id == user.id }
-
 
         if (player == null) {
             player = event.teams.flatMap { it.players }.find { it.user?.id == user.id }
         }
 
         if (player == null) {
-            throw BusinessException("No estás registrado en este evento. Únete primero.")
+            throw BusinessException("Debes unirte al evento antes de elegir equipo.")
         }
 
-
-        player.joinTeam(event, team)
-
-
+        player.joinTeam(event, targetTeam)
 
         if (event.sport == Sport.FOOTBALL) {
-            lineupService.joinLineup(player, team, event)
+            lineupService.joinLineup(player, targetTeam, event)
         }
 
         return eventJpaRepository.save(event)

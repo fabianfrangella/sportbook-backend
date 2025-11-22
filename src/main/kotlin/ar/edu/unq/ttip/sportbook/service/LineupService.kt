@@ -61,10 +61,14 @@ class LineupService(
         return lineupRepository.save(lineup)
     }
 
-    fun joinLineup(player: Player, team: Team, event: Event) {
+    fun joinLineup(player: Player, targetTeam: Team, event: Event) {
         val lineups = lineupRepository.findByEvent(event)
-        lineups.find { it.team == team }?.addPlayerToBench(player)
-        lineups.filter { it.team != team }.forEach { it.removePlayer(player) }
+        lineups.forEach { lineup ->
+            lineup.removePlayer(player)
+        }
+
+        lineups.find { it.team.id == targetTeam.id }?.addPlayerToBench(player)
+
         lineupRepository.saveAll(lineups)
     }
 
