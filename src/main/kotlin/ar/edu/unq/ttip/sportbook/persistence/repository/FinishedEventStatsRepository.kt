@@ -41,6 +41,7 @@ interface FinishedEventStatsRepository : JpaRepository<FinishedEventStats, Long>
         "goals",
         "goals.team",
         "goals.player",
+        "sets",
         "winningTeam",
         "mvp",
         "missingPlayers"

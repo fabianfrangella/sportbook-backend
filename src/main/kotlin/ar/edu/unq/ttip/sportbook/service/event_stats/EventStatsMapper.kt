@@ -1,6 +1,6 @@
 package ar.edu.unq.ttip.sportbook.service.event_stats
 
-import ar.edu.unq.ttip.sportbook.controller.response.EventStatsResponse
+import ar.edu.unq.ttip.sportbook.dto.response.EventStatsResponse
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Event
 import org.springframework.stereotype.Component
 
@@ -21,6 +21,9 @@ class EventStatsMapper {
             scorersRanking = calc.scorersRanking,
             winningTeam = calc.winningTeam,
             mvp = calc.mvp,
-            missingPlayers = calc.missingPlayers
+            missingPlayers = calc.missingPlayers,
+
+            sets = calc.sets
+
         )
 }

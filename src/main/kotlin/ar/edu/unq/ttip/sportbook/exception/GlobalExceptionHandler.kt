@@ -1,6 +1,6 @@
 package ar.edu.unq.ttip.sportbook.exception
 
-import ar.edu.unq.ttip.sportbook.controller.response.ApiErrorResponse
+import ar.edu.unq.ttip.sportbook.dto.response.ApiErrorResponse
 import ar.edu.unq.ttip.sportbook.persistence.entity.exception.DuplicatePlayerException
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus

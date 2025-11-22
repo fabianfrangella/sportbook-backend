@@ -1,6 +1,6 @@
 package ar.edu.unq.ttip.sportbook.persistence.entity.user
 
-import ar.edu.unq.ttip.sportbook.controller.request.UpdateUserDataRequest
+import ar.edu.unq.ttip.sportbook.dto.request.UpdateUserDataRequest
 import ar.edu.unq.ttip.sportbook.exception.BusinessException
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
@@ -12,6 +12,7 @@ import java.time.LocalDate
 @Entity
 @Table(name = "SPORT_USER")
 class SportUser() {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0
@@ -78,7 +79,7 @@ class SportUser() {
             throw BusinessException("El usuario ya tiene perfil para ${profile.sport}")
         }
         profiles.add(profile)
-        profile.user = this // owning side
+        profile.user = this
     }
 
     fun wasMvpInPastEvents(): Boolean {

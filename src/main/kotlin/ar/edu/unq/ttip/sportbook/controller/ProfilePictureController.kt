@@ -42,4 +42,23 @@ class ProfilePictureController(
             ResponseEntity.notFound().build()
         }
     }
+
+    @GetMapping("/user/{userId}")
+    @Operation(
+        summary = "Obtener foto de perfil por ID de usuario",
+        description = "Obtiene la foto de perfil del usuario indicado por su ID."
+    )
+    fun getProfilePictureByUserId(
+        @PathVariable userId: Long
+    ): ResponseEntity<ByteArray> {
+        val pictureData = profilePictureService.getProfilePictureByUserId(userId)
+
+        return if (pictureData != null) {
+            ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(pictureData)
+        } else {
+            ResponseEntity.notFound().build()
+        }
+    }
 }

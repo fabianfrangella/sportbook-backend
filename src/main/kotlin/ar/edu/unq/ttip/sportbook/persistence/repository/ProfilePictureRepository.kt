@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface ProfilePictureRepository : JpaRepository<ProfilePicture, Long> {
     fun findByUser(user: SportUser): ProfilePicture?
+    fun findByUserId(userId: Long): ProfilePicture?
 }

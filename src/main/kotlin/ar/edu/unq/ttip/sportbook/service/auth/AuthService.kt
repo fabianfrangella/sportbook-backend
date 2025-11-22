@@ -1,6 +1,6 @@
 package ar.edu.unq.ttip.sportbook.service.auth
 
-import ar.edu.unq.ttip.sportbook.controller.response.AuthResult
+import ar.edu.unq.ttip.sportbook.dto.response.AuthResult
 import ar.edu.unq.ttip.sportbook.exception.ConflictException
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportUser
 import ar.edu.unq.ttip.sportbook.persistence.repository.SportUserJpaRepository
@@ -47,7 +47,7 @@ class AuthService(
         user.password = encrypted
         val saved = userRepository.save(user)
 
-        // Issue token for the newly registered user
+
         val userDetails = UserDetailsImpl(saved.username!!, saved.password!!, saved)
         val token = jwtService.generateToken(userDetails)
 

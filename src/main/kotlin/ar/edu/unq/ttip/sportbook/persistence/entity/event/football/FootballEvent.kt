@@ -1,119 +1,47 @@
 package ar.edu.unq.ttip.sportbook.persistence.entity.event.football
 
 import ar.edu.unq.ttip.sportbook.exception.BadRequestException
-import ar.edu.unq.ttip.sportbook.exception.NotFoundException
-import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Sport
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Event
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Lineup
-import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportUser
-import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
-import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 
 @Entity
 @Table(name = "FOOTBALL_EVENT")
 class FootballEvent : Event() {
     init { this.sport = Sport.FOOTBALL }
-    @ManyToOne(cascade = [CascadeType.ALL])
-    var firstTeam: Team? = null
-    @ManyToOne(cascade = [CascadeType.ALL])
-    var secondTeam: Team? = null
+
     var pitchSize: Int = 0
 
-    override fun removePlayerFromTeams(player: Player) {
-        firstTeam?.players?.remove(player)
-        secondTeam?.players?.remove(player)
-    }
-
     override fun createLineups(): List<Lineup> {
-        return listOf(firstTeam, secondTeam).map {
-            createAndPopulateFootballLineup(it!!)
+        return teams.map { team ->
+            createAndPopulateFootballLineup(team)
         }
     }
 
-    private fun createAndPopulateFootballLineup(team: Team) : Lineup {
+    private fun createAndPopulateFootballLineup(team: Team): Lineup {
         val lineup = FootballLineup()
         lineup.event = this
         lineup.team = team
-        val players: List<Player> = team.players
-        val distinctCount = players.map { it.id }.toSet().size
-        if (distinctCount != players.size) {
-            throw BadRequestException("El equipo ${team.color} contiene jugadores duplicados")
+
+
+        val distinctCount = team.players.map { it.id }.toSet().size
+        if (distinctCount != team.players.size) {
+            throw BadRequestException("Error de integridad: El equipo ${team.name} contiene jugadores duplicados")
         }
 
-        players.forEach { player ->
+
+        team.players.forEach { player ->
             lineup.addPlayerToBench(player)
         }
+
         return lineup
     }
 
-    override fun updatePitchSize(size: Int?) {
-        size?.let { pitchSize = it }
+    override fun updatePitchSize(size: Int) {
+        size.let { pitchSize = it }
     }
 
-    override fun getTeam(teamId: Long): Team {
-        if (firstTeam?.id == teamId) return firstTeam!!
-        if (secondTeam?.id == teamId) return secondTeam!!
-        throw BadRequestException("El equipo con id $teamId no pertenece a este evento")
-    }
-
-    override fun getFairnessScore(): Double {
-        if (firstTeam == null || secondTeam == null || firstTeam?.players == null || secondTeam?.players == null) {
-            return 0.0
-        }
-
-        val firstTeamScore = firstTeam!!.players.map { it.calculateScore(sport) }.average()
-        val secondTeamScore = secondTeam!!.players.map { it.calculateScore(sport) }.average()
-
-        val scoreDifference = kotlin.math.abs(firstTeamScore - secondTeamScore)
-        return kotlin.math.max(10.0 - scoreDifference, 0.0)
-    }
-
-    override fun addTeam(team: Team) {
-        if (firstTeam == null) {
-            firstTeam = team
-        } else if (secondTeam == null) {
-            secondTeam = team
-        } else {
-            throw BadRequestException("Ya hay dos equipos en este evento")
-        }
-    }
-
-    override fun removeTeam(team: Team) {}
-
-    override fun leave(user: SportUser): Player {
-        val allPlayersInTeams = listOfNotNull(this.firstTeam, this.secondTeam)
-            .flatMap { it.players }
-
-        val player = (allPlayersInTeams + this.unnasignedPlayers)
-            .find { it.user?.username == user.username }
-
-        if (player == null) throw NotFoundException("Jugador no encontrado")
-
-        this.removePlayerFromTeams(player)
-        this.unnasignedPlayers.remove(player)
-        player.event = null
-        return player
-    }
-
-    override fun balanceTeams() {
-        val allPlayers = (firstTeam!!.players + secondTeam!!.players + unnasignedPlayers).toMutableList()
-        firstTeam!!.clear()
-        secondTeam!!.clear()
-        unnasignedPlayers.clear()
-
-        allPlayers.sortByDescending { it.calculateScore(sport) }
-
-        allPlayers.forEachIndexed { index, player ->
-            if (index % 2 == 0) {
-                firstTeam!!.players.add(player)
-            } else {
-                secondTeam!!.players.add(player)
-            }
-        }
-
-    }
 }

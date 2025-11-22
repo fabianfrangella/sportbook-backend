@@ -1,6 +1,6 @@
 package ar.edu.unq.ttip.sportbook.controller
 
-import ar.edu.unq.ttip.sportbook.controller.request.UpdateUserDataRequest
+import ar.edu.unq.ttip.sportbook.dto.request.UpdateUserDataRequest
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportUser
 import ar.edu.unq.ttip.sportbook.service.SportUserService
 import io.swagger.v3.oas.annotations.Operation

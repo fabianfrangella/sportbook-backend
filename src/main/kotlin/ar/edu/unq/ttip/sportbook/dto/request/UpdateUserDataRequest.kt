@@ -1,6 +1,5 @@
-package ar.edu.unq.ttip.sportbook.controller.request
+package ar.edu.unq.ttip.sportbook.dto.request
 
-import ar.edu.unq.ttip.sportbook.persistence.entity.user.AdditionalInfo
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Gender
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Role
 import java.time.LocalDate

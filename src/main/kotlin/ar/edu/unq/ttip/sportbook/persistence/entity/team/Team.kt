@@ -19,6 +19,8 @@ class Team() {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0
 
+    lateinit var name: String
+
     @ManyToMany(targetEntity = Player::class, cascade = [CascadeType.ALL])
     @JoinTable(
         name = "team_player",

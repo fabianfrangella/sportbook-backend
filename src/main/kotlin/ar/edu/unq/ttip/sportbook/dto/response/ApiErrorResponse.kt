@@ -1,4 +1,4 @@
-package ar.edu.unq.ttip.sportbook.controller.response
+package ar.edu.unq.ttip.sportbook.dto.response
 
 data class ApiErrorResponse(
     val status: Int,

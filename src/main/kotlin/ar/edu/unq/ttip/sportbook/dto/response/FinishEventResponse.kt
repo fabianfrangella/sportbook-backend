@@ -1,4 +1,4 @@
-package ar.edu.unq.ttip.sportbook.controller.response
+package ar.edu.unq.ttip.sportbook.dto.response
 
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.TeamColor
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Sport
@@ -22,11 +22,15 @@ data class EventStatsResponse(
     val winningTeam: TeamSummary?,
     val mvp: PlayerSummary?,
     val missingPlayers: List<PlayerSummary>,
+
+
+    val sets: List<SetResultResponse>? = null
 )
 
 data class TeamScoreDTO(
     val teamId: Long,
-    val color: TeamColor?,
+    val color: TeamColor,
+    val name: String?,
     val goals: Int,
     val isWinner: Boolean
 )
@@ -40,9 +44,17 @@ data class PlayerGoalsDTO(
 data class PlayerSummary(
     val id: Long?,
     val name: String?,
+    val teamId: Long?,
+    val teamColor: TeamColor?
 )
 
 data class TeamSummary(
-    val id: Long?,
-    val color: TeamColor?
+    val id: Long,
+    val color: TeamColor,
+    val name: String?
+)
+
+data class SetResultResponse(
+    val team1Score: Int,
+    val team2Score: Int
 )

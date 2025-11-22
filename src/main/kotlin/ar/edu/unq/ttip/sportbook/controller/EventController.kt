@@ -1,8 +1,8 @@
 package ar.edu.unq.ttip.sportbook.controller
 
-import ar.edu.unq.ttip.sportbook.controller.request.FinishEventRequest
-import ar.edu.unq.ttip.sportbook.controller.request.UpdateEventRequest
-import ar.edu.unq.ttip.sportbook.controller.response.EventStatsResponse
+import ar.edu.unq.ttip.sportbook.dto.request.FinishEventRequest
+import ar.edu.unq.ttip.sportbook.dto.request.UpdateEventRequest
+import ar.edu.unq.ttip.sportbook.dto.response.EventStatsResponse
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Event
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.FinishedEventStats
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.Lineup
@@ -220,4 +220,5 @@ class EventController(
         @PathVariable teamId: Long,
         @AuthenticationPrincipal user: UserDetailsImpl
     ): Event = eventService.removeTeam(eventId, teamId, user.sportUser)
+
 }

@@ -1,4 +1,4 @@
-package ar.edu.unq.ttip.sportbook.controller.response
+package ar.edu.unq.ttip.sportbook.dto.response
 
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportUser
 

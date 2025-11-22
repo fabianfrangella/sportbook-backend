@@ -1,6 +1,5 @@
 package ar.edu.unq.ttip.sportbook.persistence.entity.event
 
-import ar.edu.unq.ttip.sportbook.persistence.entity.event.football.FootballEvent
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.Position
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player

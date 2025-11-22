@@ -1,12 +1,12 @@
-package ar.edu.unq.ttip.sportbook.service;
+package ar.edu.unq.ttip.sportbook.service
 
-import ar.edu.unq.ttip.sportbook.controller.request.UpdateUserDataRequest
+import ar.edu.unq.ttip.sportbook.dto.request.UpdateUserDataRequest
 import ar.edu.unq.ttip.sportbook.exception.BusinessException
 import ar.edu.unq.ttip.sportbook.exception.NotFoundException
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportUser
 import ar.edu.unq.ttip.sportbook.persistence.repository.AdditionalInfoJpaRepository
-import ar.edu.unq.ttip.sportbook.persistence.repository.SportUserJpaRepository;
-import org.springframework.stereotype.Service;
+import ar.edu.unq.ttip.sportbook.persistence.repository.SportUserJpaRepository
+import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service

@@ -1,6 +1,7 @@
 package ar.edu.unq.ttip.sportbook.persistence.entity.event
 
 import ar.edu.unq.ttip.sportbook.exception.BusinessException
+import ar.edu.unq.ttip.sportbook.exception.NotFoundException
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.football.FootballEvent
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.paddle.PaddleEvent
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.volley.VolleyEvent
@@ -32,27 +33,34 @@ import java.time.LocalDateTime
     JsonSubTypes.Type(value = VolleyEvent::class, name = "VOLLEY")
 )
 abstract class Event() {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0
+    var name: String? = null
     var minPlayers: Int = 0
     var maxPlayers: Int = 0
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     lateinit var dateTime: LocalDateTime
+
     @ManyToOne(cascade = [CascadeType.ALL])
     lateinit var location: Location
     var cost: BigDecimal? = null
+
     @OneToOne(cascade = [CascadeType.ALL])
     var transferData: TransferData? = null
+
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
     @JoinColumn(name = "event_id")
     var unnasignedPlayers: MutableList<Player> = mutableListOf()
+
     @ManyToOne(targetEntity = SportUser::class)
     var organizer: SportUser? = null
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    lateinit var sport: Sport
+    final lateinit var sport: Sport
 
     var isFinished: Boolean = false
 
@@ -60,25 +68,61 @@ abstract class Event() {
     @JsonIgnore
     var finishedStats: FinishedEventStats? = null
 
-    fun canJoin(username: String) : Boolean {
-        if (isFull()) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "El evento está completo")
-        return unnasignedPlayers.find { player -> player.user?.username == username } == null
+    @OneToMany(targetEntity = Team::class, cascade = [CascadeType.ALL], orphanRemoval = true)
+    @JoinTable(
+        name = "event_teams",
+        joinColumns = [JoinColumn(name = "event_id")],
+        inverseJoinColumns = [JoinColumn(name = "team_id")]
+    )
+    var teams: MutableList<Team> = mutableListOf()
+
+    @PrePersist
+    @PreUpdate
+    private fun validateTeamLimit() {
+        if (teams.size > 2) {
+            throw BusinessException("Un evento no puede tener más de 2 equipos.")
+        }
     }
 
     private fun isFull() = unnasignedPlayers.size >= maxPlayers
+
     fun join(player: Player) {
-        if (canJoin(player.user?.username!!)) {
-            unnasignedPlayers.add(player)
-            player.event = this
-        } else
-            throw BusinessException("Ya sos parte de este evento!")
+
+        if (isFull()) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "El evento está completo")
+        }
+
+        // 2. Verificar duplicados SOLO si es un usuario registrado
+        val username = player.user?.username
+        if (username != null) {
+            val isDuplicate = unnasignedPlayers.any { it.user?.username == username } ||
+                    teams.flatMap { it.players }.any { it.user?.username == username }
+
+            if (isDuplicate) {
+                throw BusinessException("Ya sos parte de este evento!")
+            }
+        }
+
+        unnasignedPlayers.add(player)
+        player.event = this
     }
 
-    protected abstract fun removePlayerFromTeams(player: Player)
-
-    fun updateBasicFields(cost: BigDecimal?, organizer: SportUser?) {
+    fun updateBasicFields(
+        cost: BigDecimal?,
+        organizer: SportUser?,
+        name: String?,
+        newDateTime: LocalDateTime?,
+        minPlayers: Int?,
+        maxPlayers: Int?
+    ) {
         cost?.let { this.cost = it }
         organizer?.let { this.organizer = it }
+        name?.let { this.name = it }
+
+
+        newDateTime?.let { this.dateTime = it }
+        minPlayers?.let { this.minPlayers = it }
+        maxPlayers?.let { this.maxPlayers = it }
     }
 
     fun updateLocation(x: String?, y: String?, placeName: String?) {
@@ -100,8 +144,6 @@ abstract class Event() {
 
     abstract fun createLineups() : List<Lineup>
 
-    abstract fun updatePitchSize(size: Int?)
-
     fun finish() {
         if (isFinished) {
             throw BusinessException("El evento $id ya fue finalizado")
@@ -110,18 +152,125 @@ abstract class Event() {
     }
 
     fun getPlayer(playerId: Long): Player {
-        return unnasignedPlayers.find { it.id == playerId }
-            ?: throw BusinessException("Jugador $playerId no encontrado en el evento")
+        unnasignedPlayers.find { it.id == playerId }?.let { return it }
+
+        teams.flatMap { it.players }
+            .find { it.id == playerId }
+            ?.let { return it }
+
+        throw BusinessException("Jugador $playerId no encontrado en el evento")
     }
 
-    abstract fun getTeam(teamId: Long) : Team
+    fun getTeam(teamId: Long): Team {
+        return teams.find { it.id == teamId }
+            ?: throw IllegalArgumentException("El equipo con id $teamId no pertenece a este evento")
+    }
 
-    abstract fun getFairnessScore(): Double
+    fun getFairnessScore(): Double {
+        if (teams.isEmpty()) {
+            return 0.0
+        }
 
-    abstract fun balanceTeams()
-    abstract fun addTeam(team: Team)
-    abstract fun removeTeam(team: Team)
+        val teamScores = teams.map { team ->
+            team.players.map { it.calculateScore(sport) }.average()
+        }
 
-    abstract fun leave(user: SportUser): Player
+        var maxDifference = 0.0
+        for (i in teamScores.indices) {
+            for (j in i + 1 until teamScores.size) {
+                val difference = kotlin.math.abs(teamScores[i] - teamScores[j])
+                if (difference > maxDifference) {
+                    maxDifference = difference
+                }
+            }
+        }
 
+        return kotlin.math.max(10.0 - maxDifference, 0.0)
+    }
+
+    fun balanceTeams() {
+        if (teams.isEmpty()) return
+
+
+
+        val allPlayers = (teams.flatMap { it.players } + unnasignedPlayers)
+            .distinctBy { it.id }
+            .toMutableList()
+
+
+        teams.forEach { it.clear() }
+        unnasignedPlayers.clear()
+
+
+        allPlayers.sortByDescending { it.calculateScore(sport) }
+
+
+
+        val limit = if (maxPlayers > 0) maxPlayers else allPlayers.size
+
+        val playersToPlay = allPlayers.take(limit)
+        val playersSurplus = allPlayers.drop(limit)
+
+
+        unnasignedPlayers.addAll(playersSurplus)
+
+
+
+        val teamCount = teams.size
+
+        playersToPlay.forEachIndexed { index, player ->
+
+            val round = index / teamCount
+
+
+            val teamIndex = if (round % 2 == 0) {
+                index % teamCount
+            } else {
+                teamCount - 1 - (index % teamCount)
+            }
+
+            teams[teamIndex].players.add(player)
+        }
+    }
+
+    fun addTeam(team: Team) {
+        if (teams.size >= 2) {
+            throw BusinessException("El evento ya tiene los 2 equipos máximos permitidos.")
+        }
+        teams.add(team)
+    }
+
+    fun removeTeam(team: Team) {
+        team.clear()
+        teams.remove(team)
+    }
+
+    fun leave(user: SportUser): Player {
+
+        var player = teams.flatMap { it.players }.find { it.user?.id == user.id }
+
+        if (player == null) {
+            player = unnasignedPlayers.find { it.user?.id == user.id }
+        }
+
+        if (player == null) throw NotFoundException("No estás en este evento.")
+
+
+
+        teams.forEach { team ->
+            team.players.removeIf { it.id == player.id }
+        }
+
+
+
+
+        unnasignedPlayers.removeIf { it.id == player.id }
+
+
+        player.event = null
+
+        return player
+    }
+
+    abstract fun updatePitchSize(size: Int)
 }

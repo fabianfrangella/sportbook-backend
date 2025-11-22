@@ -1,22 +1,11 @@
 package ar.edu.unq.ttip.sportbook.persistence.entity.event
 
-import ar.edu.unq.ttip.sportbook.controller.request.FinishEventRequest
+import ar.edu.unq.ttip.sportbook.dto.request.FinishEventRequest
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.TeamGoal
 import com.fasterxml.jackson.annotation.JsonIgnore
-import jakarta.persistence.CascadeType
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.JoinTable
-import jakarta.persistence.ManyToMany
-import jakarta.persistence.ManyToOne
-import jakarta.persistence.OneToMany
-import jakarta.persistence.OneToOne
-import jakarta.persistence.Table
+import jakarta.persistence.*
 
 @Entity
 @Table(name = "FINISHED_EVENT_STATS")
@@ -30,8 +19,14 @@ class FinishedEventStats() {
     @JsonIgnore
     var event: Event? = null
 
+
     @OneToMany(mappedBy = "finishedEventStats", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var goals: MutableList<TeamGoal> = mutableListOf()
+    var goals: MutableSet<TeamGoal> = mutableSetOf()
+
+
+    @OneToMany(mappedBy = "finishedEventStats", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OrderBy("setOrder ASC")
+    var sets: MutableSet<EventSet> = mutableSetOf()
 
     @ManyToOne
     @JoinColumn(name = "winning_team_id")
@@ -53,17 +48,38 @@ class FinishedEventStats() {
 
     fun mvpUsernameOrNull(): String? = mvp?.user?.username
 
-    constructor(event: Event, finishEventData: FinishEventRequest) : this() {
+    constructor(event: Event, finishEventRequest: FinishEventRequest) : this() {
         this.event = event
-        this.goals = finishEventData.goals.map { teamGoalRequest ->
+
+
+        this.goals = finishEventRequest.goals.map { teamGoalRequest ->
             TeamGoal(
                 team = event.getTeam(teamGoalRequest.teamId),
                 player = event.getPlayer(teamGoalRequest.playerId),
                 finishedEventStats = this
             )
-        }.toMutableList()
-        this.winningTeam = event.getTeam(finishEventData.winningTeamId)
-        this.mvp = event.getPlayer(finishEventData.mvpId)
-        this.missingPlayers = finishEventData.missingPlayerIds.map { event.getPlayer(it) }.toMutableSet()
+        }.toMutableSet()
+
+
+        finishEventRequest.sets?.forEachIndexed { index, setReq ->
+            this.sets.add(
+                EventSet(
+                    order = index + 1,
+                    t1Score = setReq.team1Score,
+                    t2Score = setReq.team2Score,
+                    stats = this
+                )
+            )
+        }
+
+        this.winningTeam = finishEventRequest.winningTeamId?.let {
+            event.getTeam(it)
+        }
+
+        this.mvp = finishEventRequest.mvpId?.let { event.getPlayer(it) }
+
+        this.missingPlayers = finishEventRequest.missingPlayerIds
+            .map { event.getPlayer(it) }
+            .toMutableSet()
     }
 }

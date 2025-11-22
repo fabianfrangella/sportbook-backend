@@ -11,6 +11,7 @@ import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportUser
 import ar.edu.unq.ttip.sportbook.persistence.repository.LineupRepository
 import ar.edu.unq.ttip.sportbook.persistence.repository.PlayerJpaRepository
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class LineupService(
@@ -18,6 +19,16 @@ class LineupService(
     private val playerRepository: PlayerJpaRepository
 ) {
 
+    @Transactional
+    fun deleteLineups(event: Event) {
+        val lineups = lineupRepository.findByEvent(event)
+
+        if (lineups.isNotEmpty()) {
+            lineupRepository.deleteAllInBatch(lineups)
+        }
+    }
+
+    @Transactional
     fun createLineups(event: Event): List<Lineup> {
         val lineups = event.createLineups()
         return lineupRepository.saveAll(lineups)
@@ -65,8 +76,4 @@ class LineupService(
         lineupRepository.saveAll(lineups)
     }
 
-    fun deleteLineups(event: Event) {
-        val lineups = lineupRepository.findByEvent(event)
-        lineupRepository.deleteAll(lineups)
-    }
 }

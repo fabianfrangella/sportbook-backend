@@ -1,6 +1,6 @@
 package ar.edu.unq.ttip.sportbook.controller
 
-import ar.edu.unq.ttip.sportbook.controller.request.LoginRequest
+import ar.edu.unq.ttip.sportbook.dto.request.LoginRequest
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportUser
 import ar.edu.unq.ttip.sportbook.security.UserDetailsImpl
 import ar.edu.unq.ttip.sportbook.service.auth.AuthService
