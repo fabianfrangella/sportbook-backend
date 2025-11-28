@@ -15,6 +15,8 @@ class FootballEvent : Event() {
 
     var pitchSize: Int = 0
 
+    override fun getScoreUnit(): String = "Goals"
+
     override fun createLineups(): List<Lineup> {
         return teams.map { team ->
             createAndPopulateFootballLineup(team)

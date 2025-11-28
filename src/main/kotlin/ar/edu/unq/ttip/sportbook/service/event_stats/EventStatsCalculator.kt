@@ -15,15 +15,18 @@ data class CalculatedStats(
     val attendanceRate: Double,
     val totalGoals: Int,
     val scores: List<TeamScoreDTO>,
-    val scorersRanking: List<PlayerGoalsDTO>,
+    val goalsDetail: List<PlayerGoalsDTO>,
     val winningTeam: TeamSummary?,
     val mvp: PlayerSummary?,
     val missingPlayers: List<PlayerSummary>,
-    val sets: List<SetResultResponse>?
+    val sets: List<SetResultResponse>?,
+    val insights: List<PlayerHistoryDTO>
 )
 
 @Service
-class EventStatsCalculator {
+class EventStatsCalculator(
+    private val historicalInsightService: HistoricalInsightService,
+) {
 
     fun compute(event: Event, stats: FinishedEventStats): CalculatedStats {
 
@@ -54,7 +57,7 @@ class EventStatsCalculator {
             )
         }
 
-        val scorersRanking = goals.groupBy { it.player?.id }
+        val goalsDetail = goals.groupBy { it.player?.id }
             .filterKeys { it != null }
             .map { (playerId, list) ->
                 val pid = playerId!!
@@ -72,7 +75,6 @@ class EventStatsCalculator {
         var setsResult: List<SetResultResponse>? = null
 
         if (event.sport == Sport.FOOTBALL) {
-
             totalGoalsOrSets = goals.size
             val goalsByTeamId = goals.groupBy { it.team?.id }
 
@@ -88,7 +90,6 @@ class EventStatsCalculator {
             }.sortedByDescending { it.goals }
 
         } else {
-
             val dbSets = stats.sets
 
             setsResult = dbSets.map {
@@ -130,13 +131,11 @@ class EventStatsCalculator {
             scores = scoresList.sortedByDescending { it.goals }
         }
 
-
-        val winningTeamSummary = stats.winningTeam?.let {
-            TeamSummary(it.id, it.color, it.name)
-        }
-
+        val winningTeamSummary = stats.winningTeam?.let { TeamSummary(it.id, it.color, it.name) }
         val mvpSummary = stats.mvp?.let { playerSummary(it) }
         val missingSummaries = missingPlayers.map { playerSummary(it) }.sortedBy { it.name ?: "" }
+
+        val insights = historicalInsightService.getRawHistory(stats)
 
         return CalculatedStats(
             registered = registered,
@@ -145,11 +144,12 @@ class EventStatsCalculator {
             attendanceRate = attendanceRate,
             totalGoals = totalGoalsOrSets,
             scores = scores,
-            scorersRanking = scorersRanking,
+            goalsDetail = goalsDetail,
             winningTeam = winningTeamSummary,
             mvp = mvpSummary,
             missingPlayers = missingSummaries,
-            sets = setsResult
+            sets = setsResult,
+            insights = insights,
         )
     }
 }

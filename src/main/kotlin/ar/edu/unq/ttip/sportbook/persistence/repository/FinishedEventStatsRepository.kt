@@ -2,11 +2,13 @@ package ar.edu.unq.ttip.sportbook.persistence.repository
 
 import ar.edu.unq.ttip.sportbook.persistence.entity.event.FinishedEventStats
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Sport
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
+import java.time.LocalDateTime
 
 @Repository
 interface FinishedEventStatsRepository : JpaRepository<FinishedEventStats, Long> {
@@ -48,4 +50,17 @@ interface FinishedEventStatsRepository : JpaRepository<FinishedEventStats, Long>
     ])
     @Query("select distinct fes from FinishedEventStats fes where fes.event.id = :eventId")
     fun fetchGraphByEventId(@Param("eventId") eventId: Long): FinishedEventStats?
+
+    @Query("""
+        SELECT fes FROM FinishedEventStats fes 
+        JOIN fes.goals g 
+        WHERE (g.player.id = :playerId OR :playerId IN (SELECT p.id FROM fes.event.teams t JOIN t.players p))
+        AND fes.event.dateTime < :currentDate
+        ORDER BY fes.event.dateTime DESC
+    """)
+    fun findHistoryByPlayer(
+        @Param("playerId") playerId: Long,
+        @Param("currentDate") currentDate: LocalDateTime,
+        pageable: PageRequest
+    ): List<FinishedEventStats>
 }

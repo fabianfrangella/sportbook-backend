@@ -11,8 +11,6 @@ class EventSet() {
 
     var setOrder: Int = 0
 
-
-
     var team1Score: Int = 0
     var team2Score: Int = 0
 

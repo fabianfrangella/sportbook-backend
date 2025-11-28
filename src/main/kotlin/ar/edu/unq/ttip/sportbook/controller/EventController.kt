@@ -135,6 +135,16 @@ class EventController(
     ): Lineup =
         lineupService.removePlayerFromPosition(lineupId, position, user.sportUser)
 
+    @PostMapping("/{eventId}/lineups/auto")
+    @Operation(summary = "Generar táctica automática")
+    @PermittedRoles(roles = [Role.ORGANIZER])
+    fun autoGenerateLineups(
+        @PathVariable eventId: Long,
+        @AuthenticationPrincipal user: UserDetailsImpl
+    ): List<Lineup> {
+        return lineupService.autoConfigureLineups(eventId, user.sportUser)
+    }
+
     @PutMapping("/{id}")
     @Operation(
         summary = "Actualizar evento",

@@ -17,14 +17,15 @@ data class EventStatsResponse(
 
     val totalGoals: Int,
     val scores: List<TeamScoreDTO>,
-    val scorersRanking: List<PlayerGoalsDTO>,
 
     val winningTeam: TeamSummary?,
     val mvp: PlayerSummary?,
     val missingPlayers: List<PlayerSummary>,
 
+    val goalsDetail: List<PlayerGoalsDTO>? = null,
+    val sets: List<SetResultResponse>? = null,
 
-    val sets: List<SetResultResponse>? = null
+    val insights: List<PlayerHistoryDTO>? = null,
 )
 
 data class TeamScoreDTO(

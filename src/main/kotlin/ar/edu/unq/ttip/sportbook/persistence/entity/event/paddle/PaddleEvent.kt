@@ -11,6 +11,8 @@ import jakarta.persistence.Table
 class PaddleEvent() : Event() {
     init { this.sport = Sport.PADDLE }
 
+    override fun getScoreUnit(): String = "Sets"
+
     override fun createLineups(): List<Lineup> {
         return emptyList()
     }

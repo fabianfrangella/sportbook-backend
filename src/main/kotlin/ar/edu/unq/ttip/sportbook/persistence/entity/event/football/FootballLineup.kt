@@ -6,7 +6,6 @@ import ar.edu.unq.ttip.sportbook.persistence.entity.exception.DuplicatePlayerExc
 import ar.edu.unq.ttip.sportbook.persistence.entity.exception.NotTeamMemberException
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.Position
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player
-import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
 import jakarta.persistence.*
 
 @Entity
@@ -64,11 +63,13 @@ class FootballLineup : Lineup() {
     }
 
     override fun removePlayer(player: Player) {
-        positionsByPlayer.entries
-            .find { it.value.id == player.id }
-            ?.let { entry ->
-                positionsByPlayer.remove(entry.key)
-            }
+        val positionsToRemove = positionsByPlayer.entries
+            .filter { it.value.id == player.id }
+            .map { it.key }
+
+        positionsToRemove.forEach { position ->
+            positionsByPlayer.remove(position)
+        }
 
         bench.removeIf { it.id == player.id }
 

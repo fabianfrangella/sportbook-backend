@@ -2,6 +2,10 @@ package ar.edu.unq.ttip.sportbook.persistence.entity.user
 
 import ar.edu.unq.ttip.sportbook.dto.request.UpdateUserDataRequest
 import ar.edu.unq.ttip.sportbook.exception.BusinessException
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.FinishedEventStats
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.football.FootballProfileDetail
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.paddle.PaddleProfileDetail
+import ar.edu.unq.ttip.sportbook.persistence.entity.event.volley.VolleyProfileDetail
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -82,36 +86,76 @@ class SportUser() {
         profile.user = this
     }
 
-    fun wasMvpInPastEvents(): Boolean {
-        return players
-            .mapNotNull { it.event?.finishedStats }
-            .mapNotNull { it.mvp }
-            .any { it.user?.id == this.id }
-    }
-
-    @JsonIgnore
-    fun getGoalsInPastEvents(): Int {
-        return players
-            .mapNotNull { it.event?.finishedStats }
-            .sumOf { stats -> stats.goals.count { it.player!!.user?.id == this.id } }
-    }
-
-    fun wasAbsentInPastEvents(): Boolean {
-        return players
-            .mapNotNull { it.event?.finishedStats }
-            .any { stats -> stats.missingPlayers.any { it.user?.id == this.id } }
-    }
-
     fun calculatePlayerScore(sport: Sport): Double {
         val sportProfile = profiles.find { it.sport == sport }
+        val details = sportProfile?.details
+        var skillScore = details?.ability?.toDouble() ?: 5.0
 
-        val mvpScore = if (wasMvpInPastEvents()) 10.0 else 0.0
-        val goalScore = getGoalsInPastEvents().toDouble()
-        val skillScore = if (sportProfile != null) sportProfile.details.ability!!.toDouble() else 5.0
-        val playsOftenScore = if (sportProfile != null && sportProfile.details.playsOften) 10.0 else 5.0
-        val absenceScore = if (wasAbsentInPastEvents()) 0.0 else 10.0
+        if (details != null) {
+            when (sport) {
+                Sport.VOLLEY -> {
+                    val volley = details as VolleyProfileDetail
+                    val off = volley.offensiveLevel?.toDouble() ?: 0.0
+                    val def = volley.defensiveLevel?.toDouble() ?: 0.0
+                    if (off > 0 || def > 0) {
+                        val specificAvg = if (off > 0 && def > 0) (off + def) / 2 else maxOf(off, def)
+                        skillScore = (skillScore * 0.6) + (specificAvg * 0.4)
+                    }
+                    if ((volley.blockHeight ?: 0) > 300) skillScore += 1.0
+                }
 
-        return listOf(mvpScore, goalScore, skillScore, playsOftenScore, absenceScore).average()
+                Sport.PADDLE -> {
+                    val paddle = details as PaddleProfileDetail
+                    if (paddle.playedTournaments == true) skillScore += 1.5
+                }
+
+                Sport.FOOTBALL -> {
+                    val football = details as FootballProfileDetail
+                    if (football.positions.size > 2) skillScore += 0.5
+                }
+            }
+        }
+
+        val playsOftenScore = when (details?.playsOften) {
+            PlayFrequency.VERY_OFTEN -> 2.0
+            PlayFrequency.OFTEN -> 1.0
+            else -> 0.0
+        }
+
+        val pastStats = getPastEventStats(sport)
+
+        val mvpCount = pastStats.count { it.mvp?.user?.id == this.id }
+        val mvpBonus = if (mvpCount > 0) 1.5 else 0.0
+
+        val wins = pastStats.count { stats ->
+            stats.winningTeam?.players?.any { it.user?.id == this.id } == true
+        }
+
+        val winBonus = if (pastStats.isNotEmpty()) (wins.toDouble() / pastStats.size) * 2.0 else 0.0
+
+        val totalGoals = pastStats.sumOf { stats ->
+            stats.goals.count { it.player?.user?.id == this.id }
+        }
+
+        val goalsBonus = if (pastStats.isNotEmpty() && sport == Sport.FOOTBALL) {
+            (totalGoals.toDouble() / pastStats.size) * 0.5
+        } else 0.0
+
+        val absences = pastStats.count { stats ->
+            stats.missingPlayers.any { it.user?.id == this.id }
+        }
+        val absencePenalty = if (absences > 0) 3.0 else 0.0
+
+        val finalScore = skillScore + playsOftenScore + mvpBonus + winBonus + goalsBonus - absencePenalty
+
+        return finalScore.coerceAtLeast(0.0)
+    }
+
+    private fun getPastEventStats(sport: Sport): List<FinishedEventStats> {
+        return players
+            .mapNotNull { it.event }
+            .filter { it.isFinished && it.sport == sport }
+            .mapNotNull { it.finishedStats }
     }
 
     fun updateWith(updateUserData: UpdateUserDataRequest) {
@@ -140,7 +184,6 @@ class SportUser() {
                 this.additionalInfo?.languages = updateUserData.languages
             }
         }
-
     }
 
     override fun equals(other: Any?): Boolean {

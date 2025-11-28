@@ -29,7 +29,7 @@ class SportProfileService(
                     positions = cmd.positions.toMutableList(),
                     favoritePosition = cmd.favoritePosition,
                     ability = cmd.ability,
-                    playsOften = cmd.playsOften?: false
+                    playsOften = cmd.playsOften
                 )
             }
         )
@@ -44,9 +44,12 @@ class SportProfileService(
                     positions = cmd.positions.toMutableList(),
                     favoritePosition = cmd.favoritePosition,
                     ability = cmd.ability,
-                    playsOften = cmd.playsOften?: false,
+                    playsOften = cmd.playsOften,
                     blockHeight = cmd.blockHeight,
-                    rolePreference = cmd.rolePreference
+                    rolePreference = cmd.rolePreference,
+                    serveType = cmd.serveType,
+                    offensiveLevel = cmd.offensiveLevel,
+                    defensiveLevel = cmd.defensiveLevel
                 )
             }
         )
@@ -60,7 +63,7 @@ class SportProfileService(
                 PaddleProfileDetail(
                     preferredSide = cmd.preferredSide,
                     ability = cmd.ability,
-                    playsOften = cmd.playsOften?: false,
+                    playsOften = cmd.playsOften,
                     playStyle = cmd.playStyle,
                     playedTournaments = cmd.playedTournaments
                 )
@@ -73,7 +76,8 @@ class SportProfileService(
         return sportProfileRepository.findAllByUserId(userId)
     }
 
-    private fun upsertProfile(
+    @Transactional
+    fun upsertProfile(
         user: SportUser,
         sport: Sport,
         buildDetails: () -> SportProfileDetail
@@ -86,8 +90,9 @@ class SportProfileService(
             existing.updateDetails(buildDetails())
             existing
         } else {
-            val created = SportProfile(user = user, sport = sport, details = buildDetails())
-            created.updateDetails(buildDetails())
+            val newDetail = buildDetails()
+            val created = SportProfile(user = user, sport = sport, details = newDetail)
+
             user.addProfile(created)
             created
         }

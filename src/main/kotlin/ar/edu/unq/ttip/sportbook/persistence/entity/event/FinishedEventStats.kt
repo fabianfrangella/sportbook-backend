@@ -4,6 +4,7 @@ import ar.edu.unq.ttip.sportbook.dto.request.FinishEventRequest
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
 import ar.edu.unq.ttip.sportbook.persistence.entity.team.TeamGoal
+import ar.edu.unq.ttip.sportbook.persistence.entity.user.Sport
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 
@@ -18,7 +19,6 @@ class FinishedEventStats() {
     @JoinColumn(name = "event_id")
     @JsonIgnore
     var event: Event? = null
-
 
     @OneToMany(mappedBy = "finishedEventStats", cascade = [CascadeType.ALL], orphanRemoval = true)
     var goals: MutableSet<TeamGoal> = mutableSetOf()
@@ -52,13 +52,26 @@ class FinishedEventStats() {
         this.event = event
 
 
-        this.goals = finishEventRequest.goals.map { teamGoalRequest ->
-            TeamGoal(
-                team = event.getTeam(teamGoalRequest.teamId),
-                player = event.getPlayer(teamGoalRequest.playerId),
-                finishedEventStats = this
-            )
-        }.toMutableSet()
+        if (event.sport == Sport.FOOTBALL) {
+            this.goals = finishEventRequest.goals.map { teamGoalRequest ->
+                TeamGoal(
+                    team = event.getTeam(teamGoalRequest.teamId),
+                    player = event.getPlayer(teamGoalRequest.playerId),
+                    finishedEventStats = this
+                )
+            }.toMutableSet()
+        } else {
+            finishEventRequest.sets?.forEachIndexed { index, setReq ->
+                this.sets.add(
+                    EventSet(
+                        order = index + 1,
+                        t1Score = setReq.team1Score,
+                        t2Score = setReq.team2Score,
+                        stats = this
+                    )
+                )
+            }
+        }
 
 
         finishEventRequest.sets?.forEachIndexed { index, setReq ->

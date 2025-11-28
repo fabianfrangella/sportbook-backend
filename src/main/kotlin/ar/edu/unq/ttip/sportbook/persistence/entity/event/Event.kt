@@ -76,6 +76,9 @@ abstract class Event() {
     )
     var teams: MutableList<Team> = mutableListOf()
 
+    @JsonIgnore
+    fun getScoreUnit(): String = "Points"
+
     @PrePersist
     @PreUpdate
     private fun validateTeamLimit() {
@@ -92,7 +95,6 @@ abstract class Event() {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "El evento está completo")
         }
 
-        // 2. Verificar duplicados SOLO si es un usuario registrado
         val username = player.user?.username
         if (username != null) {
             val isDuplicate = unnasignedPlayers.any { it.user?.username == username } ||
@@ -167,68 +169,66 @@ abstract class Event() {
     }
 
     fun getFairnessScore(): Double {
-        if (teams.isEmpty()) {
+        if (teams.isEmpty()) return 0.0
+
+        if (teams.any { it.players.isEmpty() }) {
             return 0.0
         }
 
-        val teamScores = teams.map { team ->
-            team.players.map { it.calculateScore(sport) }.average()
+        val teamSizes = teams.map { it.players.size }
+        val maxSize = teamSizes.maxOrNull() ?: 0
+        val minSize = teamSizes.minOrNull() ?: 0
+        val sizeDifference = maxSize - minSize
+
+        if (sizeDifference > 0) {
+            return kotlin.math.max(10.0 - (sizeDifference * 5.0), 0.0)
         }
 
-        var maxDifference = 0.0
+        val teamScores = teams.map { team ->
+            val totalScore = team.players.sumOf { it.calculateScore(sport) }
+            totalScore / team.players.size
+        }
+
+        var maxSkillDiff = 0.0
         for (i in teamScores.indices) {
             for (j in i + 1 until teamScores.size) {
                 val difference = kotlin.math.abs(teamScores[i] - teamScores[j])
-                if (difference > maxDifference) {
-                    maxDifference = difference
+                if (difference > maxSkillDiff) {
+                    maxSkillDiff = difference
                 }
             }
         }
 
-        return kotlin.math.max(10.0 - maxDifference, 0.0)
+        return kotlin.math.max(10.0 - maxSkillDiff, 0.0)
     }
 
     fun balanceTeams() {
         if (teams.isEmpty()) return
 
-
-
         val allPlayers = (teams.flatMap { it.players } + unnasignedPlayers)
             .distinctBy { it.id }
             .toMutableList()
 
-
         teams.forEach { it.clear() }
         unnasignedPlayers.clear()
 
-
         allPlayers.sortByDescending { it.calculateScore(sport) }
 
-
-
         val limit = if (maxPlayers > 0) maxPlayers else allPlayers.size
-
         val playersToPlay = allPlayers.take(limit)
         val playersSurplus = allPlayers.drop(limit)
 
-
         unnasignedPlayers.addAll(playersSurplus)
-
-
 
         val teamCount = teams.size
 
         playersToPlay.forEachIndexed { index, player ->
-
             val round = index / teamCount
-
-
             val teamIndex = if (round % 2 == 0) {
                 index % teamCount
             } else {
                 teamCount - 1 - (index % teamCount)
             }
-
             teams[teamIndex].players.add(player)
         }
     }
@@ -246,29 +246,17 @@ abstract class Event() {
     }
 
     fun leave(user: SportUser): Player {
-
         var player = teams.flatMap { it.players }.find { it.user?.id == user.id }
-
         if (player == null) {
             player = unnasignedPlayers.find { it.user?.id == user.id }
         }
-
         if (player == null) throw NotFoundException("No estás en este evento.")
-
-
-
         teams.forEach { team ->
             team.players.removeIf { it.id == player.id }
         }
 
-
-
-
         unnasignedPlayers.removeIf { it.id == player.id }
-
-
         player.event = null
-
         return player
     }
 

@@ -18,12 +18,11 @@ class EventStatsMapper {
             attendanceRate = calc.attendanceRate,
             totalGoals = calc.totalGoals,
             scores = calc.scores,
-            scorersRanking = calc.scorersRanking,
+            goalsDetail = calc.goalsDetail,
             winningTeam = calc.winningTeam,
             mvp = calc.mvp,
             missingPlayers = calc.missingPlayers,
-
-            sets = calc.sets
-
+            sets = calc.sets,
+            insights = calc.insights,
         )
 }

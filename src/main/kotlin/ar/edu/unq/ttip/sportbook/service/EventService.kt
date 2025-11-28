@@ -13,10 +13,7 @@ import ar.edu.unq.ttip.sportbook.persistence.entity.team.Team
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Player
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.Sport
 import ar.edu.unq.ttip.sportbook.persistence.entity.user.SportUser
-import ar.edu.unq.ttip.sportbook.persistence.repository.EventJpaRepository
-import ar.edu.unq.ttip.sportbook.persistence.repository.FinishedEventStatsRepository
-import ar.edu.unq.ttip.sportbook.persistence.repository.SportUserJpaRepository
-import ar.edu.unq.ttip.sportbook.persistence.repository.TeamJpaRepository
+import ar.edu.unq.ttip.sportbook.persistence.repository.*
 import ar.edu.unq.ttip.sportbook.service.event_stats.EventStatsCalculator
 import ar.edu.unq.ttip.sportbook.service.event_stats.EventStatsMapper
 import jakarta.transaction.Transactional
@@ -31,17 +28,38 @@ class EventService(
     val finishedEventStatsRepository: FinishedEventStatsRepository,
     val teamRepository: TeamJpaRepository,
     val userRepository: SportUserJpaRepository,
+    val playerJpaRepository: PlayerJpaRepository,
     private val calculator: EventStatsCalculator,
     private val mapper: EventStatsMapper,
 ) {
 
     @Transactional
     fun createEvent(event: Event, sportUser: SportUser): Event {
+
         event.organizer = sportUser
+
+        val processedUnassigned = event.unnasignedPlayers.map { player ->
+            if (player.id != 0L) {
+                playerJpaRepository.findById(player.id).orElse(player)
+            } else {
+                player
+            }
+        }.toMutableList()
+        event.unnasignedPlayers = processedUnassigned
+
+        event.teams.forEach { team ->
+            val processedTeamPlayers = team.players.map { player ->
+                if (player.id != 0L) {
+                    playerJpaRepository.findById(player.id).orElse(player)
+                } else {
+                    player
+                }
+            }.toMutableList()
+            team.players = processedTeamPlayers
+        }
+
         val savedEvent = eventJpaRepository.save(event)
-
         lineupService.createLineups(savedEvent)
-
         return savedEvent
     }
 
@@ -99,15 +117,9 @@ class EventService(
         val event = eventJpaRepository.findById(eventId)
             .orElseThrow { NotFoundException("Evento no encontrado") }
 
-
         val player = event.leave(user)
 
-
         lineupService.removePlayerFromLineups(event, player)
-
-
-
-
 
         return event
     }
