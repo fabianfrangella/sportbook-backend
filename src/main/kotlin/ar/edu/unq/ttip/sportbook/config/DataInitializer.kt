@@ -39,6 +39,17 @@ class SportbookDataInitializer(
     private val lineupService: LineupService
 ) : CommandLineRunner {
 
+    private val profileImages = listOf(
+        "admin_profile.png",
+        "julian_profile.png",
+        "image_profile_1.png",
+        "image_profile_2.png",
+        "image_profile_3.png",
+        "image_profile_4.png",
+        "image_profile_5.png",
+        "image_profile_6.png"
+    )
+
     @Transactional
     override fun run(vararg args: String?) {
         if (userRepository.count() > 0) return
@@ -115,10 +126,14 @@ class SportbookDataInitializer(
 
         allUsers.forEachIndexed { index, user ->
             authService.register(user)
-            val photoName = if (index % 2 == 0) "admin_profile.png" else "julian_profile.png"
+
+            val photoName = profileImages[index % profileImages.size]
+
             try {
                 loadProfilePicture(user, "/config/$photoName", photoName)
-            } catch (e: Exception) {}
+            } catch (e: Exception) {
+                println("⚠️ No se pudo cargar la imagen $photoName para ${user.username}")
+            }
         }
 
         return allUsers
@@ -302,6 +317,25 @@ class SportbookDataInitializer(
 
     private fun createActiveEvents(users: List<SportUser>, locations: List<Location>) {
         val (lio, mari, pablo, juli) = users
+
+        val evF11 = FootballEvent().apply {
+            name = "Gran Final Interempresarial"
+            dateTime = LocalDateTime.now().plusDays(8).withHour(16).withMinute(0)
+            minPlayers = 22
+            maxPlayers = 22
+            location = locations[3]
+            cost = BigDecimal(5000.00)
+            organizer = users[0]
+            pitchSize = 11
+            teams.add(createTeam(TeamColor.BLACK, "All Blacks"))
+            teams.add(createTeam(TeamColor.WHITE, "Los Galácticos"))
+            transferData = TransferData().apply { cbu = "555566667777888899"; alias = "futbol.11.final" }
+        }
+        evF11.maxPlayers = 24
+        addPlayersToEvent(evF11, 24, users)
+        assignTeams(evF11)
+        val savedF11 = eventRepository.save(evF11)
+        lineupService.createLineups(savedF11)
 
 
         // 1. FÚTBOL ADMIN: Lleno con Lineups (Listo para jugar/finalizar)
